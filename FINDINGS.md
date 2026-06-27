@@ -63,6 +63,24 @@ trades isn't "positive," it's inert. Also: the dynamic 1.5×ATR stop added to
 `run_intraday()` silently degraded the validated S1/S4 (S1 2021 +5.6%→+1.6%).
 Both reverted.
 
+### Multi-ETF expansion (Asian Sweep on IWM/DIA/TLT) — REJECTED
+Tested the "more ETFs = more money" thesis by running the proven S1 Asian-sweep
+logic on IWM (small caps), DIA (Dow), TLT (bonds), net of costs:
+
+| ETF | avg/yr | corr→QQQ | trades |
+|-----|--------|----------|--------|
+| IWM | **−1.8%** | 0.04 | 50 |
+| DIA | **−0.3%** | 0.04 | 37 |
+| TLT | +0.2% | −0.00 | 16 |
+
+They're genuinely **uncorrelated** (corr ~0.04) — but the **edge doesn't transfer.**
+The Asian-session sweep relies on QQQ-specific overnight liquidity dynamics (heavy
+tech extended-hours trading); IWM/DIA have thin overnight liquidity, TLT trades on
+rates. **Uncorrelated + no edge = drag, not diversification.** Diversification only
+helps when the added component has *positive* expectancy. Lesson: an edge is
+instrument-specific until proven otherwise — don't assume it generalizes. The edge
+lives in QQQ (and likely SPY/large-cap-tech), not the broad ETF universe.
+
 ### Short Interest boost (Asquith 2005) — REJECTED
 Added as a log-only conviction note. Never gated trades, never validated,
 added a fragile yfinance `.info` call. Removed for simplicity.
