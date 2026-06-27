@@ -1,1 +1,1 @@
-worker: python3 alpaca_paper_trader.py
+worker: python3 live_trader.py
