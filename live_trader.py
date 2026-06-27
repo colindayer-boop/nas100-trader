@@ -27,10 +27,17 @@ from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
 import os
+import configparser
 
-# ── CONFIG ──
-API_KEY    = os.environ.get("ALPACA_KEY",    "PKXGY4RL3FZEUSLDRREY2UMTJK")
-SECRET_KEY = os.environ.get("ALPACA_SECRET", "3w1L7ymf6Pii5z2XrM1FjhFYvb96k6xm5ejrKeDt1w1W")
+def _load_config(section):
+    cfg = configparser.ConfigParser()
+    cfg.read(os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.ini"))
+    return dict(cfg[section]) if section in cfg else {}
+
+# ── CONFIG ── (credentials from config.ini, never hardcoded)
+_alpaca_cfg = _load_config("alpaca")
+API_KEY    = os.environ.get("ALPACA_KEY",    _alpaca_cfg.get("key", ""))
+SECRET_KEY = os.environ.get("ALPACA_SECRET", _alpaca_cfg.get("secret", ""))
 
 RISK_S1 = 0.0070
 RISK_S2 = 0.0050
