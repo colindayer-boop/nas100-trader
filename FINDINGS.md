@@ -249,3 +249,13 @@ Adding the 3 fixed strategies + the Faber-gated short roughly **doubled** the
 realistic monthly figure (~$143 → ~$273) and turned the worst year **positive**
 (−0.9% → +2.5%). Still short of the $1,600–3,600 goal — that gap closes by scaling
 account size/count once proven live, not by over-risking one account.
+
+### Walk-forward reconciliation (the -16.9%/-17.9% window)
+Fixed walkforward.py to include the uncorrelated Gold sleeve + shared-account model.
+Result: gold lifted the AVERAGE (Sharpe 0.98 -> 1.44, +4.2%/6mo, 5/7 positive) but did
+NOT fix the worst window (2023-07->2024-01 still -17.9% DD). Root cause traced via the
+per-strategy breakdown: **S5L (1-minute ORB) avg Sharpe -2.01 — negative.** The M1 ORB
+sleeve is the weak/risky component, unlike the validated HOURLY NQ ORB (+3.8%, positive
+Sharpe). Deployable robust core = S1/S4 sweeps + Gold + hourly ORB. The 1-min ORB
+(S5L/S5S) needs fixing or dropping before live deployment. NOTE: the "30%/yr" figure
+was a 2.4y total inflated by a historic gold rally — realistic repeatable return ~10%/yr.
