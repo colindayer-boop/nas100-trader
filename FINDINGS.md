@@ -334,3 +334,19 @@ Diversification works: combined CAGR > any single pillar, Sharpe 0.9 -> 1.38, an
 MaxDD stayed ~8% instead of stacking to ~15-20% (because uncorrelated). Expressed
 as more return per unit drawdown, not lower drawdown. -7.9% over 7.5y = prop-safe
 (<FTMO 10%). At 0.7x sizing: ~8.5% CAGR / ~5.5% DD — deployable. Live test pending.
+
+### Conformal risk overlay (Schmitt 2026 "Taming Tail Risk") — DD-THROTTLE ADOPTED
+Tested a simplified RWC overlay (position scaler, no lookahead) on the 3-pillar system:
+| Variant | CAGR | Sharpe | MaxDD | Calmar |
+|---------|------|--------|-------|--------|
+| baseline | +12.2% | 1.38 | -7.9% | 1.54 |
+| vol-target only | +12.2% | 1.38 | -7.9% | — (no effect) |
+| **dd-throttle** | +9.6% | 1.31 | **-4.8%** | **2.00** |
+- vol-target USELESS (sparse trade-day P&L → rolling vol dominated by zeros). Dropped.
+- **dd-throttle WORKS**: scales size down as live DD approaches the cap. Cuts MaxDD
+  -7.9%->-4.8% (39% safer) for -21% CAGR. Calmar 1.54->2.00. For a prop account
+  (drawdown = binding constraint) this is the right trade — huge headroom under FTMO
+  10%. Unlike dynamic EXITS (broke the edge), this is a position-SIZE overlay that
+  leaves strategy logic untouched. Of the 5 "Risk Quant" papers, only this one helped;
+  the 3 CoVaR/derivatives-pricing papers were wrong-domain, DeePM overkill.
+TODO: wire the dd-throttle into live RISK_SCALE (replaces the manual 0.7x).
