@@ -21,10 +21,13 @@ from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
 from datetime import datetime, timedelta
-import pytz
+import os, pytz
+from broker import load_config
 
-API_KEY    = "PKXGY4RL3FZEUSLDRREY2UMTJK"
-SECRET_KEY = "3w1L7ymf6Pii5z2XrM1FjhFYvb96k6xm5ejrKeDt1w1W"
+# Credentials from config.ini [alpaca] (or env). Never hardcode keys.
+_cfg       = load_config("alpaca")
+API_KEY    = os.environ.get("ALPACA_KEY",    _cfg.get("key", ""))
+SECRET_KEY = os.environ.get("ALPACA_SECRET", _cfg.get("secret", ""))
 
 # Paper trading clients
 trading = TradingClient(API_KEY, SECRET_KEY, paper=True)
