@@ -72,6 +72,9 @@ def make_broker(name: str):
     if name == "ctrader":
         from ctrader_broker import CTraderBroker
         return CTraderBroker()
+    if name == "binance":
+        from binance_broker import BinanceBroker
+        return BinanceBroker()
     raise ValueError(f"Unknown broker: {name}")
 
 # ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -490,7 +493,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--session",
                     choices=["asian", "orb", "eod", "all"], default=None)
 parser.add_argument("--broker",
-                    choices=["alpaca", "tradovate", "ctrader"], default="alpaca",
+                    choices=["alpaca", "tradovate", "ctrader", "binance"], default="alpaca",
                     help="Broker adapter to use (default: alpaca)")
 parser.add_argument("--dry-run", action="store_true",
                     help="Print intended orders without placing them")
