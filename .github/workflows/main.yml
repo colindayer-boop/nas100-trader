@@ -24,3 +24,8 @@ jobs:
       - name: BTC sweep (Binance dry-run)
         continue-on-error: true
         run: python live_trader.py --broker binance --session btc --dry-run
+        - name: Test Telegram
+  run: |
+    curl -s -X POST "https://api.telegram.org/bot${ALERTS_TELEGRAM_TOKEN}/sendMessage" \
+      -d chat_id="${ALERTS_CHAT_ID}" \
+      -d text="✅ GitHub Actions Telegram test"
