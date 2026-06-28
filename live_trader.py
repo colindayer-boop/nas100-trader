@@ -70,13 +70,16 @@ MONTHLY_KILL_PCT = float(_risk_cfg.get("monthly_loss_limit", "0.04"))
 _state_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                            "logs", "risk_state.json")
 
-def update_risk_state(equity):
-    """Persist peak equity + month-start equity. Returns:
-       (dd_scale [0.3-1.0], cur_dd, peak, month_pnl_pct)."""
+def update_risk_state(equity, broker_name="default"):
+    """Persist peak equity + month-start equity, PER BROKER (each account tracks
+    its own — so Alpaca's $100k peak can't trigger a false drawdown on BTC's $25k).
+    Returns: (dd_scale [0.3-1.0], cur_dd, peak, month_pnl_pct)."""
     import json
+    state_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              "logs", f"risk_state_{broker_name}.json")
     st = {}
     try:
-        with open(_state_path) as f:
+        with open(state_path) as f:
             st = json.load(f)
     except Exception:
         pass
@@ -93,8 +96,8 @@ def update_risk_state(equity):
     month_pnl_pct = (equity - m_start) / max(m_start, 1)
     st["peak_equity"] = peak
     try:
-        os.makedirs(os.path.dirname(_state_path), exist_ok=True)
-        with open(_state_path, "w") as f:
+        os.makedirs(os.path.dirname(state_path), exist_ok=True)
+        with open(state_path, "w") as f:
             json.dump(st, f)
     except Exception:
         pass
@@ -639,7 +642,7 @@ open_syms = broker.get_positions()
 vix_ma21, spy_bull, vix_mult, qqq_bear200 = get_regime()
 
 # ── Conformal DD-throttle: scale RISK_SCALE by live drawdown headroom ──
-_throttle, _cur_dd, _peak, _month_pnl = update_risk_state(equity)
+_throttle, _cur_dd, _peak, _month_pnl = update_risk_state(equity, args.broker)
 broker.RISK_SCALE *= _throttle
 logger.info(f"DD-throttle: peak=${_peak:,.0f} dd={_cur_dd:+.1%} "
             f"throttle={_throttle:.2f} -> RISK_SCALE={broker.RISK_SCALE:.2f} "
