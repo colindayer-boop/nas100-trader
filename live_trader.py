@@ -54,6 +54,7 @@ STOP_S2 = 0.015; RR_S2 = 3.0
 STOP_S3 = 0.020; HOLD_S3 = 5
 STOP_S4 = 0.015; RR_S4 = 3.0
 STOP_S5 = 0.010; RR_S5 = 3.0
+RISK_BTC = 0.006; STOP_BTC = 0.025; RR_BTC = 3.0   # BTC sweep (pillar #3, vol-scaled stop)
 
 eastern = pytz.timezone("US/Eastern")
 
@@ -526,10 +527,86 @@ def run_s5(broker, equity, open_syms, vix_ma21, spy_bull, qqq_bear200):
         logger.info(f"S5: no breakout price={price:.2f} orb={orb_low:.2f}-{orb_high:.2f} vol_ok={vol_ok}")
         print(f"  No valid breakout (price={price:.2f}, ORB {orb_low:.2f}-{orb_high:.2f})")
 
+# ── STRATEGY BTC: crypto Asian sweep (pillar #3, via Binance) ─────────────────
+# Validated: 10/12 walk-forward windows, uncorrelated to Nasdaq (+0.02). Asian range
+# 00-08 UTC, reclaim window 08-16 UTC, EMA50>EMA200 uptrend. 2.5% stop, 3:1 RR.
+# Crypto is 24/7 so the position is HELD to stop/target across runs (state-machine
+# in logs/btc_state.json), not closed EOD. Run this hourly during 08-16 UTC.
+_btc_state_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "logs", "btc_state.json")
+
+def run_btc(broker, equity, open_syms):
+    import json
+    logger.info("SESSION BTC start")
+    print("\n── BTC: ASIAN SWEEP (crypto) ──")
+    data = broker.get_bars("BTC", "1Hour", 400)
+    if data.index.tz is None:
+        data.index = data.index.tz_localize("UTC")
+    data.index = data.index.tz_convert("UTC")
+    data["Date"] = data.index.date; data["H"] = data.index.hour
+    price = float(data["Close"].iloc[-1])
+
+    # ── manage open position (held to stop/target across runs) ──
+    st = {}
+    try:
+        with open(_btc_state_path) as f: st = json.load(f)
+    except Exception:
+        pass
+    in_pos = st.get("active", False) or ("BTC" in open_syms)
+    if st.get("active", False):
+        if price <= st.get("stop", 0):
+            logger.info(f"BTC exit STOP price={price:.0f}"); print(f"  EXIT stop @ {price:.0f}")
+            broker.place_order_safe("BTC", st.get("qty", 0), "sell", "BTC"); st = {"active": False}
+        elif price >= st.get("target", 1e12):
+            logger.info(f"BTC exit TARGET price={price:.0f}"); print(f"  EXIT target @ {price:.0f}")
+            broker.place_order_safe("BTC", st.get("qty", 0), "sell", "BTC"); st = {"active": False}
+        else:
+            print(f"  Holding BTC: price {price:.0f} | stop {st.get('stop',0):.0f} | target {st.get('target',0):.0f}")
+        with open(_btc_state_path, "w") as f: json.dump(st, f)
+        return
+    if in_pos:
+        print("  BTC position open (untracked) — skip new entry"); return
+
+    # ── entry: sweep below Asian low + reclaim, in 08-16 UTC window, uptrend ──
+    # Trend from DAILY bars (the 400 hourly bars ~16d can't form a 200-day EMA).
+    daily = broker.get_bars("BTC", "1Day", 250)
+    dc = daily["Close"]
+    ema50 = dc.ewm(span=50).mean(); ema200 = dc.ewm(span=200).mean()
+    uptrend = bool(ema50.iloc[-1] > ema200.iloc[-1])
+    today = data["Date"].iloc[-1]
+    asian = data[(data["Date"] == today) & (data["H"] >= 0) & (data["H"] < 8)]
+    if len(asian) == 0:
+        print("  Asian range (00-08 UTC) not formed yet"); return
+    asian_low = float(asian["Low"].min())
+    h = data["H"].iloc[-1]
+    in_window = 8 <= h < 16
+    swept = (float(data["Low"].iloc[-1]) < asian_low) and (price > asian_low)
+    # also accept sweep in last 3 bars then reclaim
+    recent = data.tail(3)
+    swept_recent = ((recent["Low"] < asian_low).any()) and (price > asian_low)
+
+    if in_window and uptrend and (swept or swept_recent):
+        stop = price * (1 - STOP_BTC); target = price * (1 + STOP_BTC * RR_BTC)
+        qty = (equity * RISK_BTC * broker.RISK_SCALE) / (price * STOP_BTC)
+        logger.info(f"BTC SIGNAL sweep+reclaim price={price:.0f} qty={qty:.5f}")
+        print(f"  SIGNAL: BTC swept Asian low {asian_low:.0f} & reclaimed → LONG")
+        print(f"     entry {price:.0f} | stop {stop:.0f} | target {target:.0f}")
+        oid = broker.place_order_safe("BTC", round(qty, 5), "buy", "BTC")
+        if oid is not None:
+            with open(_btc_state_path, "w") as f:
+                json.dump({"active": True, "entry": price, "stop": stop,
+                           "target": target, "qty": round(qty, 5)}, f)
+    else:
+        reason = ("not in 08-16 UTC window" if not in_window else
+                  "not uptrend" if not uptrend else "no sweep+reclaim")
+        logger.info(f"BTC no signal: {reason} (price={price:.0f} asian_low={asian_low:.0f})")
+        print(f"  No signal ({reason}) | price {price:.0f} asian_low {asian_low:.0f} uptrend={uptrend}")
+
+
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser()
 parser.add_argument("--session",
-                    choices=["asian", "orb", "eod", "all"], default=None)
+                    choices=["asian", "orb", "eod", "all", "btc"], default=None)
 parser.add_argument("--broker",
                     choices=["alpaca", "tradovate", "ctrader", "binance"], default="alpaca",
                     help="Broker adapter to use (default: alpaca)")
@@ -602,6 +679,8 @@ elif args.session == "orb":
     run_s5(broker, equity, open_syms, vix_ma21, spy_bull, qqq_bear200)
 elif args.session == "eod":
     run_s3(broker, equity, open_syms, vix_mult)
+elif args.session == "btc":
+    run_btc(broker, equity, open_syms)
 elif args.session == "all":
     run_s1(broker, equity, open_syms, vix_ma21, spy_bull, vix_mult)
     run_s2(broker, equity, open_syms, vix_mult)

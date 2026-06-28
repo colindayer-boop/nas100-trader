@@ -8,3 +8,4 @@ logs/
 data/
 *.bi5
 *.parquet
+logs/btc_state.json
