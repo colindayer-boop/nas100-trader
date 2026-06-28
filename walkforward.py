@@ -300,6 +300,8 @@ def walk_forward(q, m1, gold, vix, train_mo, test_mo, step_mo) -> list:
         r_s1,  sh_s1,  dd_s1  = kpi(t_s1)
         r_s4,  sh_s4,  dd_s4  = kpi(t_s4)
         r_s5l, sh_s5l, dd_s5l = kpi(t_s5l)
+        r_s5s, sh_s5s, dd_s5s = kpi(t_s5s)   # the Faber-gated SHORT insurance
+        r_gld, sh_gld, dd_gld = kpi(t_gold)
         r_cmb, sh_cmb, dd_cmb = kpi(all_t)
 
         results.append(dict(
@@ -307,6 +309,8 @@ def walk_forward(q, m1, gold, vix, train_mo, test_mo, step_mo) -> list:
             n_s1=len(t_s1), ret_s1=r_s1, sharpe_s1=sh_s1, dd_s1=dd_s1,
             n_s4=len(t_s4), ret_s4=r_s4, sharpe_s4=sh_s4, dd_s4=dd_s4,
             n_s5l=len(t_s5l), ret_s5l=r_s5l, sharpe_s5l=sh_s5l, dd_s5l=dd_s5l,
+            n_s5s=len(t_s5s), ret_s5s=r_s5s, sharpe_s5s=sh_s5s, dd_s5s=dd_s5s,
+            n_gld=len(t_gold), ret_gld=r_gld, sharpe_gld=sh_gld, dd_gld=dd_gld,
             n_cmb=len(all_t), ret_cmb=r_cmb, sharpe_cmb=sh_cmb, dd_cmb=dd_cmb,
         ))
         print(f"  {label} | combined ret={r_cmb:+.1%} sharpe={sh_cmb:.2f} dd={dd_cmb:.1%}")
@@ -363,6 +367,14 @@ print(f"  avg ret {df_r['ret_s1'].mean():+.1%}, avg sharpe {df_r['sharpe_s1'].me
 print(f"S4 breakdown by window:")
 print(f"  avg ret {df_r['ret_s4'].mean():+.1%}, avg sharpe {df_r['sharpe_s4'].mean():.2f}, "
       f"positive {(df_r['ret_s4']>0).sum()}/{n} windows")
-print(f"S5L breakdown by window:")
+print(f"S5L (long ORB) breakdown by window:")
 print(f"  avg ret {df_r['ret_s5l'].mean():+.1%}, avg sharpe {df_r['sharpe_s5l'].mean():.2f}, "
       f"positive {(df_r['ret_s5l']>0).sum()}/{n} windows")
+print(f"S5S (Faber-gated SHORT insurance) breakdown by window:")
+_s5s_active = (df_r['n_s5s'] > 0).sum()
+print(f"  avg ret {df_r['ret_s5s'].mean():+.2%}, avg sharpe {df_r['sharpe_s5s'].mean():.2f}, "
+      f"fired in {_s5s_active}/{n} windows (should be ~0 in bull regimes)")
+print(f"  per-window S5S trades: {df_r['n_s5s'].tolist()}")
+print(f"Gold (S2 FVG) breakdown by window:")
+print(f"  avg ret {df_r['ret_gld'].mean():+.1%}, avg sharpe {df_r['sharpe_gld'].mean():.2f}, "
+      f"positive {(df_r['ret_gld']>0).sum()}/{n} windows")

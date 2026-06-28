@@ -259,3 +259,15 @@ sleeve is the weak/risky component, unlike the validated HOURLY NQ ORB (+3.8%, p
 Sharpe). Deployable robust core = S1/S4 sweeps + Gold + hourly ORB. The 1-min ORB
 (S5L/S5S) needs fixing or dropping before live deployment. NOTE: the "30%/yr" figure
 was a 2.4y total inflated by a historic gold rally — realistic repeatable return ~10%/yr.
+
+### CORRECTION: S5 Short is the (correctly-gated) insurance — the bug is M1 ORB data
+Added S5S + gold to the walk-forward breakdown. Findings:
+- **S5S (Faber-gated short) fires ONLY in bear regimes** — per-window trades [0,0,11,18,7,1,0]:
+  29 trades in 2022 (bear), 0 in bull windows. The regime gate works as designed.
+- S5S did NOT cause the -17.9% window (2023-07→2024-01 was bullish; S5S fired 1 trade).
+- ROOT CAUSE: the walk-forward runs the ORB on **1-minute data**, where BOTH S5L (Sharpe
+  -2.01) and S5S (Sharpe -4.55) lose — UNLIKE the validated **hourly** ORB (S5L +3.8%/yr,
+  S5S +2.7% in 2022). The M1 ORB implementation is broken; the hourly version is fine.
+- FIX: use hourly ORB (validated), not the M1 version. Do NOT drop S5 — the insurance
+  role and Faber gate are correct. Gold also looks weak in windows only because its big
+  move was 2024+ (outside most test windows), not a real failure.
