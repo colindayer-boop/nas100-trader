@@ -5,7 +5,7 @@ Use --dry-run to print intended orders without placing them.
 
 Railway cron schedule (3 runs per day):
   0 7  * * 1-5  →  7am  UTC = 2am  ET  → S1 Asian Sweep, S2 Gold FVG, S4 Multi-Sweep
-  30 14 * * 1-5  → 2:30pm UTC = 10:30am ET → S5 ORB (after opening range forms)
+  30 14 * * 1-5  → 2:30pm UTC = 10:30am ET → S5 ORB hourly (9:00 opening range done, breakout window 10-13)
   0 21 * * 1-5  →  9pm  UTC = 5pm  ET  → S3 Abnormal Volume (end of day)
 
 Run manually:
@@ -429,10 +429,14 @@ def run_s4(broker, equity, open_syms, spy_bull, vix_mult):
             logger.info(f"S4 {sym}: no signal")
             print(f"  {sym}: no signal{gex_note}")
 
-# ── STRATEGY S5: ORB 30-min ───────────────────────────────────────────────────
+# ── STRATEGY S5: ORB (validated HOURLY version) ───────────────────────────────
+# Opening range = the 9:00 ET hourly bar; breakout window 10:00-13:00 ET; volume
+# confirmation (>0.6× opening-range volume). Long needs SPY-bull regime; short
+# needs Faber bear (QQQ < 200d SMA). This matches the walk-forward-validated edge
+# (7/7 windows, Sharpe 3.21). The old 30-min/1-min version was the losing one.
 def run_s5(broker, equity, open_syms, vix_ma21, spy_bull, qqq_bear200):
     logger.info("SESSION S5 start")
-    print("\n── S5: ORB 30-MIN (QQQ) ──")
+    print("\n── S5: ORB HOURLY (QQQ) ──")
     if "QQQ" in open_syms:
         logger.info("S5 skip: QQQ in position")
         print("  QQQ already in position — skip"); return
@@ -440,60 +444,46 @@ def run_s5(broker, equity, open_syms, vix_ma21, spy_bull, qqq_bear200):
         logger.info(f"S5 pause: VIX {vix_ma21:.1f} >= 20")
         print(f"  PAUSED — VIX {vix_ma21:.1f} >= 20"); return
 
-    data = broker.get_bars("QQQ", "1Min", 2)
+    data = broker.get_bars("QQQ", "1Hour", 5)
     today = now_et().date()
     today_bars = data[data.index.date == today]
 
-    if len(today_bars) < 30:
-        logger.warning(f"S5: only {len(today_bars)} bars today")
-        print(f"  Only {len(today_bars)} bars today — market may not be open"); return
+    # Opening range = the 9:00 ET hourly bar (matches the backtest's hour==9 bar)
+    or_bar = today_bars[today_bars.index.hour == 9]
+    if len(or_bar) == 0:
+        logger.info("S5: opening-range (9:00 ET) bar not formed yet")
+        print("  Opening-range bar (9:00 ET) not formed yet — wait"); return
+    orb_high = float(or_bar["High"].iloc[0])
+    orb_low  = float(or_bar["Low"].iloc[0])
+    orb_vol  = float(or_bar["Volume"].iloc[0])
 
-    orb_bars = today_bars.iloc[:30]
-    orb_high = orb_bars["High"].max()
-    orb_low  = orb_bars["Low"].min()
-    orb_range_pct = (orb_high - orb_low) / orb_bars["Close"].iloc[-1]
+    # Breakout window = hours 10-13 ET
+    cur = today_bars[(today_bars.index.hour >= 10) & (today_bars.index.hour <= 13)]
+    if len(cur) == 0:
+        logger.info("S5: no bars in breakout window yet (10-13 ET)")
+        print("  No bars in breakout window yet (10:00-13:00 ET)"); return
 
-    # Normal-range filter
-    recent_days = data[data.index.date < today]
-    if len(recent_days) > 0:
-        daily_ranges = []
-        for d, grp in recent_days.groupby(recent_days.index.date):
-            first30 = grp.iloc[:30]
-            if len(first30) >= 15:
-                r = (first30["High"].max() - first30["Low"].min()) / first30["Close"].iloc[-1]
-                daily_ranges.append(r)
-        if len(daily_ranges) >= 5:
-            avg_range = np.mean(daily_ranges[-20:])
-            if orb_range_pct > avg_range * 1.2:
-                logger.info(f"S5 skip: ORB range {orb_range_pct:.3f} > 1.2x avg {avg_range:.3f}")
-                print(f"  SKIP — ORB range {orb_range_pct:.3f} > 1.2x avg {avg_range:.3f}")
-                return
+    price   = float(cur["Close"].iloc[-1])
+    cur_vol = float(cur["Volume"].iloc[-1])
+    vol_ok  = cur_vol > orb_vol * 0.6          # volume confirmation (validated)
+    print(f"  ORB(9:00): {orb_low:.2f}-{orb_high:.2f} | price {price:.2f} | vol_ok={vol_ok}")
 
-    entry_bars = today_bars[(today_bars.index.hour >= 10) & (today_bars.index.hour < 13)]
-    if len(entry_bars) == 0:
-        logger.info("S5: no bars in entry window yet")
-        print("  No bars in entry window yet (10am-1pm)"); return
-
-    last  = entry_bars["Close"].iloc[-1]
-    price = float(today_bars["Close"].iloc[-1])
-
-    if last > orb_high and spy_bull:
+    if price > orb_high and spy_bull and vol_ok:
         shares = (equity * RISK_S5 * broker.RISK_SCALE) / (price * STOP_S5)
         logger.info(f"S5 SIGNAL QQQ ORB long price={price:.2f} shares={shares:.1f}")
         print(f"  SIGNAL: QQQ broke ORB high {orb_high:.2f} → LONG")
-        print(f"     ORB: {orb_low:.2f}-{orb_high:.2f} ({orb_range_pct:.2%})")
         broker.place_order_safe("QQQ", shares, "buy", "S5")
-    elif last < orb_low and qqq_bear200:
+    elif price < orb_low and qqq_bear200 and vol_ok:
         shares = (equity * RISK_S5 * broker.RISK_SCALE) / (price * STOP_S5)
         logger.info(f"S5 SIGNAL QQQ ORB short price={price:.2f} shares={shares:.1f}")
         print(f"  SIGNAL: QQQ broke ORB low {orb_low:.2f} → SHORT (200d-SMA bear regime)")
         broker.place_order_safe("QQQ", shares, "sell", "S5")
-    elif last < orb_low and not qqq_bear200:
+    elif price < orb_low and not qqq_bear200:
         logger.info("S5: ORB-low break but bull regime — short disarmed")
         print("  ORB-low break but QQQ above 200d SMA — short disarmed (bull)")
     else:
-        logger.info(f"S5: no breakout price={price:.2f} orb={orb_low:.2f}-{orb_high:.2f}")
-        print(f"  No breakout yet (price={price:.2f}, ORB: {orb_low:.2f}-{orb_high:.2f})")
+        logger.info(f"S5: no breakout price={price:.2f} orb={orb_low:.2f}-{orb_high:.2f} vol_ok={vol_ok}")
+        print(f"  No valid breakout (price={price:.2f}, ORB {orb_low:.2f}-{orb_high:.2f})")
 
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser()
