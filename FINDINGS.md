@@ -296,3 +296,16 @@ ALL reduce return. Trailing/partial RAISE win rate (feels nicer) but cut the big
 3R winners short — and this edge's profit comes from letting winners run to target
 ("few big winners pay for many small losers"). Fixed 3:1 RR is mathematically what
 the edge needs, not strictness. Confirms the earlier dynamic-ATR-stop rejection.
+
+### BTC Asian Sweep — PROMISING (preliminary, not yet validated)
+Ran the QQQ sweep (same logic, no tuning) on BTCUSDT 1h (Binance, 2019-2026, 7.5y),
+net of ~8bps crypto costs. UNLIKE IWM/DIA/TLT/EURUSD, it transfers:
+| Stop | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | avg |
+|------|------|------|------|------|------|------|------|-----|
+| 1.5% | +11.7% | +12.6% | +14.1% | 0% | -0.9% | -6.5% | +2.3% | +4.2% |
+| 2.5% | +5.4% | +12.6% | +10.7% | 0% | +1.3% | +9.5% | +3.1% | +5.3% |
+Vol-scaled 2.5% stop positive every active year. Regime gate worked (2022 crypto
+bear = 0 trades). FIRST adaptation to survive a transfer test.
+⚠️ DECAY FLAG: strong 2019-21, weaker 2022-25 — edge fading as crypto matures
+(matches the microstructure-edge decay 52%->50.75%). NOT yet validated. Still needs:
+walk-forward, correlation-to-QQQ/gold (the diversification point), decay analysis.
