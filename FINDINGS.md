@@ -283,3 +283,16 @@ The edge is proven across ALL 7 windows. The 1-minute data was the bug, not the
 strategy. REMAINING TAIL: one window (2023-07→2024-01) still has −16.3% intra-window
 DD (vs ≤−7.3% for the other 6) — real tail risk in unusual choppy periods; argues for
 slightly conservative prop sizing. TODO: align live_trader.py run_s5 to hourly ORB too.
+
+### Dynamic exits (trailing / breakeven / partial TP) — REJECTED
+A/B vs fixed-stop baseline on S1, net of costs (dynamic_exits_test.py):
+| Mode | avg | PF | WR | maxDD |
+|------|-----|-----|-----|-------|
+| baseline (fixed 3:1) | +2.9% | 1.82 | 39% | -3.0% |
+| trailing stop | +2.2% | 1.79 | 46% | -2.7% |
+| breakeven-at-1R | +2.7% | 1.74 | 31% | -3.3% |
+| partial TP at 1.5R | +1.7% | 1.48 | 54% | -3.5% |
+ALL reduce return. Trailing/partial RAISE win rate (feels nicer) but cut the big
+3R winners short — and this edge's profit comes from letting winners run to target
+("few big winners pay for many small losers"). Fixed 3:1 RR is mathematically what
+the edge needs, not strictness. Confirms the earlier dynamic-ATR-stop rejection.
