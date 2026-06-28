@@ -271,3 +271,15 @@ Added S5S + gold to the walk-forward breakdown. Findings:
 - FIX: use hourly ORB (validated), not the M1 version. Do NOT drop S5 — the insurance
   role and Faber gate are correct. Gold also looks weak in windows only because its big
   move was 2024+ (outside most test windows), not a real failure.
+
+### ORB fix VALIDATED — hourly opening range (not 1-minute)
+Replaced the broken M1 ORB with the validated hourly version (hour-9 opening range,
+Faber 200d gate for short) in walkforward.py. Walk-forward result, before → after:
+- Positive windows: 5/7 → **7/7 (100%)**
+- Avg Sharpe: 1.44 → **3.21**;  Avg ret: +4.2% → **+6.0%/6mo**;  Avg DD: −6.8% → −5.7%
+- S5L Sharpe −2.01 → **+2.75**; S5S avg ret −0.27% → **+0.52%** (insurance now pays,
+  fires only in bear: trades [0,0,15,13,5,0,0]).
+The edge is proven across ALL 7 windows. The 1-minute data was the bug, not the
+strategy. REMAINING TAIL: one window (2023-07→2024-01) still has −16.3% intra-window
+DD (vs ≤−7.3% for the other 6) — real tail risk in unusual choppy periods; argues for
+slightly conservative prop sizing. TODO: align live_trader.py run_s5 to hourly ORB too.

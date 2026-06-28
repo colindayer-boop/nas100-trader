@@ -219,6 +219,30 @@ def run_intraday(df: pd.DataFrame, sig: str, risk: float, sl: float, rr: float,
     return rows
 
 
+# ── Validated HOURLY ORB (replaces the broken 1-minute version) ───────────────
+# Opening range = hour-9 bar; breakout window 10-13. Long needs uptrend
+# (EMA50>EMA200); short needs Faber bear regime (price < 200-day SMA). This is the
+# version that backtested +3.8%/yr (long) and +2.7% in 2022 (short hedge).
+def build_hourly_orb(q):
+    dclose = q[q.index.hour == 16][["Close"]].copy(); dclose.index = dclose.index.date
+    dclose = dclose[~dclose.index.duplicated(keep="last")]
+    sma200 = dclose["Close"].rolling(200).mean()
+    bear200 = {d: (c < s) if not pd.isna(s) else False
+               for d, c, s in zip(dclose.index, dclose["Close"], sma200)}
+    q["Bear200"] = q["Date"].map(bear200).fillna(False).astype(bool)
+    orb = q[q.index.hour == 9]
+    ohi = {d: r["High"]   for d, r in zip(orb["Date"], orb.to_dict("records"))}
+    olo = {d: r["Low"]    for d, r in zip(orb["Date"], orb.to_dict("records"))}
+    ovol = {d: r["Volume"] for d, r in zip(orb["Date"], orb.to_dict("records"))}
+    q["ORBHi"] = q["Date"].map(ohi); q["ORBLo"] = q["Date"].map(olo); q["ORBVol"] = q["Date"].map(ovol)
+    q["ORBwin"] = q.index.map(lambda x: 10 <= x.hour <= 13)
+    q["S5L"] = (q["ORBwin"] & (q["Close"] > q["ORBHi"]) & (q["DailyEMA50"] > q["DailyEMA200"]) &
+                q["ORBHi"].notna() & (q["Volume"] > q["ORBVol"] * 0.6)).astype(int)
+    q["S5S"] = (q["ORBwin"] & (q["Close"] < q["ORBLo"]) & q["Bear200"] &
+                q["ORBLo"].notna() & (q["Volume"] > q["ORBVol"] * 0.6)).astype(int)
+    return q
+
+
 # ── Gold (S2 FVG) — the UNCORRELATED diversifier that controls combined drawdown ──
 # The Nasdaq strategies (S1/S4/S5) are correlated and their drawdowns stack. Gold
 # is uncorrelated, so adding it cuts the COMBINED drawdown (proven: Nasdaq-only DD
@@ -291,8 +315,9 @@ def walk_forward(q, m1, gold, vix, train_mo, test_mo, step_mo) -> list:
                       (gold.index <  test_end.tz_localize(None))]
         t_s1 = run_intraday(q_test,  "S1", RISK_S1, STOP_S1, RR_S1, vix)
         t_s4 = run_intraday(q_test,  "S4", RISK_S4, STOP_S4, RR_S4, vix)
-        t_s5l = run_intraday(m1_test, "S5L", RISK_S5, STOP_S5, RR_S5, vix)
-        t_s5s = run_intraday(m1_test, "S5S", RISK_S5*0.6, STOP_S5, RR_S5, vix, short=True)
+        # Hourly ORB (validated) — was m1_test; the 1-min version lost in both directions
+        t_s5l = run_intraday(q_test, "S5L", RISK_S5, STOP_S5, RR_S5, vix)
+        t_s5s = run_intraday(q_test, "S5S", RISK_S5*0.6, STOP_S5, RR_S5, vix, short=True)
         t_gold = run_gold(g_test)
         # Combined = Nasdaq specialists + uncorrelated gold (shared single account)
         all_t = t_s1 + t_s4 + t_s5l + t_s5s + t_gold
@@ -332,7 +357,8 @@ vix  = load_vix()
 
 print("Building signals...")
 q  = build_qqq_signals(q)
-m1 = build_orb_signals(m1)
+q  = build_hourly_orb(q)          # validated hourly ORB on q (replaces m1 ORB)
+m1 = build_orb_signals(m1)        # kept for the len(m1_test) guard / comparison
 
 print(f"\nWalk-forward: {args.train}m train / {args.test}m test / {args.step}m step\n")
 results = walk_forward(q, m1, gold, vix, args.train, args.test, args.step)
