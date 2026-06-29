@@ -9,3 +9,5 @@ data/
 *.bi5
 *.parquet
 logs/btc_state.json
+btcusdt_1h.csv
+ethusdt_1h.csv
