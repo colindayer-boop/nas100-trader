@@ -26,7 +26,10 @@ import numpy as np
 import pytz
 import yfinance as yf
 from datetime import datetime, timedelta, date
-from alpaca.trading.enums import OrderSide  # kept for S3 position-check compatibility
+try:
+    from alpaca.trading.enums import OrderSide  # only needed for the Alpaca S3 position-check
+except ImportError:
+    OrderSide = None  # not installed (e.g. MT5-only VPS) — the Alpaca-only path won't run
 
 import alerts
 from broker import load_config, DryRunBroker
