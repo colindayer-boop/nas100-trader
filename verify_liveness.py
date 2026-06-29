@@ -120,15 +120,20 @@ def report(name, sig, asset):
           f"7y total: {total:>4} | last: {last}  {flag}")
 
 
-print(f"REPLAY LIVENESS TEST — signals each strategy WOULD fire "
-      f"(last {WINDOW_DAYS} days + 7y)\n")
-qqq = load_hourly("QQQ"); spy = load_hourly("SPY")
-report("S1 Asian sweep",   s1_signals(qqq), "QQQ")
-report("S4 multi-sweep",   s4_signals(qqq), "QQQ")
-report("S4 multi-sweep",   s4_signals(spy), "SPY")
-report("S5 ORB breakout",  s5_signals(qqq), "QQQ")
-for s in ["QQQ", "GLD", "GDX", "SLV", "USO"]:
-    try: report("S3 abnormal-vol", s3_signals(s), s)
-    except Exception as e: print(f"  S3 {s}: data err ({e})")
-print("\nNote: S1/S4 counts are PRE-GEX (live also needs negative GEX → fewer). "
-      "A recent non-zero count proves the price logic is alive and firing.")
+def main():
+    print(f"REPLAY LIVENESS TEST — signals each strategy WOULD fire "
+          f"(last {WINDOW_DAYS} days + 7y)\n")
+    qqq = load_hourly("QQQ"); spy = load_hourly("SPY")
+    report("S1 Asian sweep",   s1_signals(qqq), "QQQ")
+    report("S4 multi-sweep",   s4_signals(qqq), "QQQ")
+    report("S4 multi-sweep",   s4_signals(spy), "SPY")
+    report("S5 ORB breakout",  s5_signals(qqq), "QQQ")
+    for s in ["QQQ", "GLD", "GDX", "SLV", "USO"]:
+        try: report("S3 abnormal-vol", s3_signals(s), s)
+        except Exception as e: print(f"  S3 {s}: data err ({e})")
+    print("\nNote: S1/S4 counts are PRE-GEX (live also needs negative GEX → fewer). "
+          "A recent non-zero count proves the price logic is alive and firing.")
+
+
+if __name__ == "__main__":
+    main()
