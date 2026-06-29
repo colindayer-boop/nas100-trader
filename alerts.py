@@ -29,8 +29,12 @@ def send(msg: str) -> None:
 
 
 def _try_telegram(msg: str) -> None:
-    token   = _cfg.get("telegram_token", "")
-    chat_id = _cfg.get("chat_id", "")
+    # .strip() removes stray spaces/newlines from pasted secrets (#1 cause of failures)
+    token   = _cfg.get("telegram_token", "").strip()
+    chat_id = _cfg.get("chat_id", "").strip()
+    # chat_id sometimes pasted as "Id: 12345" — keep only the (signed) number
+    if chat_id and not chat_id.lstrip("-").isdigit():
+        chat_id = "".join(c for c in chat_id if c.isdigit() or c == "-")
     if not token or not chat_id or token.startswith("YOUR_"):
         print(f"[TELEGRAM] skipped — token set: {bool(token)}, chat_id set: {bool(chat_id)} "
               f"(check secrets TELEGRAM_TOKEN/CHAT_ID + workflow env)")
