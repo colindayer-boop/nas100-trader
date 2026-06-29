@@ -20,7 +20,8 @@ from alpaca.data.timeframe import TimeFrame
 from broker import Broker, load_config, NotConfiguredError
 
 eastern = pytz.timezone("US/Eastern")
-_TF_MAP = {"1Hour": TimeFrame.Hour, "1Min": TimeFrame.Minute}
+_TF_MAP = {"1Hour": TimeFrame.Hour, "1Min": TimeFrame.Minute,
+           "1Day": TimeFrame.Day}
 
 
 class AlpacaBroker(Broker):

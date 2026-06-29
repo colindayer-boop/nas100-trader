@@ -606,10 +606,63 @@ def run_btc(broker, equity, open_syms):
         print(f"  No signal ({reason}) | price {price:.0f} asian_low {asian_low:.0f} uptrend={uptrend}")
 
 
+# ── PILLAR: monthly cross-sectional (cross-asset) momentum ─────────────────────
+# Validated (2010-21 IS / 2022-26 OOS, costs on): OOS Sharpe 1.07, CAGR +15.6%,
+# maxDD -16.7%, beats SPY risk-adjusted, survives the 2022 bear (rotates to
+# bonds/gold/commodities). LOW frequency (~12 trades/yr) — this is a DIVERSIFIER,
+# not a frequency booster. Holds positions for a month (unlike flat-by-EOD
+# intraday), so it MUST run on its OWN account or it will clobber the intraday
+# QQQ/SPY/GLD positions. Run monthly (e.g. 1st trading day) via --session rebal.
+XSMOM_UNIVERSE = ["SPY", "QQQ", "IWM", "EFA", "EEM", "TLT", "GLD", "DBC"]
+XSMOM_ALLOC = 0.20    # fraction of (dedicated) account equity this sleeve uses
+XSMOM_TOPN  = 3       # hold the top-N by 12-1 month momentum, equal weight
+
+def run_xsmom(broker, equity, open_syms):
+    logger.info("SESSION XSMOM start")
+    print("\n── MONTHLY CROSS-ASSET MOMENTUM (rebalance) ──")
+    scores = {}
+    for sym in XSMOM_UNIVERSE:
+        try:
+            d = broker.get_bars(sym, "1Day", 400)["Close"].dropna()
+        except Exception as e:
+            logger.warning(f"xsmom {sym} bars failed: {e}"); continue
+        if len(d) < 260:
+            logger.warning(f"xsmom {sym}: only {len(d)} daily bars, skip"); continue
+        scores[sym] = float(d.iloc[-21] / d.iloc[-252] - 1)   # 12-1 month return
+    if len(scores) < 4:
+        logger.info("xsmom: insufficient data, no rebalance"); print("  insufficient data"); return
+    ranked = sorted(scores, key=scores.get, reverse=True)
+    target = ranked[:XSMOM_TOPN]
+    print("  12-1 momentum: " + ", ".join(f"{s} {scores[s]:+.0%}" for s in ranked))
+    print(f"  Target hold (top {XSMOM_TOPN}): {target}")
+    logger.info(f"xsmom target={target} scores={ {k: round(v,3) for k,v in scores.items()} }")
+    per = equity * XSMOM_ALLOC / XSMOM_TOPN
+    # exit any universe names that dropped out of the target
+    for sym in XSMOM_UNIVERSE:
+        if sym in open_syms and sym not in target:
+            print(f"  EXIT {sym} (fell out of top {XSMOM_TOPN})")
+            broker.close_position(sym)
+    # enter / adjust target names to equal weight
+    for sym in target:
+        try:
+            price = float(broker.get_bars(sym, "1Day", 5)["Close"].iloc[-1])
+        except Exception as e:
+            logger.warning(f"xsmom {sym} price failed: {e}"); continue
+        want = int(per / price)
+        have = int(float(open_syms[sym].qty)) if sym in open_syms else 0
+        delta = want - have
+        if delta > 0:
+            broker.place_order_safe(sym, delta, "buy", "XSMOM")
+        elif delta < 0:
+            broker.place_order_safe(sym, -delta, "sell", "XSMOM")
+        else:
+            print(f"  {sym}: already at target ({have} sh)")
+
+
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser()
 parser.add_argument("--session",
-                    choices=["asian", "orb", "eod", "all", "btc"], default=None)
+                    choices=["asian", "orb", "eod", "all", "btc", "rebal"], default=None)
 parser.add_argument("--broker",
                     choices=["alpaca", "tradovate", "ctrader", "binance"], default="alpaca",
                     help="Broker adapter to use (default: alpaca)")
@@ -684,6 +737,8 @@ elif args.session == "eod":
     run_s3(broker, equity, open_syms, vix_mult)
 elif args.session == "btc":
     run_btc(broker, equity, open_syms)
+elif args.session == "rebal":
+    run_xsmom(broker, equity, open_syms)
 elif args.session == "all":
     run_s1(broker, equity, open_syms, vix_ma21, spy_bull, vix_mult)
     run_s2(broker, equity, open_syms, vix_mult)
