@@ -763,10 +763,66 @@ def run_btc_trend(broker, equity, open_syms):
         json.dump({"qty": target_qty, "price": price}, f)
 
 
+# ── PILLAR: S1 sweep on a WIDER validated universe ─────────────────────────────
+# The Asian-sweep edge validated across SPY/IWM/GLD/AAPL/MSFT/NVDA (all OOS-positive,
+# PF 1.1-1.9). Runs the same pre-GEX sweep on the basket → 5-7x the trade count from
+# the SAME validated edge. (QQQ stays in S1 with its GEX filter, to avoid doubling.)
+SWEEP_BASKET = ["SPY", "IWM", "GLD", "AAPL", "MSFT", "NVDA"]
+
+def _asian_sweep_fires(data):
+    """(fires, price) for the Asian-low-sweep + VWAP reclaim + EMA + calm-vol signal."""
+    data = data.copy(); data["Date"] = data.index.date
+    def is_asian(i): return i.hour >= 18 or i.hour < 2
+    def sess_date(i): return (i + timedelta(days=1)).date() if i.hour >= 18 else i.date()
+    data["Asian"] = data.index.map(is_asian); data["SD"] = data.index.map(sess_date)
+    ab = data[data["Asian"]]
+    data["AsianLow"] = data["SD"].map(ab.groupby("SD")["Low"].min())
+    data["InSession"] = data.index.map(lambda x: (2 <= x.hour < 5) or (9 <= x.hour < 12))
+    tp = (data["High"] + data["Low"] + data["Close"]) / 3
+    vw = []; ct = cv = 0.0; pdd = None
+    for i in range(len(data)):
+        d = data["Date"].iloc[i]
+        if d != pdd: ct = cv = 0.0; pdd = d
+        if data["Volume"].iloc[i] > 0:
+            ct += tp.iloc[i] * data["Volume"].iloc[i]; cv += data["Volume"].iloc[i]
+        vw.append(ct / cv if cv > 0 else float("nan"))
+    data["VWAP"] = vw
+    dc = data[data.index.hour == 16][["Close"]].copy(); dc.index = dc.index.date
+    dc = dc[~dc.index.duplicated(keep="last")]
+    data["EMA50"] = data["Date"].map(dc["Close"].ewm(span=50).mean().to_dict())
+    pc = data["Close"].shift(1)
+    tr = pd.concat([data["High"]-data["Low"], (data["High"]-pc).abs(),
+                    (data["Low"]-pc).abs()], axis=1).max(axis=1)
+    atr = tr.rolling(14).mean(); data["HighVol"] = atr > 1.5 * atr.rolling(200).mean()
+    data["SweepLow"] = (data["Low"] < data["AsianLow"]) & (data["Close"] > data["AsianLow"])
+    cond = (data["SweepLow"] & data["InSession"] & (data["Close"] > data["VWAP"]) &
+            (data["Close"] > data["EMA50"]) & ~data["HighVol"] & data["AsianLow"].notna())
+    return bool(cond[data.tail(3).index].any()), float(data["Close"].iloc[-1])
+
+def run_sweep_basket(broker, equity, open_syms, spy_bull, vix_mult):
+    logger.info("SESSION SWEEP-BASKET start")
+    print("\n── S1 SWEEP BASKET (validated wider universe) ──")
+    if not spy_bull or vix_mult == 0:
+        print("  PAUSED (regime: bear/high-VIX)"); return
+    for sym in SWEEP_BASKET:
+        if sym in open_syms:
+            print(f"  {sym}: already held, skip"); continue
+        try:
+            fires, price = _asian_sweep_fires(broker.get_bars(sym, "1Hour", 30))
+        except Exception as e:
+            logger.warning(f"sweep {sym} failed: {e}"); print(f"  {sym}: data err"); continue
+        if fires:
+            shares = round((equity * RISK_S1 * vix_mult * broker.RISK_SCALE) / (price * STOP_S1), 2)
+            print(f"  SIGNAL {sym}: sweep below Asian low @ {price:.2f} → BUY {shares}")
+            broker.place_order_safe(sym, shares, "buy", "SWEEP")
+        else:
+            print(f"  {sym}: no signal")
+
+
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser()
 parser.add_argument("--session",
-                    choices=["asian", "orb", "eod", "all", "btc", "rebal", "overnight", "btctrend"], default=None)
+                    choices=["asian", "orb", "eod", "all", "btc", "rebal", "overnight", "btctrend", "sweep"], default=None)
 parser.add_argument("--broker",
                     choices=["alpaca", "tradovate", "ctrader", "binance", "mt5"], default="alpaca",
                     help="Broker adapter to use (default: alpaca)")
@@ -847,12 +903,15 @@ elif args.session == "overnight":
     run_overnight(broker, equity, open_syms)
 elif args.session == "btctrend":
     run_btc_trend(broker, equity, open_syms)
+elif args.session == "sweep":
+    run_sweep_basket(broker, equity, open_syms, spy_bull, vix_mult)
 elif args.session == "all":
     run_s1(broker, equity, open_syms, vix_ma21, spy_bull, vix_mult)
     run_s2(broker, equity, open_syms, vix_mult)
     run_s4(broker, equity, open_syms, spy_bull, vix_mult)
     run_s5(broker, equity, open_syms, vix_ma21, spy_bull, qqq_bear200)
     run_s3(broker, equity, open_syms, vix_mult)
+    run_sweep_basket(broker, equity, open_syms, spy_bull, vix_mult)
 
 print(f"\n{'='*60}")
 print(f"Done — {now_et().strftime('%H:%M ET')}")
