@@ -53,7 +53,30 @@ def connect():
     return mt5
 
 
-def fetch_symbol(mt5, sym, years):
+def detect_utc_offset(mt5, fallback=3.0):
+    """MT5 timestamps are SERVER time (UTC+2/+3 'NY-close' charts), not UTC.
+    Detect the offset from a fresh live tick; fall back to +3 if market closed."""
+    import time as _time
+    for probe in ("BTCUSD", "US100", "XAUUSD", "EURUSD"):
+        try:
+            if not mt5.symbol_select(probe, True):
+                continue
+            tick = mt5.symbol_info_tick(probe)
+            if tick is None or not tick.time:
+                continue
+            diff_h = (tick.time - _time.time()) / 3600.0
+            off = round(diff_h)
+            if abs(diff_h - off) < 0.084 and -12 <= off <= 14:
+                print(f"Server-UTC offset detected: {off:+d}h (via {probe})")
+                return float(off)
+        except Exception:
+            continue
+    print(f"Server-UTC offset: using fallback {fallback:+.0f}h "
+          f"(no fresh tick — market closed?)")
+    return fallback
+
+
+def fetch_symbol(mt5, sym, years, utc_off):
     if not mt5.symbol_select(sym, True):
         print(f"  ⚠️ '{sym}' not on this broker — run `python mt5_broker.py` to "
               f"list symbol names, then retry with the right one")
@@ -75,7 +98,8 @@ def fetch_symbol(mt5, sym, years):
         return None
     df = pd.concat(frames).drop_duplicates(subset="time").sort_values("time")
     out = pd.DataFrame({
-        "timestamp": pd.to_datetime(df["time"], unit="s", utc=True),
+        # rebase server-time epoch → true UTC (session windows depend on this)
+        "timestamp": pd.to_datetime(df["time"] - utc_off * 3600, unit="s", utc=True),
         "symbol": sym,
         "open": df["open"], "high": df["high"], "low": df["low"],
         "close": df["close"], "volume": df["tick_volume"],
@@ -90,13 +114,16 @@ def main():
     ap.add_argument("--alias", default=None,
                     help="also save the FIRST symbol as {alias}_hourly_7y.csv "
                          "(so QQQ-based tools replay on the CFD feed)")
+    ap.add_argument("--utc-offset", type=float, default=None,
+                    help="server-UTC offset in hours (default: auto-detect, fallback +3)")
     args = ap.parse_args()
 
     mt5 = connect()
+    utc_off = args.utc_offset if args.utc_offset is not None else detect_utc_offset(mt5)
     first_df = None
     for sym in args.symbols:
         print(f"\nFetching {sym} H1, {args.years:g}y …")
-        df = fetch_symbol(mt5, sym, args.years)
+        df = fetch_symbol(mt5, sym, args.years, utc_off)
         if df is None:
             continue
         path = f"{sym.lower()}_hourly_mt5.csv"

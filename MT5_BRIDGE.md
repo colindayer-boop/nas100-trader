@@ -12,9 +12,17 @@ Grab the whole branch once instead of file-by-file:
 
 ```powershell
 iwr https://github.com/colindayer-boop/nas100-trader/archive/refs/heads/claude/prop-firm-challenge-optimization-x3kn5h.zip -OutFile branch.zip
-Expand-Archive branch.zip -DestinationPath .
-cd .\nas100-trader-claude-prop-firm-challenge-optimization-x3kn5h\
+Expand-Archive branch.zip -DestinationPath . -Force
+# the zip expands into a SUBFOLDER — copy its contents over your working folder:
+Copy-Item .\nas100-trader-claude-prop-firm-challenge-optimization-x3kn5h\* . -Recurse -Force
 ```
+
+⚠️ Re-download after every update — in particular `mt5_broker.py` now contains
+the **server-time fix**: MT5 bar timestamps are SERVER time (UTC+2/+3), not
+UTC. Without the fix every session window (Asian range, ORB hour) is shifted
+~3h and the Asian high/low is computed from the wrong bars — that's the
+`close=29124 / asian_low=29700` weirdness you saw. The offset is auto-detected
+from a live tick (override with `[mt5] server_utc_offset` or `--utc-offset`).
 
 ## 1. Fixes for the two errors on your screen
 
