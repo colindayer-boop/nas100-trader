@@ -469,6 +469,26 @@ calendar-time levers are (a) 2.5x static (median ~60 days, P(pass) 36%),
 (b) PARALLEL challenges (3 accounts at 2.0x → 82% at least one funded in ~4mo),
 (c) smaller accounts (same %-rules → same pass odds, fees scale down).
 
+### SSRN sweep 2026-07 (price mismatch / overnight / Bollinger / VWAP) — 1 lead, 3 rejects
+- **LEAD → intraday momentum, noise bands + VWAP trailing stop** (Zarattini/
+  Aziz/Barbon SSRN 4824172; Maróy SSRN 5095349 finds VWAP exits best). Same
+  authors as our validated S5 ORB source; paper: net Sharpe 1.33, +19.6%/yr,
+  SPY 2007-24, trades ~daily (breadth → faster prop pass), takes shorts.
+  Test script ready: `intraday_momentum_test.py` (six-filter gauntlet, our
+  costs/data; sanity-checked: correctly loses on synthetic random data). Run
+  where the hourly CSVs live. If it passes: still needs corr-to-book (<0.3),
+  walk-forward, decay check before any adoption.
+- **Overnight drift — REJECT for us**: Boyarchenko/Larsen/Whelan (SSRN 3546173):
+  pre-cost Sharpe 1.1-1.3 but **-0.5 to +0.3 after costs** — the edge is real
+  but thinner than retail frictions; our S1 already harvests related
+  overnight-session structure.
+- **ETF NAV premium/discount "price mismatch" — REJECT**: AP/HFT arbitrage
+  (FCA OP68 2025), sub-second latency game — same conclusion as our earlier
+  order-flow rejection. Not retail-tradeable.
+- **Bollinger bands — REJECT**: standard band-reversion/breakout rules have no
+  robust post-cost edge in the academic record (data-snooping literature);
+  also our own BB-adjacent tests (volume profile, dynamic exits) all failed.
+
 ### "50 Graphs" quant reference doc — reviewed, nothing to add
 The shared Google Doc is a chart/diagnostics catalog (distributions, ACF/PACF,
 rolling Sharpe, vol surfaces, microstructure, ML diagnostics) — zero strategies.
