@@ -48,6 +48,54 @@ Sensitivity: with the full **backtest** edge (Sharpe 1.38) the same optimum
 stays +EV as long as ANY meaningful edge survives live. If paper trading shows
 zero edge, no sizing saves it (EV → −fee).
 
+## Architecture verdict: static sizing WINS — challenge governor REJECTED
+
+Tested a "cushion ratchet" governor (risk scales with headroom above the static
+max-loss floor: `mult = clip(m0·cushion/maxdd, 0.3, cap)`) head-to-head vs
+static sizing, same MC assumptions, funded stage always 1x+throttle:
+
+| Policy (FN 2-Step, haircut) | P(pass) | med days | $→funded | EV/30d |
+|---|---|---|---|---|
+| **static 2.0x** | **44.9%** | **87** | **$1,223** | **$3,258** |
+| static 2.5x | 36.6% | 59 | $1,501 | $3,912 |
+| governor 2.0x cap3 | 37.5% | 74 | $1,465 | $3,174 |
+| governor 2.5x cap3 | 32.9% | 58 | $1,669 | $3,551 |
+
+The governor loses at every setting. Why: at high aggression the binding
+constraint is the **daily** loss limit, which is fixed vs the initial balance —
+profit cushion does NOT protect against it, so ratcheting size up after gains
+mainly buys daily-breach risk. Conclusion: **the existing architecture (static
+challenge sizing + dd-throttle once funded) is already near-optimal.** Don't
+add cleverness; choose the multiplier and buy parallel attempts.
+
+## "4 months is too long" — the honest levers
+
+Speed is bounded by the edge's Sharpe, not by tactics: ~0.9 Sharpe means
+hitting +8%/+5% before −10% simply takes ~4 months at sane risk. Three levers
+actually work:
+
+1. **Raise the multiplier to 2.5x** — median **~60 market days (~2.8 months)**,
+   EV/time is still rising there ($3,912/30d), but P(pass) drops to 37% →
+   budget ~3 attempts.
+2. **Run challenges in PARALLEL** (FundedNext allows multiple accounts, up to
+   $300k total allocation). Same 4 months of calendar time, much higher odds:
+
+   | k accounts (static 2.0x) | P(≥1 funded) | fees at risk |
+   |---|---|---|
+   | 1 | 44% | $549 |
+   | 2 | 68% | $1,098 |
+   | 3 | **82%** | $1,647 |
+   | 4 | 90% | $2,196 |
+
+3. **Cut the fee, not the odds: smaller accounts.** The %-rules are identical,
+   so P(pass) is size-independent — a $25k 2-Step (≈$199) has the same 44%
+   pass odds. Expected fees-to-funded ≈ $450 instead of $1,223. Get funded
+   small, use FundedNext's scale-up plan, or re-buy bigger once proven live.
+
+The **speed-optimal sane play**: 2–3 parallel $25–50k Stellar 2-Step
+challenges at RISK_SCALE 2.0–2.5 → ~68–82% chance at least one is funded
+within ~3–4 months, total fees at risk under ~$1,000.
+
 ## Operating rules (from the sim + FINDINGS)
 
 1. **Run the challenge at 1.5x (safer) or 2.0x (faster).** Set `RISK_SCALE` in

@@ -458,6 +458,26 @@ Key results at the HONEST haircut edge (~8%/yr, Sharpe ~0.9), $100k:
 Full cheat-sheet: PROP_PLAN.md. This changes SIZING/venue choice only — the
 frozen strategy set is untouched (no new filters, freeze rule respected).
 
+### Challenge "cushion governor" (dynamic sizing) — REJECTED
+Tested anti-martingale dynamic sizing for challenges (risk ∝ headroom above the
+static max-loss floor, `clip(m0·cushion/maxdd, 0.3, cap)`) vs static, same MC:
+governor LOSES at every setting (e.g. 2.0x: P(pass) 44.9%→37.5%, no speed gain).
+Root cause: the DAILY loss limit is fixed vs initial balance — profit cushion
+gives no protection against it, so upsizing after gains only adds daily-breach
+risk. Static challenge sizing + funded dd-throttle is near-optimal; the honest
+calendar-time levers are (a) 2.5x static (median ~60 days, P(pass) 36%),
+(b) PARALLEL challenges (3 accounts at 2.0x → 82% at least one funded in ~4mo),
+(c) smaller accounts (same %-rules → same pass odds, fees scale down).
+
+### "50 Graphs" quant reference doc — reviewed, nothing to add
+The shared Google Doc is a chart/diagnostics catalog (distributions, ACF/PACF,
+rolling Sharpe, vol surfaces, microstructure, ML diagnostics) — zero strategies.
+Most relevant items are already practiced here (drawdown/rolling-Sharpe/walk-
+forward = the validation gauntlet; QQ/fat-tails = the t(4) MC). Its earlier
+strategy prompts (UO, Turtle, XS-mom) were already gauntlet-rejected in
+test_doc_strategies.py. Calendar-anomaly ideas (turn-of-month, overnight drift)
+remain untested (hunt scripts were broken) — low-priority lottery tickets only.
+
 ### Macro event filter (FOMC/NFP/CPI) — REJECTED (but validates existing risk mgmt)
 Tested whether skipping trades on scheduled high-impact event days cuts the tail:
 - Losses do NOT cluster on events: 2/20 worst days are event days (= random ~2).

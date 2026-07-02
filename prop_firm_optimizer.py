@@ -173,6 +173,111 @@ for scen, edge in EDGE_SCENARIOS.items():
     for name, cfg in PRESETS.items():
         run_preset(name, cfg, edge)
 
+# ── CHALLENGE GOVERNOR A/B — dynamic sizing vs static ─────────────────────────
+# Anti-martingale cushion ratchet: FundedNext's max loss is STATIC from initial
+# balance, so every % of profit adds permanent breach headroom. The governor
+# scales risk with that cushion:  mult = clip(m0 * cushion/maxdd, floor, cap).
+# Start at m0; +4% profit on a 10% max-loss account → 1.4×m0; near the floor →
+# throttled to 0.3x (mirror image of the funded dd-throttle already validated).
+# Tested here head-to-head against static sizing on identical MC assumptions.
+
+def sim_phase_governor(target, min_days, daily, maxdd, m0, cap, edge, n,
+                       floor=0.3, static=False):
+    """Day-loop MC of one phase under governor (or static if static=True).
+    Returns (passed, days_to_pass, breached)."""
+    mu_a  = (CAGR_1X * edge) / (TD * P_TRADE)
+    sig_a = VOL_1X / np.sqrt(TD * P_TRADE * T_DF / (T_DF - 2))
+    eq = np.ones(n); act_days = np.zeros(n, dtype=int)
+    passed = np.zeros(n, bool); dead = np.zeros(n, bool)
+    days_to = np.full(n, MAX_DAYS)
+    for d in range(MAX_DAYS):
+        live = ~(passed | dead)
+        if not live.any():
+            break
+        active = rng.random(n) < P_TRADE
+        r1 = mu_a + sig_a * rng.standard_t(T_DF, n)          # 1x active-day return
+        if static:
+            mult = np.full(n, m0)
+        else:
+            cushion = eq - (1.0 - maxdd)
+            mult = np.clip(m0 * cushion / maxdd, floor, cap)
+        step = np.where(active & live, r1 * mult, 0.0)
+        day_breach = step <= -(daily * INTRADAY_BUFFER)
+        eq = eq + step
+        act_days += (active & live)
+        newly_dead = live & (day_breach | (eq <= 1.0 - maxdd))
+        dead |= newly_dead
+        hit = live & ~dead & (eq >= 1.0 + target) & (act_days >= min_days)
+        days_to = np.where(hit, np.minimum(days_to, d + 1), days_to)
+        passed |= hit
+    return passed, days_to, dead & ~passed
+
+
+def govern_ab(preset_name, edge, label):
+    cfg = PRESETS[preset_name]
+    print(f"\n  {preset_name} — {label} edge")
+    print(f"  {'Policy':<22} | {'P(pass)':>7} | {'med days':>8} | {'P(breach)':>9} | "
+          f"{'$→funded':>9} | {'EV/30d':>7}")
+    print("  " + "-" * 74)
+    rows = []
+    configs = ([("static", m, None) for m in (1.0, 1.5, 2.0, 2.5)] +
+               [("governor", m0, cap) for m0 in (1.5, 2.0, 2.5) for cap in (3.0, 4.0)])
+    for kind, m0, cap in configs:
+        p_all = np.ones(N_PATHS, bool); days_all = np.zeros(N_PATHS)
+        breach = np.zeros(N_PATHS, bool)
+        for target, mind in cfg["phases"]:
+            p, dd_, b = sim_phase_governor(target, mind, cfg["daily"], cfg["maxdd"],
+                                           m0, cap or m0, edge, N_PATHS,
+                                           static=(kind == "static"))
+            days_all += np.where(p_all, dd_, 0)
+            breach |= p_all & b
+            p_all &= p
+        p_pass = p_all.mean()
+        med = np.median(days_all[p_all]) if p_pass > 0 else float("nan")
+        inc = funded_income(cfg["daily"], cfg["maxdd"], cfg["split"], 1.0, edge,
+                            N_PATHS).mean() * ACCOUNT   # funded stage always 1x+throttle
+        ev = -cfg["fee"] + p_pass * ((cfg["fee"] if cfg["refund"] else 0) + inc)
+        ev30 = ev / max(med, 1) * 30 if p_pass > 0 else -cfg["fee"]
+        tag = f"{kind} {m0}x" + (f" cap{cap:.0f}" if kind == "governor" else "")
+        print(f"  {tag:<22} | {p_pass:>7.1%} | {med:>8.0f} | {breach.mean():>9.1%} | "
+              f"${cfg['fee']/max(p_pass,1e-9):>8,.0f} | ${ev30:>6,.0f}")
+        rows.append((tag, p_pass, med))
+    return rows
+
+
+print("\n" + "=" * 88)
+print("CHALLENGE GOVERNOR A/B (dynamic cushion-ratchet sizing vs static)")
+print("=" * 88)
+for pname in ("FN Stellar 2-Step", "FN Stellar Lite"):
+    rows = govern_ab(pname, EDGE_SCENARIOS["haircut"], "haircut")
+
+# ── Parallel attempts: calendar-time compression ──────────────────────────────
+# VERDICT from the A/B above: the governor is REJECTED — static sizing wins
+# because the DAILY loss limit is fixed vs initial balance and doesn't grow
+# with the profit cushion, so ratcheting size up mainly buys daily-breach risk.
+# Parallelism (below) is the honest way to compress calendar time.
+print("\n" + "=" * 88)
+print("PARALLEL ATTEMPTS (FN Stellar 2-Step, static sizing, haircut edge)")
+print("=" * 88)
+cfg = PRESETS["FN Stellar 2-Step"]
+for m in (2.0, 2.5):
+    p_all = np.ones(N_PATHS, bool); days_all = np.zeros(N_PATHS)
+    for target, mind in cfg["phases"]:
+        p, dd_, b = sim_phase_governor(target, mind, cfg["daily"], cfg["maxdd"],
+                                       m, m, EDGE_SCENARIOS["haircut"], N_PATHS,
+                                       static=True)
+        days_all += np.where(p_all, dd_, 0)
+        p_all &= p
+    pp = p_all.mean()
+    md = np.median(days_all[p_all])
+    print(f"\n  Static {m}x: P(pass)={pp:.0%}, median {md:.0f} market days"
+          f" (~{md / 21:.1f} months)")
+    print(f"  {'k accounts':>10} | {'P(≥1 funded)':>12} | {'fees at risk':>12} | "
+          f"{'exp. funded accts':>17}")
+    for k in (1, 2, 3, 4):
+        print(f"  {k:>10} | {1 - (1 - pp) ** k:>12.0%} | ${k * cfg['fee']:>11,.0f} | "
+              f"{k * pp:>17.1f}")
+
 print("\nNOTES:")
 print(" • Fees are approximate list prices — edit PRESETS before trusting $ EV.")
 print(" • FundedNext daily loss is balance-based & intraday; the 80% buffer models that.")
