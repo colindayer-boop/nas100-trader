@@ -11,3 +11,9 @@ data/
 logs/btc_state.json
 btcusdt_1h.csv
 ethusdt_1h.csv
+RD-Agent/
+
+optionsdx/
+*_7y.csv
+*.txt
+!requirements.txt

@@ -49,6 +49,27 @@ python cot_oil_strategy.py       # (rejected) COT oil — example of the gauntle
 Discipline: every new edge must pass IS/OOS walk-forward + costs + correlation
 (<0.3 to QQQ) + regime check. See EDGE_HUNT_BRIEF.md.
 
+## Prop challenge (FundedNext Stellar / FTMO)
+**The prop-tradeable book = 3 uncorrelated asset classes** (US stocks don't trade on prop):
+| Prop instrument | Class | Edge |
+|---|---|---|
+| US100 | Index | Asian sweep, ORB |
+| XAUUSD | Metals | sweep + FVG |
+| BTC | Crypto | vol-targeted trend |
+
+Config: `[risk] prop_mode=1, prop_vol_target=0.16` (balanced sweet spot).
+Rules: +8% target, 10% max DD, 5% daily DD, **no time limit** (Stellar).
+
+**Realistic pass odds** (16% vol, by *live* Sharpe — backtest is 1.66, expect decay):
+| live Sharpe | 1mo | 2mo | 3mo | 6mo | blow-up(3mo) |
+|---|---|---|---|---|---|
+| 1.66 (backtest) | 16% | 41% | 58% | 79% | 9% |
+| 1.2 (mild decay) | 13% | 35% | 50% | 70% | 13% |
+| 0.8 (heavy decay) | 11% | 29% | 42% | 61% | 17% |
+
+Not a one-month lottery — a **2–4 month grind at ~50% by month 3**. Confirm live
+Sharpe on paper BEFORE paying a challenge fee. Biggest cost is re-fees on failed tries.
+
 ## Validated book (as of 2026-07)
 - S1 sweep (9 tickers, all regimes): Sharpe ~1.0
 - Overnight (Tue/Wed): Sharpe 0.68 | BTC trend (vol-targeted): Sharpe 0.67

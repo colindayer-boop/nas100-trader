@@ -1,24 +1,294 @@
-# HUNT LOG - Edge Hunting Results
+# HUNT LOG
 
-| Idea | IS Sharpe | OOS Sharpe | OOS Max DD | Trades | Corr to QQQ | Gauntlet Pass | Notes |
-|------|-----------|------------|------------|--------|-------------|---------------|-------|
-| 1. Funding Rate Carry | ERROR | ERROR | ERROR | ERROR | ERROR | FAIL | Exception: Already tz-aware, use tz_convert to convert.... |
+prop_fit = OOS Sharpe x %positive-months (higher = passes faster & survives the consistency rule). Rank PASS rows by prop_fit.
 
-## 2026-06-30 — re-run by working environment (CLI scripts were all broken: tz bugs, syntax errors, missing imports)
-| idea | IS Sharpe | OOS Sharpe | OOS DD | verdict |
-|---|---|---|---|---|
-| #1 funding carry (BTC, always-on) | 17.1 | 24.7 | -0.4% | REAL edge BUT idealized/frictionless — Sharpe>2.5 = flag. Real ~2-4 after costs. Tail risk (FTX-style). Best find of the hunt. |
-| #1 funding carry (toggling+cost) | 6.1 | -1.0 | -11% | FAILS — costs eat carry; must run continuously |
-| #2-7 (CLI scripts) | — | — | — | NOT RUN — CLI's scripts had tz/syntax/import bugs; rebuild needed |
-
-## REALISTIC funding carry (fees 0.04%/leg + basis modeled) — final
-| version | IS Sharpe | OOS Sharpe | CAGR | maxDD | note |
-|---|---|---|---|---|---|
-| BTC funding carry (realistic) | 5.16 | 10.77 | +8-15%/yr | -2% | STILL > 2.5 bar — not a code bug, the smooth backtest CANNOT model liquidation/basis-blowup/exchange-collapse (the real tail). True deployable Sharpe ~2-4. |
-| bear stress | — | — | funding -13%/yr in deep bears | — | go FLAT when funding persistently negative |
-
-### VERDICT: funding carry = the ONE real edge from the entire hunt (~18 ideas tested).
-Deployable ONLY as a small uncorrelated sleeve with HARD rules:
-  1. Hard size cap — never more on one exchange than you can lose entirely (FTX lesson).
-  2. Go flat when funding turns persistently negative (bear protection).
-  3. Reputable venue, modest size, treat tail risk as a position-sizing input, not a backtest number.
+| when | edge | IS | OOS | OOS_DD | corr | CAGR | pos_mo | prop_fit | n | verdict | why |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-07-02 01:06 | turn_of_month | 0.11 | 0.38 | -0.19 | 0.46 | 0.029 | 0.6 | 0.23 | 467 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 01:06 | pairs_gld_gdx | 0.28 | 0.5 | -0.275 | 0.11 | 0.082 | 0.63 | 0.31 | 1938 | **PASS** | all clear |
+| 2026-07-02 01:06 | pairs_xle_xop | 0.15 | -0.14 | -0.381 | 0.15 | -0.029 | 0.56 | 0.0 | 1938 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 01:06 | pairs_ewa_ewc | 0.99 | 0.72 | -0.127 | -0.06 | 0.062 | 0.65 | 0.47 | 1938 | **PASS** | all clear |
+| 2026-07-02 01:06 | pairs_ko_pep | 0.34 | -0.29 | -0.385 | 0.01 | -0.037 | 0.55 | 0.0 | 1938 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 01:06 | pairs_gld_tlt | 0.11 | -0.36 | -0.526 | 0.09 | -0.064 | 0.57 | 0.0 | 1938 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 01:06 | rsi2_spy | 0.4 | 0.55 | -0.177 | 0.46 | 0.049 | 0.56 | 0.31 | 869 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 01:06 | tsmom_spy | 0.29 | 0.58 | -0.337 | 0.28 | 0.098 | 0.62 | 0.36 | 1859 | **FAIL** | bear ok |
+| 2026-07-02 01:06 | short_reversal_qqq | -0.01 | -0.19 | -0.294 | 0.13 | -0.031 | 0.45 | 0.0 | 1959 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0 |
+| 2026-07-02 01:06 | crypto_weekend | 0.28 | -0.92 | -0.457 | 0.06 | -0.08 | 0.3 | 0.0 | 480 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 01:06 | defensive_rotation | 0.32 | -0.26 | -0.215 | -0.46 | -0.029 | 0.28 | 0.0 | 679 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 01:06 | sector_momentum | -0.08 | -0.04 | -0.434 | -0.04 | -0.019 | 0.47 | 0.0 | 92 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 01:06 | turn_of_month | 0.07 | 0.43 | -0.19 | 0.46 | 0.033 | 0.61 | 0.26 | 487 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 01:07 | pairs_gld_gdx | 0.31 | 0.44 | -0.275 | 0.11 | 0.068 | 0.61 | 0.27 | 2015 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 01:07 | pairs_xle_xop | 0.11 | -0.09 | -0.381 | 0.15 | -0.022 | 0.58 | 0.0 | 2015 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 01:07 | pairs_ewa_ewc | 0.99 | 0.74 | -0.127 | -0.06 | 0.064 | 0.64 | 0.48 | 2015 | **PASS** | all clear |
+| 2026-07-02 01:07 | pairs_ko_pep | 0.35 | -0.28 | -0.385 | 0.01 | -0.036 | 0.55 | 0.0 | 2015 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 01:07 | pairs_gld_tlt | 0.15 | -0.4 | -0.526 | 0.09 | -0.069 | 0.56 | 0.0 | 2015 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 01:07 | rsi2_spy | 0.43 | 0.5 | -0.185 | 0.46 | 0.044 | 0.56 | 0.28 | 904 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 01:07 | tsmom_spy | 0.37 | 0.45 | -0.348 | 0.28 | 0.071 | 0.6 | 0.27 | 1933 | **FAIL** | OOS Sharpe>0.5; bear ok |
+| 2026-07-02 01:07 | short_reversal_qqq | 0.01 | -0.21 | -0.294 | 0.13 | -0.032 | 0.43 | 0.0 | 2036 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 01:07 | crypto_weekend | 0.27 | -0.85 | -0.457 | 0.06 | -0.074 | 0.29 | 0.0 | 498 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 01:07 | defensive_rotation | 0.5 | -0.35 | -0.265 | -0.46 | -0.039 | 0.27 | 0.0 | 709 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 01:07 | sector_momentum | -0.12 | 0.01 | -0.434 | -0.04 | -0.011 | 0.49 | 0.0 | 96 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 01:37 | turn_of_month | 0.11 | 0.38 | -0.19 | 0.46 | 0.029 | 0.6 | 0.23 | 477 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 01:37 | pairs_gld_gdx | 0.31 | 0.44 | -0.275 | 0.11 | 0.069 | 0.61 | 0.27 | 1982 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 01:37 | pairs_xle_xop | 0.12 | -0.11 | -0.381 | 0.15 | -0.024 | 0.57 | 0.0 | 1982 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 01:37 | pairs_ewa_ewc | 1.01 | 0.7 | -0.127 | -0.06 | 0.061 | 0.64 | 0.45 | 1982 | **PASS** | all clear |
+| 2026-07-02 01:37 | pairs_ko_pep | 0.38 | -0.31 | -0.385 | 0.01 | -0.039 | 0.53 | 0.0 | 1982 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 01:37 | pairs_gld_tlt | 0.13 | -0.38 | -0.526 | 0.09 | -0.065 | 0.57 | 0.0 | 1982 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 01:37 | rsi2_spy | 0.42 | 0.53 | -0.177 | 0.46 | 0.046 | 0.56 | 0.29 | 886 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 01:37 | tsmom_spy | 0.36 | 0.47 | -0.344 | 0.28 | 0.075 | 0.6 | 0.28 | 1901 | **FAIL** | OOS Sharpe>0.5; bear ok |
+| 2026-07-02 01:37 | short_reversal_qqq | -0.01 | -0.19 | -0.294 | 0.13 | -0.03 | 0.44 | 0.0 | 2003 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0 |
+| 2026-07-02 01:37 | crypto_weekend | 0.26 | -0.84 | -0.457 | 0.06 | -0.074 | 0.31 | 0.0 | 490 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 01:37 | defensive_rotation | 0.34 | -0.28 | -0.224 | -0.46 | -0.03 | 0.28 | 0.0 | 684 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 01:37 | sector_momentum | -0.09 | -0.02 | -0.434 | -0.04 | -0.016 | 0.48 | 0.0 | 94 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 02:07 | turn_of_month | 0.05 | 0.41 | -0.19 | 0.46 | 0.031 | 0.63 | 0.26 | 568 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 02:07 | pairs_gld_gdx | 0.27 | 0.49 | -0.275 | 0.11 | 0.075 | 0.62 | 0.3 | 2354 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 02:07 | pairs_xle_xop | 0.18 | -0.13 | -0.389 | 0.15 | -0.026 | 0.55 | 0.0 | 2354 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 02:07 | pairs_ewa_ewc | 1.08 | 0.66 | -0.127 | -0.06 | 0.054 | 0.63 | 0.41 | 2354 | **PASS** | all clear |
+| 2026-07-02 02:07 | pairs_ko_pep | 0.47 | -0.33 | -0.385 | 0.01 | -0.039 | 0.54 | 0.0 | 2354 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 02:07 | pairs_gld_tlt | 0.19 | -0.4 | -0.526 | 0.09 | -0.064 | 0.57 | 0.0 | 2354 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 02:07 | rsi2_spy | 0.36 | 0.56 | -0.23 | 0.46 | 0.049 | 0.58 | 0.33 | 1108 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 02:07 | tsmom_spy | 0.31 | 0.51 | -0.373 | 0.28 | 0.081 | 0.63 | 0.32 | 2256 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 02:07 | short_reversal_qqq | 0.05 | -0.23 | -0.354 | 0.13 | -0.033 | 0.43 | 0.0 | 2379 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 02:07 | crypto_weekend | 0.23 | -0.46 | -0.518 | 0.06 | -0.053 | 0.35 | 0.0 | 582 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 02:07 | defensive_rotation | 0.43 | -0.21 | -0.274 | -0.46 | -0.024 | 0.28 | 0.0 | 837 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 02:07 | sector_momentum | -0.14 | 0.02 | -0.434 | -0.04 | -0.009 | 0.5 | 0.01 | 112 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 02:37 | turn_of_month | 0.07 | 0.36 | -0.19 | 0.46 | 0.026 | 0.62 | 0.22 | 642 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 02:37 | pairs_gld_gdx | 0.4 | 0.32 | -0.344 | 0.11 | 0.044 | 0.6 | 0.19 | 2665 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 02:37 | pairs_xle_xop | 0.23 | -0.13 | -0.409 | 0.15 | -0.026 | 0.57 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 02:37 | pairs_ewa_ewc | 1.1 | 0.68 | -0.127 | -0.06 | 0.056 | 0.64 | 0.44 | 2665 | **PASS** | all clear |
+| 2026-07-02 02:37 | pairs_ko_pep | 0.6 | -0.37 | -0.385 | 0.01 | -0.041 | 0.54 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 02:37 | pairs_gld_tlt | 0.15 | -0.31 | -0.526 | 0.09 | -0.05 | 0.58 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 02:37 | rsi2_spy | 0.33 | 0.58 | -0.23 | 0.46 | 0.05 | 0.58 | 0.34 | 1244 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 02:37 | tsmom_spy | 0.25 | 0.56 | -0.373 | 0.28 | 0.088 | 0.66 | 0.37 | 2554 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 02:37 | short_reversal_qqq | -0.01 | -0.16 | -0.354 | 0.13 | -0.023 | 0.43 | 0.0 | 2691 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 02:37 | crypto_weekend | 0.29 | -0.44 | -0.518 | 0.06 | -0.052 | 0.38 | 0.0 | 660 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 02:37 | defensive_rotation | 0.27 | -0.07 | -0.274 | -0.46 | -0.011 | 0.32 | 0.0 | 957 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 02:37 | sector_momentum | 0.04 | -0.13 | -0.434 | -0.04 | -0.03 | 0.47 | 0.0 | 127 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 03:07 | turn_of_month | 0.07 | 0.36 | -0.19 | 0.46 | 0.026 | 0.62 | 0.22 | 642 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 03:07 | pairs_gld_gdx | 0.4 | 0.32 | -0.344 | 0.11 | 0.044 | 0.6 | 0.19 | 2665 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 03:07 | pairs_xle_xop | 0.23 | -0.13 | -0.409 | 0.15 | -0.026 | 0.57 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 03:07 | pairs_ewa_ewc | 1.1 | 0.68 | -0.127 | -0.06 | 0.056 | 0.64 | 0.44 | 2665 | **PASS** | all clear |
+| 2026-07-02 03:07 | pairs_ko_pep | 0.6 | -0.37 | -0.385 | 0.01 | -0.041 | 0.54 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 03:07 | pairs_gld_tlt | 0.15 | -0.31 | -0.526 | 0.09 | -0.05 | 0.58 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 03:07 | rsi2_spy | 0.33 | 0.58 | -0.23 | 0.46 | 0.05 | 0.58 | 0.34 | 1244 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 03:07 | tsmom_spy | 0.25 | 0.56 | -0.373 | 0.28 | 0.088 | 0.66 | 0.37 | 2554 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 03:07 | short_reversal_qqq | -0.01 | -0.16 | -0.354 | 0.13 | -0.023 | 0.43 | 0.0 | 2691 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 03:07 | crypto_weekend | 0.29 | -0.44 | -0.518 | 0.06 | -0.052 | 0.38 | 0.0 | 660 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 03:07 | defensive_rotation | 0.27 | -0.07 | -0.274 | -0.46 | -0.011 | 0.32 | 0.0 | 957 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 03:07 | sector_momentum | 0.04 | -0.13 | -0.434 | -0.04 | -0.03 | 0.47 | 0.0 | 127 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 03:37 | turn_of_month | 0.06 | 0.39 | -0.19 | 0.46 | 0.028 | 0.62 | 0.24 | 617 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 03:38 | pairs_gld_gdx | 0.3 | 0.43 | -0.275 | 0.11 | 0.065 | 0.6 | 0.26 | 2558 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 03:38 | pairs_xle_xop | 0.06 | -0.02 | -0.389 | 0.15 | -0.011 | 0.58 | 0.0 | 2558 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 03:38 | pairs_ewa_ewc | 1.05 | 0.72 | -0.127 | -0.06 | 0.059 | 0.65 | 0.47 | 2558 | **PASS** | all clear |
+| 2026-07-02 03:38 | pairs_ko_pep | 0.57 | -0.37 | -0.385 | 0.01 | -0.041 | 0.56 | 0.0 | 2558 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 03:38 | pairs_gld_tlt | 0.14 | -0.32 | -0.526 | 0.09 | -0.051 | 0.58 | 0.0 | 2558 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 03:38 | rsi2_spy | 0.34 | 0.58 | -0.23 | 0.46 | 0.05 | 0.59 | 0.34 | 1213 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 03:38 | tsmom_spy | 0.26 | 0.56 | -0.373 | 0.28 | 0.089 | 0.66 | 0.37 | 2451 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 03:38 | short_reversal_qqq | -0.01 | -0.17 | -0.354 | 0.13 | -0.024 | 0.44 | 0.0 | 2583 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 03:38 | crypto_weekend | 0.22 | -0.38 | -0.518 | 0.06 | -0.045 | 0.37 | 0.0 | 634 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 03:38 | defensive_rotation | 0.31 | -0.1 | -0.274 | -0.46 | -0.014 | 0.32 | 0.0 | 923 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 03:38 | sector_momentum | -0.11 | -0.02 | -0.434 | -0.04 | -0.013 | 0.5 | 0.0 | 121 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 04:08 | turn_of_month | 0.11 | 0.37 | -0.19 | 0.46 | 0.028 | 0.61 | 0.22 | 507 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 04:08 | pairs_gld_gdx | 0.32 | 0.42 | -0.275 | 0.11 | 0.063 | 0.61 | 0.25 | 2104 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 04:08 | pairs_xle_xop | 0.14 | -0.12 | -0.381 | 0.15 | -0.025 | 0.57 | 0.0 | 2104 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 04:08 | pairs_ewa_ewc | 0.99 | 0.76 | -0.127 | -0.06 | 0.064 | 0.64 | 0.48 | 2104 | **PASS** | all clear |
+| 2026-07-02 04:08 | pairs_ko_pep | 0.41 | -0.32 | -0.385 | 0.01 | -0.039 | 0.55 | 0.0 | 2104 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 04:08 | pairs_gld_tlt | 0.14 | -0.38 | -0.526 | 0.09 | -0.065 | 0.57 | 0.0 | 2104 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 04:08 | rsi2_spy | 0.5 | 0.42 | -0.23 | 0.46 | 0.037 | 0.55 | 0.23 | 958 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 04:08 | tsmom_spy | 0.37 | 0.45 | -0.373 | 0.28 | 0.07 | 0.6 | 0.27 | 2017 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 04:08 | short_reversal_qqq | 0.07 | -0.27 | -0.342 | 0.13 | -0.039 | 0.42 | 0.0 | 2127 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 04:08 | crypto_weekend | 0.25 | -0.74 | -0.457 | 0.06 | -0.066 | 0.33 | 0.0 | 521 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 04:08 | defensive_rotation | 0.5 | -0.31 | -0.274 | -0.46 | -0.035 | 0.27 | 0.0 | 759 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 04:08 | sector_momentum | -0.09 | -0.02 | -0.434 | -0.04 | -0.015 | 0.49 | 0.0 | 100 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 04:38 | turn_of_month | 0.12 | 0.36 | -0.19 | 0.46 | 0.028 | 0.59 | 0.22 | 472 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 04:38 | pairs_gld_gdx | 0.27 | 0.51 | -0.275 | 0.11 | 0.083 | 0.63 | 0.32 | 1943 | **PASS** | all clear |
+| 2026-07-02 04:38 | pairs_xle_xop | 0.14 | -0.14 | -0.381 | 0.15 | -0.028 | 0.56 | 0.0 | 1943 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 04:38 | pairs_ewa_ewc | 0.99 | 0.72 | -0.127 | -0.06 | 0.063 | 0.65 | 0.47 | 1943 | **PASS** | all clear |
+| 2026-07-02 04:38 | pairs_ko_pep | 0.33 | -0.27 | -0.385 | 0.01 | -0.035 | 0.55 | 0.0 | 1943 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 04:38 | pairs_gld_tlt | 0.12 | -0.37 | -0.526 | 0.09 | -0.066 | 0.57 | 0.0 | 1943 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 04:38 | rsi2_spy | 0.41 | 0.53 | -0.177 | 0.46 | 0.047 | 0.55 | 0.29 | 874 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 04:38 | tsmom_spy | 0.3 | 0.55 | -0.337 | 0.28 | 0.093 | 0.6 | 0.33 | 1864 | **FAIL** | bear ok |
+| 2026-07-02 04:38 | short_reversal_qqq | -0.02 | -0.19 | -0.294 | 0.13 | -0.03 | 0.45 | 0.0 | 1964 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0 |
+| 2026-07-02 04:38 | crypto_weekend | 0.26 | -0.87 | -0.457 | 0.06 | -0.077 | 0.3 | 0.0 | 481 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 04:38 | defensive_rotation | 0.32 | -0.26 | -0.215 | -0.46 | -0.029 | 0.28 | 0.0 | 679 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 04:38 | sector_momentum | -0.08 | -0.04 | -0.434 | -0.04 | -0.019 | 0.47 | 0.0 | 92 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 05:08 | turn_of_month | 0.07 | 0.4 | -0.19 | 0.46 | 0.03 | 0.61 | 0.25 | 537 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 05:08 | pairs_gld_gdx | 0.32 | 0.42 | -0.275 | 0.11 | 0.063 | 0.61 | 0.26 | 2223 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 05:08 | pairs_xle_xop | 0.13 | -0.1 | -0.381 | 0.15 | -0.022 | 0.57 | 0.0 | 2223 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 05:08 | pairs_ewa_ewc | 1.05 | 0.68 | -0.127 | -0.06 | 0.056 | 0.64 | 0.43 | 2223 | **PASS** | all clear |
+| 2026-07-02 05:08 | pairs_ko_pep | 0.48 | -0.36 | -0.385 | 0.01 | -0.043 | 0.55 | 0.0 | 2223 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 05:08 | pairs_gld_tlt | 0.19 | -0.42 | -0.526 | 0.09 | -0.069 | 0.56 | 0.0 | 2223 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 05:08 | rsi2_spy | 0.43 | 0.5 | -0.23 | 0.46 | 0.044 | 0.57 | 0.28 | 1019 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 05:08 | tsmom_spy | 0.36 | 0.46 | -0.373 | 0.28 | 0.071 | 0.61 | 0.28 | 2130 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 05:08 | short_reversal_qqq | 0.02 | -0.22 | -0.354 | 0.13 | -0.032 | 0.42 | 0.0 | 2247 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 05:08 | crypto_weekend | 0.36 | -0.9 | -0.518 | 0.06 | -0.086 | 0.33 | 0.0 | 550 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 05:08 | defensive_rotation | 0.47 | -0.26 | -0.274 | -0.46 | -0.03 | 0.27 | 0.0 | 798 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 05:08 | sector_momentum | -0.12 | 0.0 | -0.434 | -0.04 | -0.011 | 0.5 | 0.0 | 106 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 05:38 | turn_of_month | 0.07 | 0.36 | -0.19 | 0.46 | 0.026 | 0.62 | 0.22 | 642 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 05:38 | pairs_gld_gdx | 0.4 | 0.32 | -0.344 | 0.11 | 0.044 | 0.6 | 0.19 | 2665 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 05:38 | pairs_xle_xop | 0.23 | -0.13 | -0.409 | 0.15 | -0.026 | 0.57 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 05:38 | pairs_ewa_ewc | 1.1 | 0.68 | -0.127 | -0.06 | 0.056 | 0.64 | 0.44 | 2665 | **PASS** | all clear |
+| 2026-07-02 05:38 | pairs_ko_pep | 0.6 | -0.37 | -0.385 | 0.01 | -0.041 | 0.54 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 05:38 | pairs_gld_tlt | 0.15 | -0.31 | -0.526 | 0.09 | -0.05 | 0.58 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 05:38 | rsi2_spy | 0.33 | 0.58 | -0.23 | 0.46 | 0.05 | 0.58 | 0.34 | 1244 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 05:38 | tsmom_spy | 0.25 | 0.56 | -0.373 | 0.28 | 0.088 | 0.66 | 0.37 | 2554 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 05:38 | short_reversal_qqq | -0.01 | -0.16 | -0.354 | 0.13 | -0.023 | 0.43 | 0.0 | 2691 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 05:38 | crypto_weekend | 0.29 | -0.44 | -0.518 | 0.06 | -0.052 | 0.38 | 0.0 | 660 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 05:38 | defensive_rotation | 0.27 | -0.07 | -0.274 | -0.46 | -0.011 | 0.32 | 0.0 | 957 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 05:39 | sector_momentum | 0.04 | -0.13 | -0.434 | -0.04 | -0.03 | 0.47 | 0.0 | 127 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 06:09 | turn_of_month | 0.07 | 0.36 | -0.19 | 0.46 | 0.026 | 0.62 | 0.22 | 642 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 06:09 | pairs_gld_gdx | 0.4 | 0.32 | -0.344 | 0.11 | 0.044 | 0.6 | 0.19 | 2665 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 06:09 | pairs_xle_xop | 0.23 | -0.13 | -0.409 | 0.15 | -0.026 | 0.57 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 06:09 | pairs_ewa_ewc | 1.1 | 0.68 | -0.127 | -0.06 | 0.056 | 0.64 | 0.44 | 2665 | **PASS** | all clear |
+| 2026-07-02 06:09 | pairs_ko_pep | 0.6 | -0.37 | -0.385 | 0.01 | -0.041 | 0.54 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 06:09 | pairs_gld_tlt | 0.15 | -0.31 | -0.526 | 0.09 | -0.05 | 0.58 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 06:09 | rsi2_spy | 0.33 | 0.58 | -0.23 | 0.46 | 0.05 | 0.58 | 0.34 | 1244 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 06:09 | tsmom_spy | 0.25 | 0.56 | -0.373 | 0.28 | 0.088 | 0.66 | 0.37 | 2554 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 06:09 | short_reversal_qqq | -0.01 | -0.16 | -0.354 | 0.13 | -0.023 | 0.43 | 0.0 | 2691 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 06:09 | crypto_weekend | 0.29 | -0.44 | -0.518 | 0.06 | -0.052 | 0.38 | 0.0 | 660 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 06:09 | defensive_rotation | 0.27 | -0.07 | -0.274 | -0.46 | -0.011 | 0.32 | 0.0 | 957 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 06:09 | sector_momentum | 0.04 | -0.13 | -0.434 | -0.04 | -0.03 | 0.47 | 0.0 | 127 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 06:39 | turn_of_month | 0.07 | 0.36 | -0.19 | 0.46 | 0.026 | 0.62 | 0.22 | 642 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 06:39 | pairs_gld_gdx | 0.4 | 0.32 | -0.344 | 0.11 | 0.044 | 0.6 | 0.19 | 2665 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 06:39 | pairs_xle_xop | 0.23 | -0.13 | -0.409 | 0.15 | -0.026 | 0.57 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 06:39 | pairs_ewa_ewc | 1.1 | 0.68 | -0.127 | -0.06 | 0.056 | 0.64 | 0.44 | 2665 | **PASS** | all clear |
+| 2026-07-02 06:39 | pairs_ko_pep | 0.6 | -0.37 | -0.385 | 0.01 | -0.041 | 0.54 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 06:39 | pairs_gld_tlt | 0.15 | -0.31 | -0.526 | 0.09 | -0.05 | 0.58 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 06:39 | rsi2_spy | 0.33 | 0.58 | -0.23 | 0.46 | 0.05 | 0.58 | 0.34 | 1244 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 06:39 | tsmom_spy | 0.25 | 0.56 | -0.373 | 0.28 | 0.088 | 0.66 | 0.37 | 2554 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 06:39 | short_reversal_qqq | -0.01 | -0.16 | -0.354 | 0.13 | -0.023 | 0.43 | 0.0 | 2691 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 06:39 | crypto_weekend | 0.29 | -0.44 | -0.518 | 0.06 | -0.052 | 0.38 | 0.0 | 660 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 06:39 | defensive_rotation | 0.27 | -0.07 | -0.274 | -0.46 | -0.011 | 0.32 | 0.0 | 957 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 06:39 | sector_momentum | 0.04 | -0.13 | -0.434 | -0.04 | -0.03 | 0.47 | 0.0 | 127 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 07:09 | turn_of_month | 0.07 | 0.4 | -0.19 | 0.46 | 0.03 | 0.61 | 0.25 | 537 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 07:09 | pairs_gld_gdx | 0.31 | 0.43 | -0.275 | 0.11 | 0.065 | 0.61 | 0.26 | 2219 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 07:09 | pairs_xle_xop | 0.13 | -0.1 | -0.381 | 0.15 | -0.022 | 0.57 | 0.0 | 2219 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 07:09 | pairs_ewa_ewc | 1.05 | 0.68 | -0.127 | -0.06 | 0.056 | 0.63 | 0.43 | 2219 | **PASS** | all clear |
+| 2026-07-02 07:09 | pairs_ko_pep | 0.48 | -0.36 | -0.385 | 0.01 | -0.043 | 0.55 | 0.0 | 2219 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 07:09 | pairs_gld_tlt | 0.19 | -0.42 | -0.526 | 0.09 | -0.069 | 0.56 | 0.0 | 2219 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 07:09 | rsi2_spy | 0.43 | 0.5 | -0.23 | 0.46 | 0.044 | 0.57 | 0.28 | 1018 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 07:09 | tsmom_spy | 0.37 | 0.45 | -0.373 | 0.28 | 0.069 | 0.61 | 0.27 | 2127 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 07:09 | short_reversal_qqq | 0.02 | -0.22 | -0.354 | 0.13 | -0.032 | 0.43 | 0.0 | 2243 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 07:09 | crypto_weekend | 0.36 | -0.91 | -0.518 | 0.06 | -0.086 | 0.33 | 0.0 | 550 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 07:09 | defensive_rotation | 0.47 | -0.26 | -0.274 | -0.46 | -0.03 | 0.27 | 0.0 | 798 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 07:09 | sector_momentum | -0.11 | -0.01 | -0.434 | -0.04 | -0.013 | 0.5 | 0.0 | 105 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 07:39 | turn_of_month | 0.12 | 0.36 | -0.19 | 0.46 | 0.028 | 0.6 | 0.22 | 471 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 07:39 | pairs_gld_gdx | 0.27 | 0.51 | -0.275 | 0.11 | 0.083 | 0.63 | 0.32 | 1943 | **PASS** | all clear |
+| 2026-07-02 07:39 | pairs_xle_xop | 0.14 | -0.14 | -0.381 | 0.15 | -0.028 | 0.56 | 0.0 | 1943 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 07:39 | pairs_ewa_ewc | 0.99 | 0.72 | -0.127 | -0.06 | 0.063 | 0.65 | 0.47 | 1943 | **PASS** | all clear |
+| 2026-07-02 07:39 | pairs_ko_pep | 0.33 | -0.27 | -0.385 | 0.01 | -0.035 | 0.55 | 0.0 | 1943 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 07:39 | pairs_gld_tlt | 0.12 | -0.37 | -0.526 | 0.09 | -0.066 | 0.57 | 0.0 | 1943 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 07:39 | rsi2_spy | 0.41 | 0.53 | -0.177 | 0.46 | 0.047 | 0.56 | 0.3 | 873 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 07:39 | tsmom_spy | 0.3 | 0.55 | -0.337 | 0.28 | 0.093 | 0.6 | 0.33 | 1863 | **FAIL** | bear ok |
+| 2026-07-02 07:39 | short_reversal_qqq | -0.01 | -0.2 | -0.294 | 0.13 | -0.031 | 0.45 | 0.0 | 1963 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0 |
+| 2026-07-02 07:39 | crypto_weekend | 0.26 | -0.87 | -0.457 | 0.06 | -0.077 | 0.3 | 0.0 | 481 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 07:39 | defensive_rotation | 0.32 | -0.26 | -0.215 | -0.46 | -0.029 | 0.28 | 0.0 | 679 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 07:39 | sector_momentum | -0.08 | -0.04 | -0.434 | -0.04 | -0.019 | 0.47 | 0.0 | 92 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 08:09 | turn_of_month | 0.1 | 0.38 | -0.19 | 0.46 | 0.029 | 0.62 | 0.24 | 509 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 08:09 | pairs_gld_gdx | 0.31 | 0.44 | -0.275 | 0.11 | 0.067 | 0.62 | 0.27 | 2108 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 08:09 | pairs_xle_xop | 0.12 | -0.1 | -0.381 | 0.15 | -0.022 | 0.57 | 0.0 | 2108 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 08:09 | pairs_ewa_ewc | 1.0 | 0.73 | -0.127 | -0.06 | 0.062 | 0.64 | 0.46 | 2108 | **PASS** | all clear |
+| 2026-07-02 08:09 | pairs_ko_pep | 0.41 | -0.32 | -0.385 | 0.01 | -0.04 | 0.55 | 0.0 | 2108 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 08:09 | pairs_gld_tlt | 0.16 | -0.4 | -0.526 | 0.09 | -0.068 | 0.56 | 0.0 | 2108 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 08:09 | rsi2_spy | 0.5 | 0.42 | -0.23 | 0.46 | 0.037 | 0.55 | 0.23 | 958 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 08:09 | tsmom_spy | 0.37 | 0.45 | -0.373 | 0.28 | 0.07 | 0.6 | 0.27 | 2021 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 08:09 | short_reversal_qqq | 0.07 | -0.27 | -0.345 | 0.13 | -0.039 | 0.42 | 0.0 | 2130 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 08:09 | crypto_weekend | 0.25 | -0.74 | -0.457 | 0.06 | -0.066 | 0.33 | 0.0 | 522 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 08:09 | defensive_rotation | 0.5 | -0.31 | -0.274 | -0.46 | -0.035 | 0.27 | 0.0 | 759 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 08:09 | sector_momentum | -0.09 | -0.02 | -0.434 | -0.04 | -0.015 | 0.49 | 0.0 | 100 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 08:39 | turn_of_month | 0.06 | 0.39 | -0.19 | 0.46 | 0.028 | 0.62 | 0.24 | 617 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 08:39 | pairs_gld_gdx | 0.3 | 0.43 | -0.275 | 0.11 | 0.065 | 0.6 | 0.26 | 2562 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 08:39 | pairs_xle_xop | 0.09 | -0.05 | -0.389 | 0.15 | -0.015 | 0.57 | 0.0 | 2562 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 08:39 | pairs_ewa_ewc | 1.07 | 0.71 | -0.127 | -0.06 | 0.057 | 0.65 | 0.46 | 2562 | **PASS** | all clear |
+| 2026-07-02 08:39 | pairs_ko_pep | 0.56 | -0.36 | -0.385 | 0.01 | -0.041 | 0.56 | 0.0 | 2562 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 08:39 | pairs_gld_tlt | 0.14 | -0.31 | -0.526 | 0.09 | -0.051 | 0.58 | 0.0 | 2562 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 08:39 | rsi2_spy | 0.34 | 0.57 | -0.23 | 0.46 | 0.05 | 0.59 | 0.34 | 1213 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 08:39 | tsmom_spy | 0.25 | 0.56 | -0.373 | 0.28 | 0.089 | 0.66 | 0.37 | 2455 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 08:39 | short_reversal_qqq | -0.01 | -0.16 | -0.354 | 0.13 | -0.024 | 0.44 | 0.0 | 2588 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 08:39 | crypto_weekend | 0.22 | -0.38 | -0.518 | 0.06 | -0.045 | 0.37 | 0.0 | 634 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 08:39 | defensive_rotation | 0.31 | -0.1 | -0.274 | -0.46 | -0.014 | 0.32 | 0.0 | 926 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 08:39 | sector_momentum | -0.1 | -0.03 | -0.434 | -0.04 | -0.015 | 0.49 | 0.0 | 122 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 09:09 | turn_of_month | 0.07 | 0.36 | -0.19 | 0.46 | 0.026 | 0.62 | 0.22 | 642 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 09:09 | pairs_gld_gdx | 0.4 | 0.32 | -0.344 | 0.11 | 0.044 | 0.6 | 0.19 | 2665 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 09:09 | pairs_xle_xop | 0.23 | -0.13 | -0.409 | 0.15 | -0.026 | 0.57 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 09:09 | pairs_ewa_ewc | 1.1 | 0.68 | -0.127 | -0.06 | 0.056 | 0.64 | 0.44 | 2665 | **PASS** | all clear |
+| 2026-07-02 09:09 | pairs_ko_pep | 0.6 | -0.37 | -0.385 | 0.01 | -0.041 | 0.54 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 09:09 | pairs_gld_tlt | 0.15 | -0.31 | -0.526 | 0.09 | -0.05 | 0.58 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 09:09 | rsi2_spy | 0.33 | 0.58 | -0.23 | 0.46 | 0.05 | 0.58 | 0.34 | 1244 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 09:09 | tsmom_spy | 0.25 | 0.56 | -0.373 | 0.28 | 0.088 | 0.66 | 0.37 | 2554 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 09:09 | short_reversal_qqq | -0.01 | -0.16 | -0.354 | 0.13 | -0.023 | 0.43 | 0.0 | 2691 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 09:09 | crypto_weekend | 0.29 | -0.44 | -0.518 | 0.06 | -0.052 | 0.38 | 0.0 | 660 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 09:09 | defensive_rotation | 0.27 | -0.07 | -0.274 | -0.46 | -0.011 | 0.32 | 0.0 | 957 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 09:09 | sector_momentum | 0.04 | -0.13 | -0.434 | -0.04 | -0.03 | 0.47 | 0.0 | 127 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 09:39 | turn_of_month | 0.07 | 0.36 | -0.19 | 0.46 | 0.026 | 0.62 | 0.22 | 642 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 09:39 | pairs_gld_gdx | 0.4 | 0.32 | -0.344 | 0.11 | 0.044 | 0.6 | 0.19 | 2665 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 09:39 | pairs_xle_xop | 0.23 | -0.13 | -0.409 | 0.15 | -0.026 | 0.57 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 09:39 | pairs_ewa_ewc | 1.1 | 0.68 | -0.127 | -0.06 | 0.056 | 0.64 | 0.44 | 2665 | **PASS** | all clear |
+| 2026-07-02 09:39 | pairs_ko_pep | 0.6 | -0.37 | -0.385 | 0.01 | -0.041 | 0.54 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 09:39 | pairs_gld_tlt | 0.15 | -0.31 | -0.526 | 0.09 | -0.05 | 0.58 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 09:39 | rsi2_spy | 0.33 | 0.58 | -0.23 | 0.46 | 0.05 | 0.58 | 0.34 | 1244 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 09:39 | tsmom_spy | 0.25 | 0.56 | -0.373 | 0.28 | 0.088 | 0.66 | 0.37 | 2554 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 09:39 | short_reversal_qqq | -0.01 | -0.16 | -0.354 | 0.13 | -0.023 | 0.43 | 0.0 | 2691 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 09:39 | crypto_weekend | 0.29 | -0.44 | -0.518 | 0.06 | -0.052 | 0.38 | 0.0 | 660 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 09:39 | defensive_rotation | 0.27 | -0.07 | -0.274 | -0.46 | -0.011 | 0.32 | 0.0 | 957 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 09:39 | sector_momentum | 0.04 | -0.13 | -0.434 | -0.04 | -0.03 | 0.47 | 0.0 | 127 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 10:09 | turn_of_month | 0.06 | 0.41 | -0.19 | 0.46 | 0.03 | 0.63 | 0.26 | 567 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 10:09 | pairs_gld_gdx | 0.28 | 0.47 | -0.275 | 0.11 | 0.072 | 0.62 | 0.3 | 2350 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 10:09 | pairs_xle_xop | 0.17 | -0.13 | -0.381 | 0.15 | -0.026 | 0.55 | 0.0 | 2350 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 10:09 | pairs_ewa_ewc | 1.07 | 0.67 | -0.127 | -0.06 | 0.056 | 0.63 | 0.42 | 2350 | **PASS** | all clear |
+| 2026-07-02 10:09 | pairs_ko_pep | 0.47 | -0.33 | -0.385 | 0.01 | -0.039 | 0.54 | 0.0 | 2350 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 10:09 | pairs_gld_tlt | 0.19 | -0.41 | -0.526 | 0.09 | -0.065 | 0.57 | 0.0 | 2350 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 10:09 | rsi2_spy | 0.37 | 0.56 | -0.23 | 0.46 | 0.049 | 0.58 | 0.33 | 1106 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 10:09 | tsmom_spy | 0.31 | 0.51 | -0.373 | 0.28 | 0.081 | 0.63 | 0.32 | 2252 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 10:09 | short_reversal_qqq | 0.05 | -0.23 | -0.354 | 0.13 | -0.033 | 0.43 | 0.0 | 2375 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 10:09 | crypto_weekend | 0.23 | -0.46 | -0.518 | 0.06 | -0.053 | 0.36 | 0.0 | 582 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 10:09 | defensive_rotation | 0.43 | -0.21 | -0.274 | -0.46 | -0.024 | 0.28 | 0.0 | 837 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 10:09 | sector_momentum | -0.14 | 0.02 | -0.434 | -0.04 | -0.009 | 0.5 | 0.01 | 112 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 10:39 | turn_of_month | 0.11 | 0.38 | -0.19 | 0.46 | 0.029 | 0.6 | 0.23 | 477 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 10:39 | pairs_gld_gdx | 0.3 | 0.45 | -0.275 | 0.11 | 0.071 | 0.61 | 0.28 | 1980 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 10:39 | pairs_xle_xop | 0.12 | -0.1 | -0.381 | 0.15 | -0.024 | 0.57 | 0.0 | 1980 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 10:39 | pairs_ewa_ewc | 1.01 | 0.7 | -0.127 | -0.06 | 0.061 | 0.64 | 0.45 | 1980 | **PASS** | all clear |
+| 2026-07-02 10:39 | pairs_ko_pep | 0.37 | -0.31 | -0.385 | 0.01 | -0.039 | 0.53 | 0.0 | 1980 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 10:39 | pairs_gld_tlt | 0.12 | -0.37 | -0.526 | 0.09 | -0.064 | 0.58 | 0.0 | 1980 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 10:39 | rsi2_spy | 0.42 | 0.53 | -0.177 | 0.46 | 0.046 | 0.56 | 0.29 | 886 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 10:39 | tsmom_spy | 0.35 | 0.48 | -0.337 | 0.28 | 0.078 | 0.6 | 0.29 | 1899 | **FAIL** | OOS Sharpe>0.5; bear ok |
+| 2026-07-02 10:39 | short_reversal_qqq | -0.02 | -0.19 | -0.294 | 0.13 | -0.029 | 0.45 | 0.0 | 2001 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0 |
+| 2026-07-02 10:39 | crypto_weekend | 0.26 | -0.84 | -0.457 | 0.06 | -0.074 | 0.32 | 0.0 | 490 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 10:39 | defensive_rotation | 0.36 | -0.29 | -0.224 | -0.46 | -0.031 | 0.28 | 0.0 | 683 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 10:39 | sector_momentum | -0.09 | -0.02 | -0.434 | -0.04 | -0.016 | 0.48 | 0.0 | 94 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 11:09 | turn_of_month | 0.07 | 0.43 | -0.19 | 0.46 | 0.033 | 0.61 | 0.26 | 487 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 11:09 | pairs_gld_gdx | 0.31 | 0.43 | -0.275 | 0.11 | 0.067 | 0.61 | 0.27 | 2017 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 11:09 | pairs_xle_xop | 0.11 | -0.1 | -0.381 | 0.15 | -0.022 | 0.57 | 0.0 | 2017 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 11:09 | pairs_ewa_ewc | 0.99 | 0.74 | -0.127 | -0.06 | 0.063 | 0.64 | 0.47 | 2017 | **PASS** | all clear |
+| 2026-07-02 11:09 | pairs_ko_pep | 0.37 | -0.3 | -0.385 | 0.01 | -0.037 | 0.54 | 0.0 | 2017 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 11:09 | pairs_gld_tlt | 0.15 | -0.41 | -0.526 | 0.09 | -0.069 | 0.56 | 0.0 | 2017 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 11:09 | rsi2_spy | 0.43 | 0.51 | -0.185 | 0.46 | 0.044 | 0.56 | 0.28 | 907 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 11:09 | tsmom_spy | 0.36 | 0.46 | -0.348 | 0.28 | 0.073 | 0.6 | 0.27 | 1935 | **FAIL** | OOS Sharpe>0.5; bear ok |
+| 2026-07-02 11:09 | short_reversal_qqq | 0.01 | -0.22 | -0.297 | 0.13 | -0.033 | 0.43 | 0.0 | 2039 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 11:09 | crypto_weekend | 0.26 | -0.81 | -0.457 | 0.06 | -0.072 | 0.31 | 0.0 | 500 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 11:09 | defensive_rotation | 0.54 | -0.38 | -0.265 | -0.46 | -0.042 | 0.27 | 0.0 | 711 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 11:09 | sector_momentum | -0.12 | 0.01 | -0.434 | -0.04 | -0.011 | 0.49 | 0.0 | 96 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 11:39 | turn_of_month | 0.06 | 0.4 | -0.19 | 0.46 | 0.029 | 0.62 | 0.25 | 587 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 11:39 | pairs_gld_gdx | 0.27 | 0.48 | -0.275 | 0.11 | 0.072 | 0.62 | 0.29 | 2427 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 11:39 | pairs_xle_xop | 0.11 | -0.07 | -0.389 | 0.15 | -0.018 | 0.56 | 0.0 | 2427 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 11:39 | pairs_ewa_ewc | 1.06 | 0.69 | -0.127 | -0.06 | 0.057 | 0.64 | 0.44 | 2427 | **PASS** | all clear |
+| 2026-07-02 11:39 | pairs_ko_pep | 0.48 | -0.33 | -0.385 | 0.01 | -0.038 | 0.56 | 0.0 | 2427 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 11:39 | pairs_gld_tlt | 0.19 | -0.39 | -0.526 | 0.09 | -0.062 | 0.56 | 0.0 | 2427 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 11:39 | rsi2_spy | 0.34 | 0.58 | -0.23 | 0.46 | 0.051 | 0.6 | 0.35 | 1150 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 11:39 | tsmom_spy | 0.3 | 0.52 | -0.373 | 0.28 | 0.083 | 0.65 | 0.34 | 2326 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 11:39 | short_reversal_qqq | 0.01 | -0.19 | -0.354 | 0.13 | -0.028 | 0.44 | 0.0 | 2453 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 11:39 | crypto_weekend | 0.23 | -0.43 | -0.518 | 0.06 | -0.05 | 0.36 | 0.0 | 600 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 11:39 | defensive_rotation | 0.54 | -0.24 | -0.274 | -0.46 | -0.027 | 0.28 | 0.0 | 864 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 11:39 | sector_momentum | -0.12 | -0.0 | -0.434 | -0.04 | -0.011 | 0.5 | 0.0 | 115 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 12:09 | turn_of_month | 0.07 | 0.36 | -0.19 | 0.46 | 0.026 | 0.62 | 0.22 | 642 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 12:09 | pairs_gld_gdx | 0.4 | 0.32 | -0.344 | 0.11 | 0.044 | 0.6 | 0.19 | 2665 | **FAIL** | OOS Sharpe>0.5 |
+| 2026-07-02 12:09 | pairs_xle_xop | 0.23 | -0.13 | -0.409 | 0.15 | -0.026 | 0.57 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
+| 2026-07-02 12:09 | pairs_ewa_ewc | 1.1 | 0.68 | -0.127 | -0.06 | 0.056 | 0.64 | 0.44 | 2665 | **PASS** | all clear |
+| 2026-07-02 12:09 | pairs_ko_pep | 0.6 | -0.37 | -0.385 | 0.01 | -0.041 | 0.54 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 12:09 | pairs_gld_tlt | 0.15 | -0.31 | -0.526 | 0.09 | -0.05 | 0.58 | 0.0 | 2665 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 12:09 | rsi2_spy | 0.33 | 0.58 | -0.23 | 0.46 | 0.05 | 0.58 | 0.34 | 1244 | **FAIL** | |corr QQQ|<0.3 |
+| 2026-07-02 12:09 | tsmom_spy | 0.25 | 0.56 | -0.373 | 0.28 | 0.088 | 0.66 | 0.37 | 2554 | **FAIL** | OOS DD>-35%; bear ok |
+| 2026-07-02 12:09 | short_reversal_qqq | -0.01 | -0.16 | -0.354 | 0.13 | -0.023 | 0.43 | 0.0 | 2691 | **FAIL** | OOS Sharpe>0.5; IS Sharpe>0; OOS DD>-35% |
+| 2026-07-02 12:09 | crypto_weekend | 0.29 | -0.44 | -0.518 | 0.06 | -0.052 | 0.38 | 0.0 | 660 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35%; bear ok |
+| 2026-07-02 12:09 | defensive_rotation | 0.27 | -0.07 | -0.274 | -0.46 | -0.011 | 0.32 | 0.0 | 957 | **FAIL** | OOS Sharpe>0.5; |corr QQQ|<0.3 |
+| 2026-07-02 12:09 | sector_momentum | 0.04 | -0.13 | -0.434 | -0.04 | -0.03 | 0.47 | 0.0 | 127 | **FAIL** | OOS Sharpe>0.5; OOS DD>-35% |
