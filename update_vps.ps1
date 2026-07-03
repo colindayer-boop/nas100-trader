@@ -47,6 +47,16 @@ if ($fail -gt 0) {
     Write-Host "$fail file(s) failed to download - check network/URL." -ForegroundColor Red
 }
 
+# self-update: refresh THIS script for the next run (new files added upstream
+# only appear in the list after the script itself is current)
+try {
+    Invoke-WebRequest -Uri "$base/update_vps.ps1" -OutFile "$here\update_vps.ps1.new" -UseBasicParsing
+    Move-Item "$here\update_vps.ps1.new" "$here\update_vps.ps1" -Force
+    Write-Host "  ok   update_vps.ps1 (self)"
+} catch {
+    Write-Host "  WARN could not self-update updater" -ForegroundColor Yellow
+}
+
 if ($Schedule) {
     Write-Host "`n=== registering scheduled tasks ===" -ForegroundColor Cyan
     powershell -ExecutionPolicy Bypass -File (Join-Path $here "schedule_mt5.ps1")

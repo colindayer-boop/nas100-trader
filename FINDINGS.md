@@ -513,6 +513,16 @@ counts), latest signals same-day. The 2-week live silence was 100% the MT5
 server-time bug (Asian windows shifted ~3h), NOT over-strict filters. Gates
 verified working (S4 SPY correctly blocked on positive GEX same run).
 
+### DIX dark-pool regime gate — REJECTED (sign-unstable)
+Tested prior-day SqueezeMetrics DIX as a daily gate on S1+S4 sweeps (US100
+broker feed, 338 trade-days 2020–26, identical trade sim, a-priori thresholds,
+inverse control): the effect FLIPS between eras — IS: inverse (low DIX) wins
+(Sharpe +0.83 vs gate 0.00); OOS: gate wins (+0.54 vs −0.26). Median-gate was
+best IS (+0.96) and dead OOS (−0.03). DIX also drifted structurally higher, so
+OOS the >45 gate passes 79% of days — its "edge" rests on excluding 29 trades.
+Direction-unstable + structurally degenerate threshold = noise. GEX remains
+the only validated options-flow input. Do not revisit without a new mechanism.
+
 ### "50 Graphs" quant reference doc — reviewed, nothing to add
 The shared Google Doc is a chart/diagnostics catalog (distributions, ACF/PACF,
 rolling Sharpe, vol surfaces, microstructure, ML diagnostics) — zero strategies.
