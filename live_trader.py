@@ -919,4 +919,10 @@ print(f"\n{'='*60}")
 print(f"Done — {now_et().strftime('%H:%M ET')}")
 print(f"{'='*60}")
 logger.info(f"END session={args.session}")
-alerts.send(f"Session {args.session} complete | equity ${equity:,.2f}")
+# FILL / DRY-RUN / kill-switch events alert on their own (broker.py). The
+# per-session "complete" ping is demoted to a ONCE-DAILY heartbeat (17:0x ET)
+# so a real signal is never buried under 24 hourly heartbeats.
+if now_et().hour == 17:
+    alerts.send(f"Daily heartbeat: session {args.session} ok | equity ${equity:,.2f}")
+else:
+    logger.info(f"Session {args.session} complete | equity ${equity:,.2f}")
