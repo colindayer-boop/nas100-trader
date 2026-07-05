@@ -34,6 +34,16 @@ except ImportError:
 import alerts
 from broker import load_config, DryRunBroker
 
+# Force UTF-8 on stdout/stderr. Scheduled Windows tasks redirect output to a log
+# file encoded cp1252, which cannot encode emoji (✅ 🟢) — that raised
+# UnicodeEncodeError and crashed EVERY scheduled run with exit code 1 *before any
+# strategy was evaluated* (manual runs to a UTF-8 console were fine, masking it).
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 # ── LOGGING ──────────────────────────────────────────────────────────────────
 os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs"),
             exist_ok=True)
