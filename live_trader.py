@@ -287,7 +287,8 @@ def run_s1(broker, equity, open_syms, vix_ma21, spy_bull, vix_mult):
         shares = (equity * RISK_S1 * vix_mult * broker.RISK_SCALE) / (price * STOP_S1)
         logger.info(f"S1 SIGNAL QQQ sweep_low price={price:.2f} shares={shares:.1f}")
         print(f"  SIGNAL: QQQ sweep below Asian low {target_note}{confidence}")
-        broker.place_order_safe("QQQ", shares, "buy", "S1")
+        broker.place_order_safe("QQQ", shares, "buy", "S1",
+                                sl=price*(1-STOP_S1), tp=price*(1+STOP_S1*RR_S1))
     else:
         al = data["AsianLow"].iloc[-1]
         logger.info(f"S1 no signal: close={data['Close'].iloc[-1]:.2f} asian_low={al:.2f}")
@@ -350,11 +351,13 @@ def run_s2(broker, equity, open_syms, vix_mult):
     if long_cond[recent.index].any():
         logger.info(f"S2 SIGNAL GLD long price={price:.2f} shares={shares:.1f}")
         print("  SIGNAL: GLD London FVG long")
-        broker.place_order_safe("GLD", shares, "buy", "S2")
+        broker.place_order_safe("GLD", shares, "buy", "S2",
+                                sl=price*(1-STOP_S2), tp=price*(1+STOP_S2*RR_S2))
     elif short_cond[recent.index].any():
         logger.info(f"S2 SIGNAL GLD short price={price:.2f} shares={shares:.1f}")
         print("  SIGNAL: GLD London FVG short")
-        broker.place_order_safe("GLD", shares, "sell", "S2")
+        broker.place_order_safe("GLD", shares, "sell", "S2",
+                                sl=price*(1+STOP_S2), tp=price*(1-STOP_S2*RR_S2))
     else:
         logger.info("S2 no signal")
         print("  No signal")
@@ -418,7 +421,7 @@ def run_s3(broker, equity, open_syms, vix_mult):
                         f"dayret={dayret.iloc[-2]:.2%} shares={shares:.1f}")
             print(f"  SIGNAL {sym}: abnvol={abnvol.iloc[-2]:.2f}, "
                   f"ret={dayret.iloc[-2]:+.2%} -> BUY")
-            broker.place_order_safe(sym, shares, "buy", "S3")
+            broker.place_order_safe(sym, shares, "buy", "S3", sl=price*(1-STOP_S3))
         else:
             logger.info(f"S3 {sym}: no signal abnvol={abnvol.iloc[-2]:.2f}")
             print(f"  {sym}: no signal (abnvol={abnvol.iloc[-2]:.2f})")
@@ -485,7 +488,8 @@ def run_s4(broker, equity, open_syms, spy_bull, vix_mult):
             gex_note = f" | GEX ${net_gex/1e9:.1f}B negok" if net_gex is not None else ""
             logger.info(f"S4 SIGNAL {sym} price={price:.2f} shares={shares:.1f}")
             print(f"  SIGNAL {sym}: Asian sweep -> LONG{gex_note}")
-            broker.place_order_safe(sym, shares, "buy", "S4")
+            broker.place_order_safe(sym, shares, "buy", "S4",
+                                    sl=price*(1-STOP_S4), tp=price*(1+STOP_S4*RR_S4))
         else:
             gex_note = (f" | GEX ${net_gex/1e9:.1f}B {'negok' if neg_gex else 'posx'}"
                         if net_gex is not None else "")
@@ -535,12 +539,14 @@ def run_s5(broker, equity, open_syms, vix_ma21, spy_bull, qqq_bear200):
         shares = (equity * RISK_S5 * broker.RISK_SCALE) / (price * STOP_S5)
         logger.info(f"S5 SIGNAL QQQ ORB long price={price:.2f} shares={shares:.1f}")
         print(f"  SIGNAL: QQQ broke ORB high {orb_high:.2f} -> LONG")
-        broker.place_order_safe("QQQ", shares, "buy", "S5")
+        broker.place_order_safe("QQQ", shares, "buy", "S5",
+                                sl=price*(1-STOP_S5), tp=price*(1+STOP_S5*RR_S5))
     elif price < orb_low and qqq_bear200 and vol_ok:
         shares = (equity * RISK_S5 * broker.RISK_SCALE) / (price * STOP_S5)
         logger.info(f"S5 SIGNAL QQQ ORB short price={price:.2f} shares={shares:.1f}")
         print(f"  SIGNAL: QQQ broke ORB low {orb_low:.2f} -> SHORT (200d-SMA bear regime)")
-        broker.place_order_safe("QQQ", shares, "sell", "S5")
+        broker.place_order_safe("QQQ", shares, "sell", "S5",
+                                sl=price*(1+STOP_S5), tp=price*(1-STOP_S5*RR_S5))
     elif price < orb_low and not qqq_bear200:
         logger.info("S5: ORB-low break but bull regime - short disarmed")
         print("  ORB-low break but QQQ above 200d SMA - short disarmed (bull)")
@@ -835,7 +841,8 @@ def run_sweep_basket(broker, equity, open_syms, spy_bull, vix_mult):
         if fires:
             shares = round((equity * RISK_S1 * vix_mult * broker.RISK_SCALE) / (price * STOP_S1), 2)
             print(f"  SIGNAL {sym}: sweep below Asian low @ {price:.2f} -> BUY {shares}")
-            broker.place_order_safe(sym, shares, "buy", "SWEEP")
+            broker.place_order_safe(sym, shares, "buy", "SWEEP",
+                                    sl=price*(1-STOP_S1), tp=price*(1+STOP_S1*RR_S1))
         else:
             print(f"  {sym}: no signal")
 

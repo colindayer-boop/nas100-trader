@@ -74,14 +74,23 @@ class Broker:
         raise NotImplementedError
 
     def place_order_safe(self, symbol: str, qty: float, side: str, tag: str,
-                         max_retries: int = 3):
-        """Retry-with-backoff wrapper. Never double-sends on repeated failure."""
+                         max_retries: int = 3, sl: float = None, tp: float = None):
+        """Retry-with-backoff wrapper. Never double-sends on repeated failure.
+        sl/tp are absolute PRICE levels attached broker-side at entry, so the stop
+        is enforced by the broker even if the bot/VPS goes offline. Brokers that
+        don't support brackets fall back to a plain order."""
         import alerts
+        if sl is None:
+            logger.warning(f"NAKED ORDER {tag} {symbol} - no stop-loss attached")
+        brk = f" SL={sl:.2f} TP={tp:.2f}" if sl is not None else " (no SL)"
         for attempt in range(max_retries):
             try:
-                result = self.place_order(symbol, qty, side, tag)
-                logger.info(f"FILL {tag} {side.upper()} {qty:.1f} {symbol}")
-                alerts.send(f"FILL {tag} {side.upper()} {qty:.1f} {symbol}")
+                try:
+                    result = self.place_order(symbol, qty, side, tag, sl=sl, tp=tp)
+                except TypeError:
+                    result = self.place_order(symbol, qty, side, tag)
+                logger.info(f"FILL {tag} {side.upper()} {qty:.1f} {symbol}{brk}")
+                alerts.send(f"FILL {tag} {side.upper()} {qty:.1f} {symbol}{brk}")
                 return result
             except Exception as e:
                 if attempt == max_retries - 1:
@@ -143,12 +152,12 @@ class DryRunBroker(Broker):
         print(msg)
         logger.info(msg)
 
-    def place_order_safe(self, symbol, qty, side, tag, max_retries=3):
+    def place_order_safe(self, symbol, qty, side, tag, max_retries=3, sl=None, tp=None):
         import alerts
-
+        brk = f" SL={sl:.2f} TP={tp:.2f}" if sl is not None else " (no SL)"
         self.place_order(symbol, qty, side, tag)
-
+        print(f"[DRY-RUN] brackets:{brk}")
         alerts.send(
-            f"🧪 DRY RUN {tag}\n"
-            f"{side.upper()} {qty:.5f} {symbol}"
+            f"DRY RUN {tag}\n"
+            f"{side.upper()} {qty:.5f} {symbol}{brk}"
         )

@@ -146,7 +146,8 @@ class MT5Broker(Broker):
         lots = max(getattr(info, "volume_min", 0.01), min(lots, getattr(info, "volume_max", 100.0)))
         return round(lots, 2)
 
-    def place_order(self, symbol: str, qty: float, side: str, tag: str):
+    def place_order(self, symbol: str, qty: float, side: str, tag: str,
+                    sl: float = None, tp: float = None):
         m = self._mt5; sym = self.map(symbol); self._ensure_symbol(sym)
         lots = self._units_to_lots(sym, qty)
         tick = m.symbol_info_tick(sym)
@@ -158,6 +159,20 @@ class MT5Broker(Broker):
             "comment": tag, "type_filling": m.ORDER_FILLING_IOC,
             "type_time": m.ORDER_TIME_GTC,
         }
+        # Broker-side stop-loss / take-profit so the position is protected even if
+        # the bot or VPS goes offline. Clamp to the symbol's minimum stop distance.
+        if sl is not None or tp is not None:
+            info = m.symbol_info(sym)
+            pt = getattr(info, "point", 0.0) or 0.0
+            min_dist = (getattr(info, "trade_stops_level", 0) or 0) * pt
+            if sl is not None:
+                if side.lower() == "buy":
+                    sl = min(sl, price - min_dist) if min_dist else sl
+                else:
+                    sl = max(sl, price + min_dist) if min_dist else sl
+                req["sl"] = float(sl)
+            if tp is not None:
+                req["tp"] = float(tp)
         res = m.order_send(req)
         if res is None or res.retcode != m.TRADE_RETCODE_DONE:
             rc = getattr(res, "retcode", "?"); cm = getattr(res, "comment", m.last_error())
