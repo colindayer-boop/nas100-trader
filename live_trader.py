@@ -780,6 +780,18 @@ def run_btc_trend(broker, equity, open_syms):
 # PF 1.1-1.9). Runs the same pre-GEX sweep on the basket → 5-7x the trade count from
 # the SAME validated edge. (QQQ stays in S1 with its GEX filter, to avoid doubling.)
 SWEEP_BASKET = ["SPY", "IWM", "GLD", "XLK", "XLE", "AAPL", "MSFT", "NVDA", "AMZN"]
+# Pepperstone/MT5 offers CFDs, not US single-stock/ETF tickers. Only these basket
+# symbols resolve there (SPY->US500, GLD->XAUUSD); the rest raised a noisy
+# "Symbol not available" every run. Trim per-broker — Alpaca keeps the full list.
+MT5_SWEEP_AVAILABLE = {"SPY", "GLD"}
+
+def _sweep_universe_for(broker):
+    """Full basket on Alpaca; only broker-served CFDs on MT5. Detects MT5 via its
+    SYMBOL_MAP (QQQ->US100), which DryRunBroker copies from the inner broker."""
+    is_mt5 = broker.SYMBOL_MAP.get("QQQ") == "US100"
+    if is_mt5:
+        return [s for s in SWEEP_BASKET if s in MT5_SWEEP_AVAILABLE]
+    return SWEEP_BASKET
 
 def _asian_sweep_fires(data):
     """(fires, price) for the Asian-low-sweep + VWAP reclaim + EMA + calm-vol signal."""
@@ -816,7 +828,9 @@ def run_sweep_basket(broker, equity, open_syms, spy_bull, vix_mult):
     print("\n── S1 SWEEP BASKET (validated wider universe) ──")
     if vix_mult == 0:
         print("  PAUSED (extreme VIX)"); return
-    for sym in SWEEP_BASKET:
+    universe = _sweep_universe_for(broker)
+    logger.info(f"SWEEP universe ({len(universe)}): {universe}")
+    for sym in universe:
         if sym in open_syms:
             print(f"  {sym}: already held, skip"); continue
         try:
