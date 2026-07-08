@@ -141,46 +141,21 @@ def now_et():
 
 def get_regime():
     end = str(date.today())
-    # VIX
-    try:
-        vix = yf.download("^VIX", start=str(date.today()-timedelta(days=60)),
-                          end=end, progress=False)["Close"]
-        if isinstance(vix, pd.DataFrame): vix = vix.iloc[:,0]
-        if vix.empty or len(vix) < 21:
-            logger.warning("get_regime: VIX data empty/insufficient, defaulting to low-VIX regime")
-            vix_ma21 = 15.0
-        else:
-            vix_ma21 = float(vix.rolling(21).mean().iloc[-1])
-    except Exception as e:
-        logger.warning(f"get_regime: VIX download failed: {e}, defaulting to low-VIX regime")
-        vix_ma21 = 15.0
-    # SPY
-    try:
-        spy = yf.download("SPY", start=str(date.today()-timedelta(days=500)),
-                          end=end, progress=False)["Close"]
-        if isinstance(spy, pd.DataFrame): spy = spy.iloc[:,0]
-        if spy.empty or len(spy) < 200:
-            logger.warning("get_regime: SPY data empty/insufficient, defaulting to bull")
-            spy_bull = True
-        else:
-            spy_bull = bool(spy.ewm(span=50,adjust=False).mean().iloc[-1] >
-                            spy.ewm(span=200,adjust=False).mean().iloc[-1])
-    except Exception as e:
-        logger.warning(f"get_regime: SPY download failed: {e}, defaulting to bull")
-        spy_bull = True
-    # QQQ
-    try:
-        qqq = yf.download("QQQ", start=str(date.today()-timedelta(days=400)),
-                          end=end, progress=False)["Close"]
-        if isinstance(qqq, pd.DataFrame): qqq = qqq.iloc[:,0]
-        if qqq.empty or len(qqq) < 200:
-            logger.warning("get_regime: QQQ data empty/insufficient, defaulting to bull")
-            qqq_bear200 = False
-        else:
-            qqq_bear200 = bool(float(qqq.iloc[-1]) < float(qqq.rolling(200).mean().iloc[-1]))
-    except Exception as e:
-        logger.warning(f"get_regime: QQQ download failed: {e}, defaulting to bull")
-        qqq_bear200 = False
+    vix = yf.download("^VIX", start=str(date.today()-timedelta(days=60)),
+                      end=end, progress=False)["Close"]
+    if isinstance(vix, pd.DataFrame): vix = vix.iloc[:,0]
+    vix_ma21 = float(vix.rolling(21).mean().iloc[-1])
+
+    spy = yf.download("SPY", start=str(date.today()-timedelta(days=500)),
+                      end=end, progress=False)["Close"]
+    if isinstance(spy, pd.DataFrame): spy = spy.iloc[:,0]
+    spy_bull = bool(spy.ewm(span=50,adjust=False).mean().iloc[-1] >
+                    spy.ewm(span=200,adjust=False).mean().iloc[-1])
+
+    qqq = yf.download("QQQ", start=str(date.today()-timedelta(days=400)),
+                      end=end, progress=False)["Close"]
+    if isinstance(qqq, pd.DataFrame): qqq = qqq.iloc[:,0]
+    qqq_bear200 = bool(float(qqq.iloc[-1]) < float(qqq.rolling(200).mean().iloc[-1]))
 
     mult = 0.0 if vix_ma21 > 25 else (0.5 if vix_ma21 >= 20 else 1.0)
     logger.info(f"REGIME vix_ma21={vix_ma21:.1f} spy_bull={spy_bull} "
@@ -193,13 +168,6 @@ def get_gex_levels(broker, symbol="QQQ"):
     try:
         ticker = yf.Ticker(symbol)
         spot = float(ticker.fast_info["lastPrice"])
-        # Explicit guard: yfinance can return None/NaN for delisted or halted symbols.
-        # The outer try/except already returns (None,None,None,None) on any exception,
-        # but an explicit check here logs the specific failure for diagnostics.
-        import math as _math
-        if spot is None or _math.isnan(spot) or spot <= 0:
-            logger.warning(f"get_gex_levels: invalid spot price for {symbol} (spot={spot}), returning None")
-            return None, None, None, None
         exps = ticker.options
         if not exps:
             return None, None, None, None
@@ -258,9 +226,6 @@ def run_s1(broker, equity, open_syms, vix_ma21, spy_bull, vix_mult):
         print(f"  PAUSED - extreme VIX ({vix_ma21:.1f})"); return
 
     data = broker.get_bars("QQQ", "1Hour", 30)
-    if data is None or data.empty:
-        logger.warning("S1: no bar data for QQQ, skipping")
-        print("  No data for QQQ - skip"); return
     data["Date"] = data.index.date
 
     def is_asian(idx): return idx.hour >= 18 or idx.hour < 2
@@ -343,9 +308,6 @@ def run_s2(broker, equity, open_syms, vix_mult):
         print("  PAUSED - VIX too high"); return
 
     data = broker.get_bars("GLD", "1Hour", 30)
-    if data is None or data.empty:
-        logger.warning("S2: no bar data for GLD, skipping")
-        print("  No data for GLD - skip"); return
     data["Date"] = data.index.date
 
     def is_asian(idx): return idx.hour >= 18 or idx.hour < 2
@@ -443,18 +405,10 @@ def run_s3(broker, equity, open_syms, vix_mult):
                 print(f"  {sym}: position check error - {e}")
             continue
 
-        try:
-            d = yf.download(sym, start=str(date.today()-timedelta(days=120)),
-                            end=end, interval="1d", progress=False, auto_adjust=True)
-            if isinstance(d.columns, pd.MultiIndex): d.columns = d.columns.get_level_values(0)
-            if len(d) < 70:
-                logger.warning(f"S3 {sym}: only {len(d)} bars, skip")
-                print(f"  {sym}: insufficient data ({len(d)} bars) - skip")
-                continue
-        except Exception as e:
-            logger.warning(f"S3 {sym}: yfinance download failed: {e}")
-            print(f"  {sym}: data fetch failed - skip")
-            continue
+        d = yf.download(sym, start=str(date.today()-timedelta(days=120)),
+                        end=end, interval="1d", progress=False, auto_adjust=True)
+        if isinstance(d.columns, pd.MultiIndex): d.columns = d.columns.get_level_values(0)
+        if len(d) < 70: continue
 
         v = d["Volume"].squeeze(); c = d["Close"].squeeze(); o = d["Open"].squeeze()
         vol_mean = v.rolling(66).mean().shift(1); vol_std = v.rolling(66).std().shift(1)
@@ -486,9 +440,6 @@ def run_s4(broker, equity, open_syms, spy_bull, vix_mult):
             print(f"  {sym}: already in position - skip"); continue
 
         data = broker.get_bars(sym, "1Hour", 30)
-        if data is None or data.empty:
-            logger.warning(f"S4: no bar data for {sym}, skipping")
-            print(f"  {sym}: no data - skip"); continue
         data["Date"] = data.index.date
 
         def is_asian(idx): return idx.hour >= 18 or idx.hour < 2
@@ -561,9 +512,6 @@ def run_s5(broker, equity, open_syms, vix_ma21, spy_bull, qqq_bear200):
         print(f"  PAUSED - VIX {vix_ma21:.1f} >= 20"); return
 
     data = broker.get_bars("QQQ", "1Hour", 5)
-    if data is None or data.empty:
-        logger.warning("S5: no bar data for QQQ, skipping")
-        print("  No data for QQQ - skip"); return
     today = now_et().date()
     today_bars = data[data.index.date == today]
 
@@ -619,9 +567,6 @@ def run_btc(broker, equity, open_syms):
     logger.info("SESSION BTC start")
     print("\n-- BTC: ASIAN SWEEP (crypto) --")
     data = broker.get_bars("BTC", "1Hour", 400)
-    if data is None or data.empty:
-        logger.warning("BTC: no hourly bar data, skipping")
-        print("  No data for BTC - skip"); return
     if data.index.tz is None:
         data.index = data.index.tz_localize("UTC")
     data.index = data.index.tz_convert("UTC")
@@ -659,9 +604,6 @@ def run_btc(broker, equity, open_syms):
     # -- entry: sweep below Asian low + reclaim, in 08-16 UTC window, uptrend --
     # Trend from DAILY bars (the 400 hourly bars ~16d can't form a 200-day EMA).
     daily = broker.get_bars("BTC", "1Day", 250)
-    if daily is None or daily.empty:
-        logger.warning("BTC: no daily bar data for trend, skipping entry")
-        print("  No daily data for trend - skip entry"); return
     dc = daily["Close"]
     ema50 = dc.ewm(span=50).mean(); ema200 = dc.ewm(span=200).mean()
     uptrend = bool(ema50.iloc[-1] > ema200.iloc[-1])
@@ -712,11 +654,7 @@ def run_xsmom(broker, equity, open_syms):
     scores = {}
     for sym in XSMOM_UNIVERSE:
         try:
-            data = broker.get_bars(sym, "1Day", 400)
-            if data is None or data.empty:
-                logger.warning(f"xsmom {sym}: get_bars returned None/empty, skipping")
-                continue
-            d = data["Close"].dropna()
+            d = broker.get_bars(sym, "1Day", 400)["Close"].dropna()
         except Exception as e:
             logger.warning(f"xsmom {sym} bars failed: {e}"); continue
         if len(d) < 260:
@@ -786,15 +724,7 @@ def run_overnight(broker, equity, open_syms):
         return
     # ENTER at the close on Mon(0)/Tue(1) - overnight lands on Tue/Wed (the strong nights)
     if not held and in_close_window and wd in (0, 1):
-        try:
-            _ovn_bars = broker.get_bars(OVN_SYMBOL, "1Hour", 5)
-            if _ovn_bars is None or _ovn_bars.empty:
-                logger.warning(f"OVN: no bar data for {OVN_SYMBOL}, skipping")
-                print(f"  No data for {OVN_SYMBOL} - skip"); return
-            price = float(_ovn_bars["Close"].iloc[-1])
-        except Exception as e:
-            logger.warning(f"OVN: bar data fetch failed: {e}")
-            print("  Data fetch failed - skip"); return
+        price = float(broker.get_bars(OVN_SYMBOL, "1Hour", 5)["Close"].iloc[-1])
         # fractional units: Alpaca floors to whole shares internally; MT5 converts to lots
         qty = round((equity * OVN_ALLOC) / price, 2)
         if qty > 0:
@@ -829,9 +759,6 @@ def run_btc_trend(broker, equity, open_syms):
     logger.info("SESSION BTC-TREND start")
     print("\n-- BTC TREND (vol-targeted Donchian 20/10) --")
     daily = broker.get_bars("BTC", "1Day", 250)
-    if daily is None or daily.empty:
-        logger.warning("BTC-TREND: no daily bar data, skipping")
-        print("  No data - skip"); return
     close = daily["Close"]
     if len(close) < 30:
         print("  not enough data"); return
@@ -872,8 +799,6 @@ SWEEP_BASKET = ["SPY", "IWM", "GLD", "XLK", "XLE", "AAPL", "MSFT", "NVDA", "AMZN
 
 def _asian_sweep_fires(data):
     """(fires, price) for the Asian-low-sweep + VWAP reclaim + EMA + calm-vol signal."""
-    if data is None or data.empty:
-        return False, 0.0
     data = data.copy(); data["Date"] = data.index.date
     def is_asian(i): return i.hour >= 18 or i.hour < 2
     def sess_date(i): return (i + timedelta(days=1)).date() if i.hour >= 18 else i.date()
@@ -919,8 +844,6 @@ def run_sweep_basket(broker, equity, open_syms, spy_bull, vix_mult):
     for sym in basket:
         if sym in open_syms:
             print(f"  {sym}: already held, skip"); continue
-        # _asian_sweep_fires already guards None/empty data at the top
-        # (returns False, 0.0), and this try/except catches any remaining errors.
         try:
             fires, price = _asian_sweep_fires(broker.get_bars(sym, "1Hour", 30))
         except Exception as e:

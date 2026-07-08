@@ -1,0 +1,57 @@
+# config/risk_profiles.yaml
+# Risk profiles for different trading modes.
+# Each profile defines parameters that layer on top of the existing risk engine.
+# The active profile is selected by setting RISK_MODE environment variable to one of:
+#   challenge, funded, live
+# or by setting risk_mode in the [risk] section of config.ini (if we extend it).
+
+default: &default
+  # Global defaults (can be overridden per profile)
+  risk_multiplier: 1.0          # Multiply equity by this for position sizing
+  max_daily_trades: 50          # Max new trades per day
+  max_consecutive_losses: 4     # After this many losses in a row, apply reduction
+  consecutive_loss_reduction: 0.5 # Multiply risk by this after exceeding limit
+  daily_profit_lock_threshold: 0.02 # When daily profit >= this fraction of equity, lock profit
+  daily_profit_lock_multiplier: 0.5  # After threshold, multiply risk by this
+  allowed_strategies: ["S1", "S2", "S3", "S4", "S5", "BTC"]  # List of strategy IDs
+  reduced_risk_mode: false      # If true, apply an additional risk reduction (see below)
+  reduced_risk_multiplier: 0.5  # Additional multiplier when reduced_risk_mode is True
+  emergency_drawdown_threshold: 0.15 # If current drawdown exceeds this, trigger emergency stop
+  broker_side_sl_tp_required: true # Require SL and TP on all orders (adds a check)
+
+# Profile definitions
+challenge:
+  <<: *default
+  risk_multiplier: 0.5          # Trade half size for capital preservation
+  max_daily_trades: 15          # Very limited trading to avoid overtrading
+  max_consecutive_losses: 2     # Low tolerance for consecutive losses
+  consecutive_loss_reduction: 0.5
+  daily_profit_lock_threshold: 0.01  # Lock profit early (1% of equity)
+  daily_profit_lock_multiplier: 0.5  # Halve risk after profit target
+  allowed_strategies: ["S1", "S2", "S3"]  # Only the most reliable sessions
+  reduced_risk_mode: false
+  emergency_drawdown_threshold: 0.10  # Stop if drawdown exceeds 10% (protect challenge capital)
+
+funded:
+  <<: *default
+  risk_multiplier: 0.75         # Three-quarters size after passing challenge
+  max_daily_trades: 30
+  max_consecutive_losses: 3
+  consecutive_loss_reduction: 0.6
+  daily_profit_lock_threshold: 0.015
+  daily_profit_lock_multiplier: 0.7
+  allowed_strategies: ["S1", "S2", "S3", "S4", "S5"]  # All sessions except maybe BTC?
+  reduced_risk_mode: false
+  emergency_drawdown_threshold: 0.15
+
+live:
+  <<: *default
+  risk_multiplier: 1.0          # Full size for personal account
+  max_daily_trades: 50
+  max_consecutive_losses: 5
+  consecutive_loss_reduction: 0.7
+  daily_profit_lock_threshold: 0.02
+  daily_profit_lock_multiplier: 0.8
+  allowed_strategies: ["S1", "S2", "S3", "S4", "S5", "BTC"]  # All strategies
+  reduced_risk_mode: false      # Can be toggled via environment or signal
+  emergency_drawdown_threshold: 0.20

@@ -60,9 +60,12 @@ def build_report() -> str:
 
     # filled orders in the last 7 days
     after = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
-    orders = _get("/v2/orders", key, secret,
-                  {"status": "closed", "after": after, "limit": 500})
-    fills = [o for o in orders if o.get("filled_at")]
+    try:
+        orders = _get("/v2/orders", key, secret,
+                      {"status": "closed", "after": after, "limit": 500})
+        fills = [o for o in orders if o.get("filled_at")]
+    except Exception as e:
+        fills = []
     n = len(fills)
 
     lines = [
