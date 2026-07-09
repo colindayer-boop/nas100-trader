@@ -18,6 +18,14 @@ from mt5_broker import MT5Broker
 internal = sys.argv[1] if len(sys.argv) > 1 else "BTC"
 side     = sys.argv[2] if len(sys.argv) > 2 else "buy"
 
+# DEMO GUARD: refuse to run against a non-demo server unless --live-ok is passed.
+from broker import load_config
+_server = load_config("mt5").get("server", "")
+if "demo" not in _server.lower() and "--live-ok" not in sys.argv:
+    print(f"REFUSED: [mt5] server = '{_server}' does not look like a demo account.")
+    print("This script places a REAL order. Re-run with --live-ok to override.")
+    sys.exit(1)
+
 b = MT5Broker()
 m = b._mt5
 sym = b.map(internal)

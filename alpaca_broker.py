@@ -11,8 +11,9 @@ import pytz
 from datetime import datetime, timedelta
 
 from alpaca.trading.client import TradingClient
-from alpaca.trading.requests import MarketOrderRequest
-from alpaca.trading.enums import OrderSide, TimeInForce
+from alpaca.trading.requests import (MarketOrderRequest, StopLossRequest,
+                                     TakeProfitRequest)
+from alpaca.trading.enums import OrderSide, TimeInForce, OrderClass
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
@@ -65,17 +66,32 @@ class AlpacaBroker(Broker):
         bars.columns = ["Open", "High", "Low", "Close", "Volume"]
         return bars
 
-    def place_order(self, symbol: str, qty: float, side: str, tag: str):
+    def place_order(self, symbol: str, qty: float, side: str, tag: str,
+                    sl: float = None, tp: float = None):
         if qty < 1:
             print(f"  {tag} {symbol}: qty < 1, skip")
             return None
-        order = self._trade.submit_order(MarketOrderRequest(
+        # Broker-side protection: BRACKET (sl+tp) or OTO stop-only, so the position
+        # is protected even if the bot/runner dies. Falls back to a plain market
+        # order only when no sl was provided (state-machine/time-exit strategies).
+        kwargs = dict(
             symbol=symbol,
             qty=int(qty),
             side=OrderSide.BUY if side.lower() == "buy" else OrderSide.SELL,
             time_in_force=TimeInForce.DAY,
-        ))
-        print(f"  {tag} {symbol}: {side.upper()} {int(qty)} shares | {order.id}")
+        )
+        note = ""
+        if sl is not None:
+            kwargs["stop_loss"] = StopLossRequest(stop_price=round(sl, 2))
+            if tp is not None:
+                kwargs["order_class"] = OrderClass.BRACKET
+                kwargs["take_profit"] = TakeProfitRequest(limit_price=round(tp, 2))
+                note = f" SL={sl:.2f} TP={tp:.2f}"
+            else:
+                kwargs["order_class"] = OrderClass.OTO
+                note = f" SL={sl:.2f}"
+        order = self._trade.submit_order(MarketOrderRequest(**kwargs))
+        print(f"  {tag} {symbol}: {side.upper()} {int(qty)} shares{note} | {order.id}")
         return order
 
     def close_position(self, symbol: str):

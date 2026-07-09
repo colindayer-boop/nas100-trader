@@ -7,8 +7,10 @@ Strategy logic in live_trader.py calls only these methods, never broker-specific
 
 import configparser
 import logging
-import os            
+import os
 import time
+import json
+from datetime import datetime, timezone
 
 logger = logging.getLogger("trader")
 
@@ -18,7 +20,8 @@ def _load_local_csv(symbol: str, tf: str):
     import pandas as pd, pytz as _tz
     eastern = _tz.timezone("US/Eastern")
     base = os.path.dirname(os.path.abspath(__file__))
-    tf_tag = "hourly" if tf == "1Hour" else "1min"
+    tf_map = {"1Min": "1min", "1Hour": "hourly", "1Day": "daily"}
+    tf_tag = tf_map.get(tf, "1min")
     fname = os.path.join(base, f"{symbol.lower()}_{tf_tag}_7y.csv")
     if not os.path.exists(fname):
         raise FileNotFoundError(f"No local CSV for {symbol}/{tf}: {fname}")

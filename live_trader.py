@@ -19,6 +19,8 @@ import argparse
 import configparser
 import logging
 import os
+import time
+import atexit
 from logging.handlers import RotatingFileHandler
 
 import pandas as pd
@@ -56,6 +58,60 @@ logger.addHandler(_handler)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.setLevel(logging.INFO)
 
+# -- SESSION DEDUPLICATION / COOLDOWN ----------------------------------------
+# NOTE: session comes in as a parameter (args does not exist yet at import time —
+# argparse runs in the main block). Called from the main block after parse_args().
+_LOCK_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
+_COOLDOWN_SECONDS = 300  # 5 minutes
+
+def _lock_path(session):
+    return os.path.join(_LOCK_DIR, f"trader_{session}.lock")
+
+def _create_lock_file(session):
+    try:
+        with open(_lock_path(session), "w") as f:
+            f.write(str(int(time.time())))
+        logger.info(f"Created lock file {_lock_path(session)}")
+    except Exception as e:
+        logger.warning(f"Failed to create lock file: {e}")
+
+def _remove_lock_file(session):
+    try:
+        os.remove(_lock_path(session))
+        logger.info(f"Removed lock file {_lock_path(session)}")
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        logger.warning(f"Failed to remove lock file: {e}")
+
+def _check_and_set_lock(session):
+    """Returns True if we can proceed; exits(0) if within the cooldown window."""
+    try:
+        lock = _lock_path(session)
+        if os.path.exists(lock):
+            with open(lock, "r") as f:
+                content = f.read().strip()
+            if content.isdigit():
+                last_run = int(content)
+                elapsed = time.time() - last_run
+                if elapsed < _COOLDOWN_SECONDS:
+                    wait = int(_COOLDOWN_SECONDS - elapsed)
+                    msg = (f"SESSION COOLDOWN: Last {session} session ran {int(elapsed)}s ago. "
+                           f"Wait {wait}s before next run.")
+                    logger.warning(msg)
+                    print(f"\n{msg}\n")
+                    sys.exit(0)
+            # If file content invalid, treat as stale and overwrite
+        _create_lock_file(session)
+        # Ensure lock file removed on normal exit
+        atexit.register(_remove_lock_file, session)
+        return True
+    except SystemExit:
+        raise
+    except Exception as e:
+        logger.warning(f"Lock file check failed: {e}; proceeding anyway")
+        return True
+
 # -- RISK CONSTANTS (unchanged from validated backtest) ------------------------
 RISK_S1 = 0.0070
 RISK_S2 = 0.0050
@@ -88,6 +144,10 @@ def update_risk_state(equity, broker_name="default"):
     its own - so Alpaca's $100k peak can't trigger a false drawdown on BTC's $25k).
     Returns: (dd_scale [0.3-1.0], cur_dd, peak, month_pnl_pct)."""
     import json
+    # Guard against zero or negative equity from broker API
+    if equity <= 0:
+        logger.warning(f"update_risk_state: equity <= 0 (equity={equity}); not updating risk state for {broker_name}")
+        return 1.0, 0.0, 0.0, 0.0
     state_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                               "logs", f"risk_state_{broker_name}.json")
     st = {}
@@ -945,9 +1005,33 @@ parser.add_argument("--dry-run", action="store_true",
                     help="Print intended orders without placing them")
 args = parser.parse_args()
 
+# Global crash alert: an unhandled exception anywhere below must page Telegram,
+# never die silently (lesson of the 6-day silent-outage incident). SystemExit
+# (kill-switch/cooldown exits) does not go through excepthook, so clean exits
+# are unaffected.
+def _crash_alert(exc_type, exc, tb):
+    try:
+        msg = f"CRASH session={getattr(args, 'session', '?')}: {exc_type.__name__}: {exc}"
+        logger.critical(msg)
+        alerts.send(msg)
+    except Exception:
+        pass
+    sys.__excepthook__(exc_type, exc, tb)
+sys.excepthook = _crash_alert
+
 if args.session is None:
     h = now_et().hour
     args.session = "asian" if 1 <= h < 7 else ("orb" if 10 <= h < 14 else "eod")
+
+# Session deduplication / cooldown
+_check_and_set_lock(args.session)
+
+# Weekend/holiday skip (except crypto)
+if now_et().weekday() >= 5 and args.session not in ('btc', 'btctrend'):
+    msg = f"WEEKEND: {args.session} session skipped (weekend). Only crypto sessions run on weekends."
+    logger.info(msg)
+    print(f"\n{msg}\n")
+    sys.exit(0)
 
 print(f"\n{'='*60}")
 print(f"LIVE TRADER - broker={args.broker} dry_run={args.dry_run}")
@@ -964,6 +1048,16 @@ except Exception as e:
     alerts.send(f"BROKER INIT FAIL {args.broker}: {e}")
     print(f"ERROR: {e}")
     sys.exit(1)
+
+# Migrate stale risk_state.json
+default_state = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs", "risk_state.json")
+broker_state = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs", f"risk_state_{args.broker}.json")
+if os.path.exists(default_state) and os.path.exists(broker_state):
+    try:
+        os.remove(default_state)
+        logger.info(f"Removed stale default risk_state.json (using broker-specific {broker_state})")
+    except Exception as e:
+        logger.warning(f"Failed to remove stale risk_state.json: {e}")
 
 equity    = broker.get_account()
 open_syms = broker.get_positions()
