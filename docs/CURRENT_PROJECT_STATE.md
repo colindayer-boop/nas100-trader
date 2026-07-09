@@ -86,12 +86,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
-24eb4b9  30-day monitoring plan
-419da99  LIVE_TRADING_PARITY.md
-236abe3  Parity fixes: get_bars units, 1200-bar lookbacks, GTC brackets  <- stats window starts here
-62b90c6  Production readiness review (88/55)
-fd0ff25  Startup fix + Alpaca brackets + crash alert + test_order guard
-42676fc  Harden external data fetches
+d9677a6  Add AI_OPERATING_SYSTEM.md (roles, handoffs, memory, pipelines) + seed AI_CHANGELOG.md
+535579f  Add CURRENT_PROJECT_STATE.md — onboarding snapshot (architecture, status, blockers, frozen surfaces)
+24eb4b9  Add 30-day monitoring plan (metrics, daily/weekly checklists, month-end go/no-go)
+419da99  Add LIVE_TRADING_PARITY.md — bugs fixed, blockers, intentional differences
+236abe3  Parity: fix get_bars unit bug (Alpaca days vs MT5 bars), starve-proof lookbacks, GTC brackets
+62b90c6  Add production readiness review (score 88 demo / 55 funded, top-10 blockers)
+fd0ff25  Production readiness: startup fix, Alpaca brackets, crash alert, test_order demo guard
+42676fc  Harden all external data fetches against empty/missing data
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)

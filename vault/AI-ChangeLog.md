@@ -1,4 +1,10 @@
-# AI CHANGELOG
+---
+type: changelog
+tags: [changelog, meta]
+---
+# AI Change Log
+
+_Mirrored from `docs/AI_CHANGELOG.md` by obsidian_bridge.py._
 
 _Append-only. Every AI session that changes anything adds a row before stopping.
 Format: date | role/model | change | evidence/verification | commits._

@@ -1,7 +1,9 @@
-# AI CHANGELOG
+# AI Session Log
 
-_Append-only. Every AI session that changes anything adds a row before stopping.
-Format: date | role/model | change | evidence/verification | commits._
+<!-- AUTO:BEGIN (do not edit inside this block) -->
+_generated 2026-07-10 01:36 by the Obsidian Bridge_
+
+Mirrors `docs/AI_CHANGELOG.md` (the source of truth -- edit THERE).
 
 | Date | Role / model | Change | Evidence / verification | Commits |
 |---|---|---|---|---|
@@ -36,3 +38,7 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-07 | Obsidian Bridge / automated | Docs: vault consolidation plan + code inventory (143 files) + V1->V2 migratio... | git post-commit hook | 0e48ed8 |
 | 2026-07-07 | Obsidian Bridge / automated | Phase 1: flatten Obsidian vault (un-nest vault/vault), remove empty obsidian_... | git post-commit hook | b0dfea5 |
 | 2026-07-10 | Obsidian Bridge / automated | Add AI_OPERATING_SYSTEM.md (roles, handoffs, memory, pipelines) + seed AI_CHA... | git post-commit hook | d9677a6 |
+
+
+Back: [[AI Index]] | [[00 Dashboard]]
+<!-- AUTO:END -->
