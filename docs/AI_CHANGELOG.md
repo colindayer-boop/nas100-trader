@@ -74,3 +74,4 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | b1f800d |
 | 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog for TensorTrade evaluation [bridge-auto] | git post-commit hook | 69cb675 |
 | 2026-07-10 | Obsidian Bridge / automated | Router: automatic task execution (executor.py) + follow-up chains | git post-commit hook | 985c4af |
+| 2026-07-10 | Lead Engineer / Claude Code | **Router auto-execution**: executor.py runs whitelisted mapped scripts on dispatch, captures rc/stdout/stderr/time, auto-status, queues deduped follow-up chains | verified: paper->index->obsidian chain drained over 3 runs, 4th run no-op, failure->review, real artifacts | (see git) |
