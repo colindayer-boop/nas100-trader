@@ -70,3 +70,4 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | aa7a711 |
 | 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog + state for AI Task Router [bridge-auto] | git post-commit hook | 26772ba |
 | 2026-07-10 | Obsidian Bridge / automated | TensorTrade evaluation: installs w/ surgery (py3.13), smoke test PASS, verdic... | git post-commit hook | e5d9102 |
+| 2026-07-10 | Research eval / Claude Code | **TensorTrade evaluation** -> DEFER: viable in isolated venv (smoke test PASS on py3.13 w/ dep surgery) but philosophy collision (industrialized overfit), prop mismatch (no native brackets), standing dep tax | docs/TENSORTRADE_EVALUATION.md; scratchpad venv, repo env untouched | (see git) |
