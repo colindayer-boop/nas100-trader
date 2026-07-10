@@ -1,42 +1,42 @@
 # Git Commits
 
 <!-- AUTO:BEGIN (do not edit inside this block) -->
-_generated 2026-07-10 01:36 by the Obsidian Bridge_
+_generated 2026-07-10 10:40 by the Obsidian Bridge_
 
 Last 30 commits on `main`.
 
 | hash | date | subject |
 |---|---|---|
-| `d9677a6` | 2026-07-10 | Add AI_OPERATING_SYSTEM.md (roles, handoffs, memory, pipelines) + seed AI_CHANGELOG.md |
-| `535579f` | 2026-07-10 | Add CURRENT_PROJECT_STATE.md — onboarding snapshot (architecture, status, blockers, frozen surfaces) |
-| `24eb4b9` | 2026-07-10 | Add 30-day monitoring plan (metrics, daily/weekly checklists, month-end go/no-go) |
-| `419da99` | 2026-07-10 | Add LIVE_TRADING_PARITY.md — bugs fixed, blockers, intentional differences |
-| `236abe3` | 2026-07-10 | Parity: fix get_bars unit bug (Alpaca days vs MT5 bars), starve-proof lookbacks, GTC brackets |
-| `62b90c6` | 2026-07-10 | Add production readiness review (score 88 demo / 55 funded, top-10 blockers) |
-| `fd0ff25` | 2026-07-10 | Production readiness: startup fix, Alpaca brackets, crash alert, test_order demo guard |
-| `42676fc` | 2026-07-09 | Harden all external data fetches against empty/missing data |
-| `b0dfea5` | 2026-07-07 | Phase 1: flatten Obsidian vault (un-nest vault/vault), remove empty obsidian_vault stub, ignore .DS_Store |
-| `0e48ed8` | 2026-07-07 | Docs: vault consolidation plan + code inventory (143 files) + V1->V2 migration plan |
-| `19f4346` | 2026-07-07 | Docs V2: ARCHITECTURE_V2.md + complete Obsidian vault (13 sections, cross-linked, Mermaid + Dataview) |
-| `0ce6e24` | 2026-07-07 | Safety: broker-side stops for BTC (bracket + reconcile) and OVN (5% catastrophe stop) |
-| `e8e0307` | 2026-07-07 | Add LIVE_SAFETY_AUDIT.md — execution safety audit (core book protected; BTC/OVN flagged) |
-| `9552d58` | 2026-07-07 | Add test_order.py -- place one demo order with SL/TP to verify brackets (bypasses filters) |
-| `cd66179` | 2026-07-07 | Add protect_positions.py -- attach protective stop to pre-fix naked positions |
-| `607f18a` | 2026-07-07 | CRITICAL FIX: attach broker-side SL/TP to every live order |
-| `ca34a5d` | 2026-07-06 | Merge PR #13: log verified-green venue state |
-| `1ed1d5d` | 2026-07-06 | Log VERIFIED GREEN venue state (2026-07-06): first live MT5 demo trade placed |
-| `029867c` | 2026-07-06 | Merge PR #12: venue-reliability FINDINGS log + sweep reconciliation |
-| `567f91a` | 2026-07-06 | Merge origin/main into work branch (resolve venue-fix overlap) |
-| `86d4221` | 2026-07-06 | Trim MT5 sweep universe to broker-available CFDs (per-broker); log venue fixes |
-| `e06255d` | 2026-07-06 | Add S5 ORB watchdog (canary alert if 9:00 ET bar missing in window) + fix setup schtasks-delete halt |
-| `27a9911` | 2026-07-06 | Hardening: ASCII logs, broker-specific sweep universe, status.py, per-venue MT5 logs |
-| `ae148e3` | 2026-07-06 | Fix: force UTF-8 stdout so scheduled Windows runs don't crash on emoji |
-| `a13a560` | 2026-07-05 | Add diag_live.py — dump live MT5 bar ET hours to explain zero signals |
-| `5c97a4b` | 2026-07-04 | Merge PR #11: once-daily Telegram heartbeat |
-| `ae0ea20` | 2026-07-04 | Demote hourly session-complete Telegram ping to once-daily heartbeat |
-| `4a60f62` | 2026-07-03 | Merge PR #10: Virtue-of-Complexity timing test |
-| `eb27d68` | 2026-07-04 | Add Virtue-of-Complexity (Kelly/Malamud/Zhou JF 2024) timing test |
-| `f8947d7` | 2026-07-02 | Merge PR #9: DIX gate rejected + self-updating updater |
+| `69cb675` | 2026-07-10 | Bookkeeping: changelog for TensorTrade evaluation [bridge-auto] |
+| `b1f800d` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
+| `e5d9102` | 2026-07-10 | TensorTrade evaluation: installs w/ surgery (py3.13), smoke test PASS, verdict DEFER |
+| `26772ba` | 2026-07-10 | Bookkeeping: changelog + state for AI Task Router [bridge-auto] |
+| `aa7a711` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
+| `39482e5` | 2026-07-10 | AI Task Router: orchestration layer (scan/sort/dispatch/state), infrastructure only |
+| `825f111` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
+| `9c189d7` | 2026-07-10 | Add automatic paper ingestion: scripts/research/import_paper.py |
+| `a5e2ef0` | 2026-07-10 | Commit run_experiment.py from parallel session (compiles, research-only, no production imports) [bridge-auto] |
+| `24759f0` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
+| `1eebf04` | 2026-07-10 | ROADMAP_V2: 10 proposed systems for the research platform (design only, window-safe ordering) |
+| `a78595d` | 2026-07-10 | Bookkeeping: changelog + state for Nightly Ops Runner v1 [bridge-auto] |
+| `201c6df` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
+| `b070fa7` | 2026-07-10 | Nightly Ops Runner v1: scripts/ops/daily_check.py -> docs/DAILY_OPS_REPORT.md |
+| `eac5f8a` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
+| `970d46b` | 2026-07-10 | Daily Ops Report 2026-07-10: no production bug detected, system nominal |
+| `147896b` | 2026-07-10 | Bookkeeping: changelog + state for Experiment Pipeline [bridge-auto] |
+| `fd09e4f` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
+| `ee19aee` | 2026-07-10 | Experiment Pipeline: queue/experiments/archive lifecycle + new_experiment/promote_experiment |
+| `cc0138d` | 2026-07-10 | Bookkeeping: changelog + state for Research OS v1 [bridge-auto] |
+| `5d68a5a` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
+| `30a78e4` | 2026-07-10 | Research OS v1: ideas/papers/experiments intake + new_idea/new_paper generators |
+| `259f3dd` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
+| `70a88b2` | 2026-07-10 | Remove test placeholder |
+| `c9c26b4` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
+| `25b02a0` | 2026-07-10 | Add scripts/README.md placeholder |
+| `aaa876b` | 2026-07-10 | Fix: prevent infinite post-commit loop (skip [bridge-auto] commits) |
+| `b82759a` | 2026-07-10 | Hook installer: skip [bridge-auto] commits (loop guard, from parallel session) |
+| `e4ba048` | 2026-07-10 | Commit post-commit-hook residue (changelog/state/vault rows for 80c63d5) [hook bypassed to end loop] |
+| `80c63d5` | 2026-07-10 | Bridge follow-up: enrich changelog row with verification evidence; register bridge in CURRENT_PROJECT_STATE; commit hook-generated vault updates |
 
 Back: [[Production Index]] | [[00 Dashboard]]
 <!-- AUTO:END -->

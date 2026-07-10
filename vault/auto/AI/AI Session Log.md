@@ -1,7 +1,7 @@
 # AI Session Log
 
 <!-- AUTO:BEGIN (do not edit inside this block) -->
-_generated 2026-07-10 01:36 by the Obsidian Bridge_
+_generated 2026-07-10 10:40 by the Obsidian Bridge_
 
 Mirrors `docs/AI_CHANGELOG.md` (the source of truth -- edit THERE).
 
@@ -38,6 +38,41 @@ Mirrors `docs/AI_CHANGELOG.md` (the source of truth -- edit THERE).
 | 2026-07-07 | Obsidian Bridge / automated | Docs: vault consolidation plan + code inventory (143 files) + V1->V2 migratio... | git post-commit hook | 0e48ed8 |
 | 2026-07-07 | Obsidian Bridge / automated | Phase 1: flatten Obsidian vault (un-nest vault/vault), remove empty obsidian_... | git post-commit hook | b0dfea5 |
 | 2026-07-10 | Obsidian Bridge / automated | Add AI_OPERATING_SYSTEM.md (roles, handoffs, memory, pipelines) + seed AI_CHA... | git post-commit hook | d9677a6 |
+| 2026-07-10 | Lead Engineer / Claude Code | **Obsidian Bridge built** (scripts/obsidian/build_obsidian.py + README): 16 generated notes under vault/auto/ (daily, AI session log, git commits, bugs fixed, monitoring, trade journal, research, dashboard snapshot + 7 indexes), AUTO-marker managed sections | verified: idempotent, human edits outside markers survive, 33 hand-written notes byte-untouched, 0 broken wikilinks; py_compile OK | 1bbb221 |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge: post-commit auto-sync (1bbb221 trail) | git post-commit hook | b146b9b |
+| 2026-07-10 | Obsidian Bridge / automated | Bridge follow-up: enrich changelog row with verification evidence; register b... | git post-commit hook | 80c63d5 |
+| 2026-07-10 | Obsidian Bridge / automated | Commit post-commit-hook residue (changelog/state/vault rows for 80c63d5) [hoo... | git post-commit hook | e4ba048 |
+| 2026-07-10 | Obsidian Bridge / automated | Hook installer: skip [bridge-auto] commits (loop guard, from parallel session) | git post-commit hook | b82759a |
+| 2026-07-10 | Obsidian Bridge / automated | Fix: prevent infinite post-commit loop (skip [bridge-auto] commits) | git post-commit hook | aaa876b |
+| 2026-07-10 | Obsidian Bridge / automated | Add scripts/README.md placeholder | git post-commit hook | 25b02a0 |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | c9c26b4 |
+| 2026-07-10 | Obsidian Bridge / automated | Remove test placeholder | git post-commit hook | 70a88b2 |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 259f3dd |
+| 2026-07-10 | Obsidian Bridge / automated | Research OS v1: ideas/papers/experiments intake + new_idea/new_paper generators | git post-commit hook | 30a78e4 |
+| 2026-07-10 | Lead Engineer / Claude Code | **Research OS v1**: research/{ideas,papers,experiments}+README, scripts/research/new_idea.py + new_paper.py (templated, backlinked, no-overwrite) | py_compile, create/refuse/slug tests all pass; seeded DIX idea + Zarattini paper | (see git) |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 5d68a5a |
+| 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog + state for Research OS v1 [bridge-auto] | git post-commit hook | cc0138d |
+| 2026-07-10 | Obsidian Bridge / automated | Experiment Pipeline: queue/experiments/archive lifecycle + new_experiment/pro... | git post-commit hook | ee19aee |
+| 2026-07-10 | Lead Engineer / Claude Code | **Experiment Pipeline**: research/{queue,archive} + new_experiment.py/promote_experiment.py (unique IDs, lifecycle gates, reviewer!=author enforcement) | end-to-end lifecycle test incl. 3 refusal gates; false test-state reset to truthful queued | (see git) |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | fd09e4f |
+| 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog + state for Experiment Pipeline [bridge-auto] | git post-commit hook | 147896b |
+| 2026-07-10 | Obsidian Bridge / automated | Daily Ops Report 2026-07-10: no production bug detected, system nominal | git post-commit hook | 970d46b |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | eac5f8a |
+| 2026-07-10 | Obsidian Bridge / automated | Nightly Ops Runner v1: scripts/ops/daily_check.py -> docs/DAILY_OPS_REPORT.md | git post-commit hook | b070fa7 |
+| 2026-07-10 | Ops Runner (built by Lead Engineer / Claude Code) | **Nightly Ops Runner v1**: scripts/ops/daily_check.py generates docs/DAILY_OPS_REPORT.md (verdict HEALTHY/ACTION REQUIRED, exit 0/2) | compile + healthy run + negative injection test all pass | (see git) |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 201c6df |
+| 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog + state for Nightly Ops Runner v1 [bridge-auto] | git post-commit hook | a78595d |
+| 2026-07-10 | Obsidian Bridge / automated | ROADMAP_V2: 10 proposed systems for the research platform (design only, windo... | git post-commit hook | 1eebf04 |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 24759f0 |
+| 2026-07-10 | Obsidian Bridge / automated | Commit run_experiment.py from parallel session (compiles, research-only, no p... | git post-commit hook | a5e2ef0 |
+| 2026-07-10 | Obsidian Bridge / automated | Add automatic paper ingestion: scripts/research/import_paper.py | git post-commit hook | 9c189d7 |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 825f111 |
+| 2026-07-10 | Obsidian Bridge / automated | AI Task Router: orchestration layer (scan/sort/dispatch/state), infrastructur... | git post-commit hook | 39482e5 |
+| 2026-07-10 | Lead Engineer / Claude Code | **AI Task Router** (scripts/router/): file-based task queue in research/queue/ (TASK-*), priority dispatch to Claude/GLM/Qwen/Fable/OpenClaw, dependency holds, state ledger | 3-task routing test, idempotency, persistence, human-note preservation, EXP-note isolation all verified | (see git) |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | aa7a711 |
+| 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog + state for AI Task Router [bridge-auto] | git post-commit hook | 26772ba |
+| 2026-07-10 | Obsidian Bridge / automated | TensorTrade evaluation: installs w/ surgery (py3.13), smoke test PASS, verdic... | git post-commit hook | e5d9102 |
+| 2026-07-10 | Research eval / Claude Code | **TensorTrade evaluation** -> DEFER: viable in isolated venv (smoke test PASS on py3.13 w/ dep surgery) but philosophy collision (industrialized overfit), prop mismatch (no native brackets), standing dep tax | docs/TENSORTRADE_EVALUATION.md; scratchpad venv, repo env untouched | (see git) |
 
 
 Back: [[AI Index]] | [[00 Dashboard]]
