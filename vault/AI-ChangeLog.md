@@ -67,3 +67,6 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 201c6df |
 | 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog + state for Nightly Ops Runner v1 [bridge-auto] | git post-commit hook | a78595d |
 | 2026-07-10 | Obsidian Bridge / automated | ROADMAP_V2: 10 proposed systems for the research platform (design only, windo... | git post-commit hook | 1eebf04 |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 24759f0 |
+| 2026-07-10 | Obsidian Bridge / automated | Commit run_experiment.py from parallel session (compiles, research-only, no p... | git post-commit hook | a5e2ef0 |
+| 2026-07-10 | Obsidian Bridge / automated | Add automatic paper ingestion: scripts/research/import_paper.py | git post-commit hook | 9c189d7 |
