@@ -1,0 +1,42 @@
+{
+ "assignments": {
+  "TASK-20260710-03": {
+   "owner": "OpenClaw",
+   "at": "2026-07-10 09:54",
+   "type": "ops",
+   "priority": "P0"
+  },
+  "TASK-20260710-01": {
+   "owner": "Fable",
+   "at": "2026-07-10 09:54",
+   "type": "review",
+   "priority": "P1"
+  },
+  "TASK-20260710-02": {
+   "owner": "Qwen",
+   "at": "2026-07-10 09:54",
+   "type": "paper",
+   "priority": "P2"
+  }
+ },
+ "runs": [
+  {
+   "at": "2026-07-10 09:54:45",
+   "assigned": [
+    "TASK-20260710-03",
+    "TASK-20260710-01",
+    "TASK-20260710-02"
+   ],
+   "skipped": []
+  },
+  {
+   "at": "2026-07-10 09:54:45",
+   "assigned": [],
+   "skipped": [
+    "TASK-20260710-01",
+    "TASK-20260710-02",
+    "TASK-20260710-03"
+   ]
+  }
+ ]
+}
