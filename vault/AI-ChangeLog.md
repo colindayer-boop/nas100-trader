@@ -70,3 +70,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 24759f0 |
 | 2026-07-10 | Obsidian Bridge / automated | Commit run_experiment.py from parallel session (compiles, research-only, no p... | git post-commit hook | a5e2ef0 |
 | 2026-07-10 | Obsidian Bridge / automated | Add automatic paper ingestion: scripts/research/import_paper.py | git post-commit hook | 9c189d7 |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 825f111 |
+| 2026-07-10 | Obsidian Bridge / automated | AI Task Router: orchestration layer (scan/sort/dispatch/state), infrastructur... | git post-commit hook | 39482e5 |
