@@ -114,3 +114,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-12 | Obsidian Bridge / automated | ETF forward-shadow review day 1: all NEEDS MORE DATA; decision rule pre-regis... | git post-commit hook | 9290fa6 |
 | 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 13f8c05 |
 | 2026-07-12 | Obsidian Bridge / automated | Drift investigation: sizing verified clean (display-rounding false alarm), re... | git post-commit hook | ddb02a0 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 2b67146 |
+| 2026-07-12 | Obsidian Bridge / automated | Macro filter review: ts corroborated (6/6), DXY parked (6/6 but era-lumpy, -5... | git post-commit hook | e0ea784 |
