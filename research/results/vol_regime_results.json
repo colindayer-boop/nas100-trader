@@ -1,219 +1,187 @@
 {
-  "experiment_metrics": {
-    "baseline": {
-      "label": "Baseline (no vol filter)",
-      "n_trades": 1591,
-      "cagr": 0.10268537629229213,
-      "sharpe": 0.44267097613313744,
-      "max_dd": -0.42702774822705375,
-      "win_rate": 0.3343808925204274,
-      "pf": 1.0726570610583948,
-      "avg_pnl": 6.660791669178015,
-      "total_ret": 1.059731954566217,
-      "trades_per_year": 215.22694444444443
-    },
-    "filter=low_vol_only": {
-      "label": "filter=low_vol_only",
-      "n_trades": 0,
-      "cagr": 0,
-      "sharpe": 0,
-      "max_dd": 0,
-      "win_rate": 0,
-      "pf": 0,
-      "avg_pnl": 0
-    },
-    "filter=mid_low_only": {
-      "label": "filter=mid_low_only",
-      "n_trades": 1591,
-      "cagr": 0.10268537629229213,
-      "sharpe": 0.44267097613313744,
-      "max_dd": -0.42702774822705375,
-      "win_rate": 0.3343808925204274,
-      "pf": 1.0726570610583948,
-      "avg_pnl": 6.660791669178015,
-      "total_ret": 1.059731954566217,
-      "trades_per_year": 215.22694444444443
-    },
-    "filter=no_high_vol": {
+  "baseline": {
+    "label": "Baseline",
+    "n": 248,
+    "cagr": 0.07514317159724881,
+    "sharpe": 1.1219657560430198,
+    "max_dd": 0.11519609267282395,
+    "wr": 0.3548387096774194,
+    "pf": 1.579028627555217,
+    "tpy": 33.900449101796404
+  },
+  "filters": {
+    "no_high_vol": {
       "label": "filter=no_high_vol",
-      "n_trades": 1591,
-      "cagr": 0.10268537629229213,
-      "sharpe": 0.44267097613313744,
-      "max_dd": -0.42702774822705375,
-      "win_rate": 0.3343808925204274,
-      "pf": 1.0726570610583948,
-      "avg_pnl": 6.660791669178015,
-      "total_ret": 1.059731954566217,
-      "trades_per_year": 215.22694444444443
+      "n": 216,
+      "cagr": 0.06755986160334371,
+      "sharpe": 1.066152343303845,
+      "max_dd": 0.11519609267282395,
+      "wr": 0.3611111111111111,
+      "pf": 1.5872344053865588,
+      "tpy": 29.52619760479042
     },
-    "filter=compressed_only": {
+    "low_vol_only": {
+      "label": "filter=low_vol_only",
+      "n": 62,
+      "cagr": 0.0324491670416005,
+      "sharpe": 0.6643076501778375,
+      "max_dd": 0.06992482557601105,
+      "wr": 0.3548387096774194,
+      "pf": 1.5557357039476394,
+      "tpy": 12.374590163934426
+    },
+    "mid_low_only": {
+      "label": "filter=mid_low_only",
+      "n": 216,
+      "cagr": 0.06755986160334371,
+      "sharpe": 1.066152343303845,
+      "max_dd": 0.11519609267282395,
+      "wr": 0.3611111111111111,
+      "pf": 1.5872344053865588,
+      "tpy": 29.52619760479042
+    },
+    "compressed_only": {
       "label": "filter=compressed_only",
-      "n_trades": 1591,
-      "cagr": 0.10268537629229213,
-      "sharpe": 0.44267097613313744,
-      "max_dd": -0.42702774822705375,
-      "win_rate": 0.3343808925204274,
-      "pf": 1.0726570610583948,
-      "avg_pnl": 6.660791669178015,
-      "total_ret": 1.059731954566217,
-      "trades_per_year": 215.22694444444443
+      "n": 68,
+      "cagr": 0.0982989868073616,
+      "sharpe": 2.0354478340812414,
+      "max_dd": 0.03963207109642462,
+      "wr": 0.5441176470588235,
+      "pf": 3.4785405081142886,
+      "tpy": 13.6
     },
-    "filter=no_compressed": {
+    "no_compressed": {
       "label": "filter=no_compressed",
-      "n_trades": 0,
-      "cagr": 0,
-      "sharpe": 0,
-      "max_dd": 0,
-      "win_rate": 0,
-      "pf": 0,
-      "avg_pnl": 0
+      "n": 180,
+      "cagr": 0.013227211353082025,
+      "sharpe": 0.20711995753815984,
+      "max_dd": 0.32529174874235234,
+      "wr": 0.2833333333333333,
+      "pf": 1.1044662056536412,
+      "tpy": 24.60516467065868
     },
-    "filter=expansion_only": {
+    "expansion_only": {
       "label": "filter=expansion_only",
-      "n_trades": 1591,
-      "cagr": 0.10268537629229213,
-      "sharpe": 0.44267097613313744,
-      "max_dd": -0.42702774822705375,
-      "win_rate": 0.3343808925204274,
-      "pf": 1.0726570610583948,
-      "avg_pnl": 6.660791669178015,
-      "total_ret": 1.059731954566217,
-      "trades_per_year": 215.22694444444443
+      "n": 38,
+      "cagr": -0.01799840557750243,
+      "sharpe": -0.6105076832935462,
+      "max_dd": 0.1650371413988947,
+      "wr": 0.15789473684210525,
+      "pf": 0.5537580794547513,
+      "tpy": 6.1906779661016955
     },
-    "vol_scaled_risk": {
-      "label": "Vol-scaled risk (B&SC)",
-      "n_trades": 1591,
-      "cagr": NaN,
-      "sharpe": 0,
-      "max_dd": NaN,
-      "win_rate": 0.0,
-      "pf": Infinity,
-      "avg_pnl": NaN,
-      "total_ret": NaN,
-      "trades_per_year": 215.22694444444443
-    },
-    "adaptive_hold": {
-      "label": "Adaptive holding period",
-      "n_trades": 1591,
-      "cagr": 0.10268537629229213,
-      "sharpe": 0.44267097613313744,
-      "max_dd": -0.42702774822705375,
-      "win_rate": 0.3343808925204274,
-      "pf": 1.0726570610583948,
-      "avg_pnl": 6.660791669178015,
-      "total_ret": 1.059731954566217,
-      "trades_per_year": 215.22694444444443
-    },
-    "combo_filter+scale": {
-      "label": "No-high-vol + vol-scaled",
-      "n_trades": 1591,
-      "cagr": NaN,
-      "sharpe": 0,
-      "max_dd": NaN,
-      "win_rate": 0.0,
-      "pf": Infinity,
-      "avg_pnl": NaN,
-      "total_ret": NaN,
-      "trades_per_year": 215.22694444444443
-    },
-    "combo_filter+adapt": {
-      "label": "No-high-vol + adaptive hold",
-      "n_trades": 1591,
-      "cagr": 0.10268537629229213,
-      "sharpe": 0.44267097613313744,
-      "max_dd": -0.42702774822705375,
-      "win_rate": 0.3343808925204274,
-      "pf": 1.0726570610583948,
-      "avg_pnl": 6.660791669178015,
-      "total_ret": 1.059731954566217,
-      "trades_per_year": 215.22694444444443
+    "no_expansion": {
+      "label": "filter=no_expansion",
+      "n": 210,
+      "cagr": 0.08403320079158205,
+      "sharpe": 1.3750891381316415,
+      "max_dd": 0.10851675194001772,
+      "wr": 0.3904761904761905,
+      "pf": 1.8287063204148435,
+      "tpy": 28.706025449101794
     }
   },
-  "regime_performance": {},
-  "atr_buckets": {},
-  "clustering": {
-    "autocorrelation": {
-      "1": 0.9874091805090282,
-      "5": 0.9076262637118127,
-      "10": 0.770340446920212,
-      "21": 0.4202096499654736
+  "vol_scaled": {
+    "label": "Vol-scaled",
+    "n": 248,
+    "cagr": 0.07518252549096704,
+    "sharpe": 1.2444008631662726,
+    "max_dd": 0.0939258787190367,
+    "wr": 0.3548387096774194,
+    "pf": 1.7179046712549773,
+    "tpy": 33.900449101796404
+  },
+  "adaptive_hold": {
+    "label": "Adaptive hold",
+    "n": 248,
+    "cagr": 0.0761491915018162,
+    "sharpe": 1.1376896484918637,
+    "max_dd": 0.11706065953891295,
+    "wr": 0.3548387096774194,
+    "pf": 1.5953892216894512,
+    "tpy": 33.900449101796404
+  },
+  "regime_perf": {
+    "low_vol": {
+      "n": 62,
+      "wr": 0.3548387096774194,
+      "avg_pnl": 27.98504163085161,
+      "total_pnl": 1735.0725811128,
+      "pf": 1.5557357039476394
     },
-    "transition_matrix": {
+    "mid_vol": {
+      "n": 154,
+      "wr": 0.36363636363636365,
+      "avg_pnl": 28.555397191482502,
+      "total_pnl": 4397.531167488305,
+      "pf": 1.600667219431273
+    },
+    "high_vol": {
+      "n": 32,
+      "wr": 0.3125,
+      "avg_pnl": 26.793045825498695,
+      "total_pnl": 857.3774664159582,
+      "pf": 1.5264137762777645
+    }
+  },
+  "atr_buckets": {
+    "0-20% (very low)": {
+      "n": 62,
+      "wr": 0.46774193548387094,
+      "total_pnl": 4087.9959054527817,
+      "pf": 2.5703955005216463
+    },
+    "20-40%": {
+      "n": 29,
+      "wr": 0.13793103448275862,
+      "total_pnl": -1248.417200576459,
+      "pf": 0.3778427840098112
+    },
+    "40-60%": {
+      "n": 44,
+      "wr": 0.29545454545454547,
+      "total_pnl": 509.2050512589322,
+      "pf": 1.2219608337681862
+    },
+    "60-80%": {
+      "n": 50,
+      "wr": 0.34,
+      "total_pnl": 1319.709739539936,
+      "pf": 1.5165997275704506
+    },
+    "80-100%": {
+      "n": 29,
+      "wr": 0.3103448275862069,
+      "total_pnl": 617.4573712625308,
+      "pf": 1.403601756119744
+    }
+  },
+  "clustering": {
+    "ac": {
+      "1": 0.9874037346534003,
+      "5": 0.9075016127322239,
+      "10": 0.7702474404677626,
+      "21": 0.4199108008497402
+    },
+    "trans": {
       "high->high": 0.9674267100977199,
       "high->low": 0.03257328990228013,
-      "low->high": 0.03152173913043478,
-      "low->low": 0.9684782608695652
+      "low->high": 0.031487513572204126,
+      "low->low": 0.9685124864277959
     }
   },
-  "compression_breakout": {
-    "compressed_avg_5d_move": 0.045778922472297166,
-    "normal_avg_5d_move": 0.054964597451513345,
-    "compressed_avg_signed_ret": 0.005611574498513381,
-    "normal_avg_signed_ret": 0.004314777288051325,
-    "compressed_n": 338,
-    "normal_n": 1504
+  "compression": {
+    "comp_move": 0.045778922472297166,
+    "norm_move": 0.05495158410445961,
+    "comp_sig": 0.005611574498513381,
+    "norm_sig": 0.004325382026666452,
+    "comp_n": 338,
+    "norm_n": 1505
   },
-  "vol_target_sensitivity": {
-    "target_0.08": {
-      "label": "Vol target 8%",
-      "n_trades": 1591,
-      "cagr": NaN,
-      "sharpe": 0,
-      "max_dd": NaN,
-      "win_rate": 0.0,
-      "pf": Infinity,
-      "avg_pnl": NaN,
-      "total_ret": NaN,
-      "trades_per_year": 215.22694444444443
-    },
-    "target_0.1": {
-      "label": "Vol target 10%",
-      "n_trades": 1591,
-      "cagr": NaN,
-      "sharpe": 0,
-      "max_dd": NaN,
-      "win_rate": 0.0,
-      "pf": Infinity,
-      "avg_pnl": NaN,
-      "total_ret": NaN,
-      "trades_per_year": 215.22694444444443
-    },
-    "target_0.12": {
-      "label": "Vol target 12%",
-      "n_trades": 1591,
-      "cagr": NaN,
-      "sharpe": 0,
-      "max_dd": NaN,
-      "win_rate": 0.0,
-      "pf": Infinity,
-      "avg_pnl": NaN,
-      "total_ret": NaN,
-      "trades_per_year": 215.22694444444443
-    },
-    "target_0.15": {
-      "label": "Vol target 15%",
-      "n_trades": 1591,
-      "cagr": NaN,
-      "sharpe": 0,
-      "max_dd": NaN,
-      "win_rate": 0.0,
-      "pf": Infinity,
-      "avg_pnl": NaN,
-      "total_ret": NaN,
-      "trades_per_year": 215.22694444444443
-    },
-    "target_0.2": {
-      "label": "Vol target 20%",
-      "n_trades": 1591,
-      "cagr": NaN,
-      "sharpe": 0,
-      "max_dd": NaN,
-      "win_rate": 0.0,
-      "pf": Infinity,
-      "avg_pnl": NaN,
-      "total_ret": NaN,
-      "trades_per_year": 215.22694444444443
-    }
-  },
-  "generated": "2026-07-11T19:56:13.677406"
+  "rv_stats": {
+    "median": 0.18872127731933194,
+    "p20": 0.1360622870333722,
+    "p80": 0.27020093180995736,
+    "max": 0.820445662644139
+  }
 }
