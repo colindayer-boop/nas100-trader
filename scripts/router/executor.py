@@ -48,6 +48,8 @@ ACTIONS = {
     "update_paper_index": "scripts/research/paper_index.py",
     "update_dashboard":   "scripts/research/research_dashboard.py",
     "update_obsidian":    "scripts/obsidian/build_obsidian.py",
+    "shadow_etf":         "scripts/research/shadow_etf.py",
+    "macro_state":        "scripts/research/macro_state.py",
 }
 
 FOLLOW_UPS = {
