@@ -173,11 +173,142 @@ def month_end():
     print(f"wrote docs/MONTH_1_LIVE_REPORT.md ({'no shadow data' if sh.empty else str(sh['date'].nunique())+' shadow days'})")
 
 
+
+
+# ---- monthly evidence committee -------------------------------------------
+# Validated research expectations, trades/day (source: FINDINGS/master lineage:
+# S1~11/yr, S4~27/180d, S5~1.5 raw pre-filter -> ~0.8 taken, S2/S3 sparse,
+# BTC occasional, OVN 2/wk by calendar). Used for expected-vs-actual only.
+EXPECTED_PER_DAY = {"S1": 0.044, "S2": 0.05, "S3": 0.03, "S4": 0.15,
+                    "S5": 0.8, "SWEEP": 0.1, "BTC": 0.08, "OVN": 0.4, "BTCTREND": 0.05}
+WINDOW_START = date(2026, 7, 9)          # parity commit 236abe3 -- clean-window anchor
+
+
+def _trading_days_since(d0):
+    n, d = 0, d0
+    while d <= date.today():
+        if d.weekday() < 5:
+            n += 1
+        d = d.fromordinal(d.toordinal() + 1)
+    return max(n, 1)
+
+
+def _live_trades_by_strategy():
+    """Count real FILL lines per tag in this host's logs (+ fills.csv)."""
+    import glob
+    counts = {}
+    for pth in glob.glob(os.path.join(REPO, "logs", "*.log")):
+        for ln in open(pth, encoding="utf-8", errors="replace"):
+            m = re.search(r"FILL (\w+) (BUY|SELL)", ln)
+            if m and "DRY" not in ln and "WOULD" not in ln:
+                counts[m.group(1)] = counts.get(m.group(1), 0) + 1
+    fl = read_fills()
+    if not fl.empty:
+        live = fl[fl.get("dry_run", "False").astype(str).str.lower() != "true"]
+        for k, n in live.groupby("strategy").size().items():
+            counts[k] = max(counts.get(k, 0), int(n))
+    return counts
+
+
+def committee():
+    days = _trading_days_since(WINDOW_START)
+    sh = read_shadow()
+    fl = read_fills()
+    live_counts = _live_trades_by_strategy()
+    shadow_days = sh["date"].nunique() if not sh.empty else 0
+
+    # execution quality (host-local)
+    slip = spread = "no data"
+    if not fl.empty:
+        lv = fl[fl.get("dry_run", "False").astype(str).str.lower() != "true"]
+        s = pd.to_numeric(lv.get("slippage_bps"), errors="coerce").dropna()
+        sp = pd.to_numeric(lv.get("spread_bps"), errors="coerce").dropna()
+        if len(s):
+            slip = f"{s.mean():.1f} bps avg / {s.max():.1f} worst (n={len(s)})"
+        if len(sp):
+            spread = f"{sp.mean():.1f} bps avg"
+
+    out = [f"# MONTHLY EVIDENCE COMMITTEE REPORT -- {date.today().isoformat()}",
+           f"\n_Clean window day {days} (anchor 2026-07-09 / parity 236abe3). Shadow days: "
+           f"{shadow_days}. Host: local Mac -- MT5 fills live on the VPS ledger; cells that "
+           f"need VPS data say so. NOTHING is promoted while the 30-day window runs "
+           f"(clock rule) -- PROMOTE is structurally unavailable until the window closes._",
+           "\n## Committee inputs",
+           "1. Research backtests: validated lineage (master_backtest/full_yearly) + etf_streams.csv",
+           "2. Forward shadow: research/results/shadow_signals.csv",
+           "3. Live fills: logs/fills.csv + FILL log lines (this host)",
+           f"4. Execution quality: slippage {slip} | spread {spread} | latency: not "
+           "instrumented per-order; hourly polling bounds decision->submission at <=1h by design",
+           "5. Parity: docs/LIVE_TRADING_PARITY.md (3 fixed bugs; open: one-entry-per-day, "
+           "S3-on-MT5 exits, fill-timing approximation)",
+           "\n## Per-strategy table (live book)",
+           "| strategy | expected trades (window) | actual (this host) | missed | avg R | expectancy | Sharpe | maxDD | gates observed | live-vs-research notes | RECOMMENDATION |",
+           "|---|---|---|---|---|---|---|---|---|---|---|"]
+
+    gate_note = "-"
+    if not sh.empty:
+        g = sh.drop_duplicates("date").iloc[-1]
+        gate_note = f"lvl={g['gate_vix_level']} ts={g['gate_ts_ratio']}"
+
+    for strat, epd in EXPECTED_PER_DAY.items():
+        exp = epd * days
+        act = live_counts.get(strat, 0)
+        missed = "VPS data needed" if act == 0 else max(0, round(exp) - act)
+        # R/expectancy/Sharpe/DD need closed trades -- none on this host yet
+        stats = "insufficient closed trades"
+        if exp >= 3 and act == 0:
+            rec = "INVESTIGATE (expected>=3 in window, zero seen on this host -- check VPS logs/fills)"
+        elif act > 0:
+            rec = "CONTINUE SHADOW/LIVE-DEMO (accumulating)"
+        else:
+            rec = "CONTINUE (expected count in window still <3 -- sparsity, not silence)"
+        parity = {"S3": "Alpaca-only exits (open blocker)",
+                  "OVN": "time-exit + 5% cat-stop (intentional)",
+                  "S5": "mid-bar entry approximation (measured via fills.csv)"}.get(strat, "parity clean")
+        out.append(f"| {strat} | {exp:.1f} | {act} | {missed} | {stats} | - | - | - | "
+                   f"{gate_note} | {parity} | {rec} |")
+
+    out.append("\n## Shadow candidates")
+    out.append("| candidate | research rate/day | shadow rate/day | shadow days | RECOMMENDATION |")
+    out.append("|---|---|---|---|---|")
+    if not sh.empty and os.path.exists(STREAMS):
+        st = pd.read_csv(STREAMS, index_col=0, parse_dates=True)
+        exp_rate = {c: (st[c].dropna() != 0).mean() for c in st.columns}
+        per = sh.groupby("stream")["signal"].agg(["sum", "count"])
+        for k, r in per.iterrows():
+            e = exp_rate.get(k)
+            srate = r["sum"] / max(r["count"], 1)
+            if shadow_days >= 15 and e:
+                rec = ("CONTINUE SHADOW -> post-window review" if srate >= 0.4 * e
+                       else "REJECT (fails forward evidence)")
+            else:
+                rec = "CONTINUE SHADOW (insufficient days)"
+            out.append(f"| {k} | {'' if e is None else f'{e:.2f}'} | {srate:.2f} | "
+                       f"{int(r['count'])} | {rec} |")
+    else:
+        out.append("| (no shadow data) | | | | CONTINUE SHADOW |")
+    out.append("| VIX term-structure gate | n/a (gate) | see ledger | "
+               f"{shadow_days} | CONTINUE SHADOW (needs a backwardation episode to differentiate) |")
+
+    out.append("\n## Committee rules applied")
+    out.append("- PROMOTE: unavailable during the 30-day window, and additionally requires "
+               "reviewer!=author sign-off + human decision (pipeline gates).")
+    out.append("- REJECT: forward shadow < 40% of research rate with >=15 shadow days, "
+               "or adversarial-review failure (see ATR compression precedent).")
+    out.append("- INVESTIGATE: expected>=3 trades in the clean window with zero observed.")
+    out.append("- CONTINUE SHADOW: everything else -- the honest default this early.")
+    out.append("\n_Regenerate anytime: python scripts/ops/evidence_report.py --committee_")
+
+    p_out = os.path.join(REPO, "docs", "MONTHLY_EVIDENCE_COMMITTEE.md")
+    open(p_out, "w").write("\n".join(out) + "\n")
+    print(f"wrote docs/MONTHLY_EVIDENCE_COMMITTEE.md (window day {days}, shadow days {shadow_days})")
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     m = ap.add_mutually_exclusive_group(required=True)
     m.add_argument("--daily", action="store_true")
     m.add_argument("--weekly", action="store_true")
     m.add_argument("--month-end", action="store_true")
+    m.add_argument("--committee", action="store_true")
     a = ap.parse_args()
-    (daily if a.daily else weekly if a.weekly else month_end)()
+    (daily if a.daily else weekly if a.weekly else committee if a.committee else month_end)()
