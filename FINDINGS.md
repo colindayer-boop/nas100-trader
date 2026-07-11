@@ -572,3 +572,56 @@ handle event risk — VIX-mult (off when VIX>25), HighVol/ATR filter, and timed 
 Also resolved: options strategies (real edge but NOT tradeable on FTMO/futures props
 = off prop-path); order-flow tick data (free for crypto, but needs HFT infra to
 exploit — proven dead end). All three "new edge" avenues closed.
+
+### Volatility Regime Analysis (Mission 3) — KEY FINDING: ATR compression filter
+Tested whether volatility should filter entries, scale risk, or change holding period.
+Used actual S1+S4 logic (248 trades, 2019–2026, net costs) with daily RV/ATR/BB metrics.
+
+**ATR COMPRESSION FILTER → STRONGEST SINGLE VOL SIGNAL FOUND:**
+| Approach | Trades | Sharpe | CAGR | MaxDD | PF |
+|----------|--------|--------|------|-------|----|
+| Baseline | 248 | 1.12 | 7.5% | -11.5% | 1.58 |
+| **Compressed only (ATR pctl <25%)** | **68** | **2.04** | **9.8%** | **-4.0%** | **3.48** |
+| No compressed (rest) | 180 | 0.21 | 1.3% | -32.5% | 1.10 |
+The edge concentrates HEAVILY in low-ATR (compressed) regimes: PF 2.57 in the bottom
+20% ATR bucket vs 0.38 in the 20-40% bucket. The "compressed" regime (ATR <25th pct)
+produces 68 trades with HIGHER return, HALF the drawdown, and 3.5× the profit factor.
+This is the strongest single regime signal we've found for S1/S4.
+
+**Why**: In quiet markets (low ATR), the Asian sweep is a clean liquidity event —
+overnight range is tight, the breakout signal is reliable, and stops are respected.
+In choppy/expanding vol, sweeps trigger false breakouts. The strategy's own `HighVol`
+filter (ATR > 1.5× rolling mean) catches the extreme tail, but the ATR percentile
+filter catches a BROADER band of low-quality entries.
+
+**VOL-SCALED RISK → MODEST HELP (already implemented):**
+Vol-scaled risk (Barroso & Santa-Clara, target 15% RV): Sharpe 1.12 → 1.24, MaxDD
+-11.5% → -9.4%. Already in `master_backtest.py` via `vol_mult_for()` + DD-throttle.
+
+**ADAPTIVE HOLDING → REJECTED (confirms prior exit research):**
+Adaptive holding (wider stop + tighter RR in high vol, opposite in low vol): Sharpe
+1.12 → 1.14. Statistically flat. Confirms the FINDINGS.md conclusion: dynamic exits
+ALL hurt the edge because profits come from the few 3R winners. Keep fixed 3R.
+
+**REGIME CONDITIONAL PERFORMANCE:** Edge is remarkably UNIFORM across RV regimes:
+- Low vol: PF 1.56, WR 35.5%
+- Mid vol: PF 1.60, WR 36.4%
+- High vol: PF 1.53, WR 31.2%
+The edge doesn't die in high-vol — it just produces fewer trades. This means the
+VIX-based regime pause handles the tail risk; the ATR percentile filter catches the
+liquidity-quality dimension. They measure different things.
+
+**VOLATILITY CLUSTERING (GARCH):** RV autocorrelation at 1d = 0.987, regime persistence
+97%. Vol regimes are extremely predictable → confirms VIX>25 pause is correct (when
+vol spikes, it stays spiked). No whipsaw risk in regime-based rules.
+
+**ACTION ITEMS:**
+1. **ATR percentile filter** (<25th pct compressed) is a candidate for the strongest single
+   filter improvement since GEX. Needs: walk-forward, OOS split, correlation-to-existing
+   filters (may overlap with HighVol or VIX gates). DO NOT ADOPT without full gauntlet.
+2. **No expansion** filter (exclude ATR >75th pct) also helps: Sharpe 1.12 → 1.38.
+   This is the inverse of compressed-only and may be more robust (more trades).
+3. Confirm existing vol_mult + DD-throttle are sufficient for risk scaling.
+4. Do NOT adopt adaptive holding (confirmed dead end for this edge).
+
+**ATR compression filter (2026-07-12): REJECTED by adversarial review.** Claimed S1 'compressed_only 2.04 vs 1.12' was look-ahead (same-day ATR pctl) + post-hoc threshold selection. Lagged: hurts at all 8 thresholds, 0/6 splits, negative LOYO everywhere, no incremental info over VIX/TS/GEX gates. research/results/atr_compression_REVIEW.md
