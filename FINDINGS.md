@@ -625,3 +625,4 @@ vol spikes, it stays spiked). No whipsaw risk in regime-based rules.
 4. Do NOT adopt adaptive holding (confirmed dead end for this edge).
 
 **ATR compression filter (2026-07-12): REJECTED by adversarial review.** Claimed S1 'compressed_only 2.04 vs 1.12' was look-ahead (same-day ATR pctl) + post-hoc threshold selection. Lagged: hurts at all 8 thresholds, 0/6 splits, negative LOYO everywhere, no incremental info over VIX/TS/GEX gates. research/results/atr_compression_REVIEW.md
+**Macro gates (2026-07-12): curve/netliq/HY REJECTED as incremental gates (0/6 splits vs existing VIX gate); DXY parked NEEDS_MORE_EVIDENCE (post-window battery); ts corroborated 6/6 (already in shadow). docs/MACRO_FILTER_REVIEW.md**
