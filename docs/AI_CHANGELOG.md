@@ -126,3 +126,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-12 | Obsidian Bridge / automated | S5 re-entry divergence quantified: KEEP — 12 extra trades/7.5y, breakeven, de... | git post-commit hook | e839f8b |
 | 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 23a1351 |
 | 2026-07-12 | Obsidian Bridge / automated | Research freeze: backlog triaged — 3 SHADOW, 5 WAITING, 5 REJECTED (incl. moo... | git post-commit hook | 699bbc6 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 3443134 |
+| 2026-07-12 | Obsidian Bridge / automated | Command Center: one-page operational dashboard (7 sections, summarizes existi... | git post-commit hook | a655536 |
