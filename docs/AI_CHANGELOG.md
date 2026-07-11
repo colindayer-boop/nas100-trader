@@ -116,3 +116,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-12 | Obsidian Bridge / automated | Drift investigation: sizing verified clean (display-rounding false alarm), re... | git post-commit hook | ddb02a0 |
 | 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 2b67146 |
 | 2026-07-12 | Obsidian Bridge / automated | Macro filter review: ts corroborated (6/6), DXY parked (6/6 but era-lumpy, -5... | git post-commit hook | e0ea784 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 55ea5d2 |
+| 2026-07-12 | Obsidian Bridge / automated | Overnight momentum review: REJECT — RFS mechanism replicates at ETF level but... | git post-commit hook | e3f5d8f |
