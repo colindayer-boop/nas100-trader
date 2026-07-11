@@ -18,7 +18,7 @@ same battery run there; host gaps are marked, not guessed._
 
 ## Divergences ranked by impact
 
-1. **Same-day re-entry after stop-out** (additional-signals class) -- systematic,
+1. ~~Same-day re-entry~~ **QUANTIFIED & ACCEPTED 2026-07-12** (S5_REENTRY_REVIEW: 12 extra trades/7.5y, breakeven, Sharpe delta -0.01) -- was:
    hits the highest-frequency strategy (S5), and doubles realized risk on exactly
    the worst days (stop-out days). UNQUANTIFIED -- see recommendation.
 2. **Bracket closes invisible to the ledger** -- blocks wrong-exit detection AND
