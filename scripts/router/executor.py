@@ -50,6 +50,7 @@ ACTIONS = {
     "update_obsidian":    "scripts/obsidian/build_obsidian.py",
     "shadow_etf":         "scripts/research/shadow_etf.py",
     "macro_state":        "scripts/research/macro_state.py",
+    "evidence_report":    "scripts/ops/evidence_report.py",
 }
 
 FOLLOW_UPS = {
