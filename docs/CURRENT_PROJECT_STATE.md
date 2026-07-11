@@ -112,6 +112,15 @@ e99c0dd  Evidence cycle: ETF review VALIDATED_FOR_FORWARD_SHADOW (9 survivors, c
 8. The BTC reconcile guard (state cleared when broker shows flat — prevents
    accidental shorts on the hedge account).
 
+## Standing directive (2026-07-12, next ~30 days)
+**Evidence month.** No new strategies/infrastructure/agents. Daily commands (any host,
+router action `evidence_report: --daily` or direct): macro_state.py, shadow_etf.py,
+daily_check.py, evidence_report.py --daily -> EVIDENCE_LEDGER. Weekly: --weekly (Fri).
+Month-end: --month-end -> MONTH_1_LIVE_REPORT.md = THE single source of truth.
+FAILS_FORWARD_EVIDENCE -> rejected; PASSES -> post-window human review queue.
+Scheduling: VPS schtasks / OpenClaw own the recurrence (Mac cron blocked by TCC prompt).
+Production frozen.
+
 ## Next highest priority task
 
 **Execute the 30-day monitoring plan — daily checklist, weekly reviews — and let the
