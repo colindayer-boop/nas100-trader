@@ -1,4 +1,4 @@
-# CURRENT PROJECT STATE — 2026-07-10
+# CURRENT PROJECT STATE — 2026-07-11
 
 _Onboarding snapshot for any agent/human joining. Sources: LIVE_TRADING_PARITY,
 PRODUCTION_READINESS_REVIEW, NEXT_30_DAY_MONITORING_PLAN, LIVE_TRADE_REVIEW,
@@ -89,14 +89,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+1557811  tools/audit_signal_parity.py: day-by-day expected vs live signal counts (S1/S5), DOWN/MISS/OK verdicts
+b8fc385  Obsidian bridge auto-sync [bridge-auto]
 18322de  Setup-supply analysis: setups at 3y highs (96th pct), filters not over-rejecting; drought was operational
 77d6191  Obsidian bridge auto-sync [bridge-auto]
 af5a494  tools/analyze_execution.py: execution-quality analytics over logs/fills.csv (CSV+MD, graceful when empty)
 b71c8cb  Bookkeeping: changelog + state for fill ledger [bridge-auto]
 9fc5770  Obsidian bridge auto-sync [bridge-auto]
 14c10e6  Fill ledger: record every order at the place_order_safe boundary (logging only)
-6039c5b  Bookkeeping: changelog for losing-trade forensics [bridge-auto]
-a8e2623  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
