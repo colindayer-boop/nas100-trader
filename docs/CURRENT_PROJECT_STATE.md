@@ -89,14 +89,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+0a74e18  Survey triage: #1 citation verified REAL but mechanism stated backwards (intraday, not overnight, carries momentum); survey blind to fresh Part C TSMOM; 1 idea created, 7 rejected with reasons
+0688da5  Obsidian bridge auto-sync [bridge-auto]
 9541f4e  ATR compression filter: REJECT (adversarial review) — look-ahead + post-hoc selection; lagged version hurts everywhere
 b6f294c  Obsidian bridge auto-sync [bridge-auto]
 e99c0dd  Evidence cycle: ETF review VALIDATED_FOR_FORWARD_SHADOW (9 survivors, corr 0.13, pooled 2.26); shadow logger + macro-state dataset live via router
 9de8b8a  Obsidian bridge auto-sync [bridge-auto]
 1a7174c  Head of Research program: universe expansion (11 keepers, pooled 2.32, corr 0.14), macro segmentation (3 NEEDS_MORE_EVIDENCE), TSMOM candidate (ETF-only; CFD killed by financing)
 d9df262  Obsidian bridge auto-sync [bridge-auto]
-d1ba90c  EXP-20260711-01 adversarial review: VALIDATED_FOR_FORWARD_SHADOW — look-ahead found+corrected (C 1.39 vs B 1.02, 6/6), survives episode leave-outs + 2x costs; level gate confirmed harmful to S5
-703cbd0  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)

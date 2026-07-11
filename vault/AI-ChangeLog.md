@@ -108,3 +108,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-12 | Obsidian Bridge / automated | Evidence cycle: ETF review VALIDATED_FOR_FORWARD_SHADOW (9 survivors, corr 0.... | git post-commit hook | e99c0dd |
 | 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | b6f294c |
 | 2026-07-12 | Obsidian Bridge / automated | ATR compression filter: REJECT (adversarial review) — look-ahead + post-hoc s... | git post-commit hook | 9541f4e |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 0688da5 |
+| 2026-07-12 | Obsidian Bridge / automated | Survey triage: #1 citation verified REAL but mechanism stated backwards (intr... | git post-commit hook | 0a74e18 |
