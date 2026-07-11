@@ -110,3 +110,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-12 | Obsidian Bridge / automated | State: standing directive -- evidence month [bridge-auto] | git post-commit hook | ce8e406 |
 | 2026-07-12 | Obsidian Bridge / automated | Router state + execution-analysis placeholder (residue) [bridge-auto] | git post-commit hook | c408307 |
 | 2026-07-12 | Obsidian Bridge / automated | Monthly evidence committee report (--committee mode): research vs shadow vs l... | git post-commit hook | 489a709 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | ae5d61c |
+| 2026-07-12 | Obsidian Bridge / automated | ETF forward-shadow review day 1: all NEEDS MORE DATA; decision rule pre-regis... | git post-commit hook | 9290fa6 |
