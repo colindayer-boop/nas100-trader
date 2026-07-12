@@ -136,3 +136,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-12 | Obsidian Bridge / automated | Command Center: one-page operational dashboard (7 sections, summarizes existi... | git post-commit hook | a655536 |
 | 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 428c8da |
 | 2026-07-12 | Obsidian Bridge / automated | Streamlit dashboard v2: 7 pages (HOME/LIVE/SHADOW/RESEARCH/EVIDENCE/LOGS/SETT... | git post-commit hook | 115f30d |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 5e7fb88 |
+| 2026-07-12 | Obsidian Bridge / automated | FINDING: S2 gold FVG structurally inert live — daily-gap concept on hourly ba... | git post-commit hook | 70b8487 |
