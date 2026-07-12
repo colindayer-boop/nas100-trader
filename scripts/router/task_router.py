@@ -121,6 +121,13 @@ def main():
                    help="dispatch owners but skip automatic execution")
     r.set_defaults(fn=cmd_run)
 
+    b = sub.add_parser("brief", help="write a self-contained handoff brief for a task's owner (GLM/Qwen)")
+    b.add_argument("task_id")
+    b.set_defaults(fn=lambda a: __import__("llm_bridge").brief(a.task_id))
+    c = sub.add_parser("collect", help="ingest the owner's reply file back into the task")
+    c.add_argument("task_id")
+    c.set_defaults(fn=lambda a: __import__("llm_bridge").collect(a.task_id))
+
     n = sub.add_parser("new")
     n.add_argument("title")
     n.add_argument("--type", default="research", choices=TYPES)

@@ -1,7 +1,7 @@
 # Trade Journal
 
 <!-- AUTO:BEGIN (do not edit inside this block) -->
-_generated 2026-07-10 10:40 by the Obsidian Bridge_
+_generated 2026-07-12 21:22 by the Obsidian Bridge_
 
 Every fill / exit / dry-fill found in local logs (newest last, max 100 shown). VPS fills appear in Telegram + MT5 history.
 

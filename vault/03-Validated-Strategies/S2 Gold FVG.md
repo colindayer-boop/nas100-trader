@@ -4,6 +4,7 @@ key: S2
 status: validated
 venue: [MT5, Alpaca]
 exit: bracket
+validation: YES since 2026-07-12 (ported to daily-FVG lineage; hourly variant was inert)
 stop_pct: 0.015
 rr: 3.0
 sharpe: 0.7

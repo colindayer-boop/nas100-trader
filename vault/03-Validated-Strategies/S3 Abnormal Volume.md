@@ -4,6 +4,7 @@ key: S3
 status: validated
 venue: [Alpaca, MT5-partial]
 exit: time
+validation: PARTIAL (live rule = strict subset ~4/yr vs validated 15/yr -- post-window decision)
 stop_pct: 0.02
 rr: null
 sharpe: 0.6

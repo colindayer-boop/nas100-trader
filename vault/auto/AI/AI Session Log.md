@@ -1,7 +1,7 @@
 # AI Session Log
 
 <!-- AUTO:BEGIN (do not edit inside this block) -->
-_generated 2026-07-10 10:40 by the Obsidian Bridge_
+_generated 2026-07-12 21:22 by the Obsidian Bridge_
 
 Mirrors `docs/AI_CHANGELOG.md` (the source of truth -- edit THERE).
 
@@ -73,6 +73,73 @@ Mirrors `docs/AI_CHANGELOG.md` (the source of truth -- edit THERE).
 | 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog + state for AI Task Router [bridge-auto] | git post-commit hook | 26772ba |
 | 2026-07-10 | Obsidian Bridge / automated | TensorTrade evaluation: installs w/ surgery (py3.13), smoke test PASS, verdic... | git post-commit hook | e5d9102 |
 | 2026-07-10 | Research eval / Claude Code | **TensorTrade evaluation** -> DEFER: viable in isolated venv (smoke test PASS on py3.13 w/ dep surgery) but philosophy collision (industrialized overfit), prop mismatch (no native brackets), standing dep tax | docs/TENSORTRADE_EVALUATION.md; scratchpad venv, repo env untouched | (see git) |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | b1f800d |
+| 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog for TensorTrade evaluation [bridge-auto] | git post-commit hook | 69cb675 |
+| 2026-07-10 | Obsidian Bridge / automated | Router: automatic task execution (executor.py) + follow-up chains | git post-commit hook | 985c4af |
+| 2026-07-10 | Lead Engineer / Claude Code | **Router auto-execution**: executor.py runs whitelisted mapped scripts on dispatch, captures rc/stdout/stderr/time, auto-status, queues deduped follow-up chains | verified: paper->index->obsidian chain drained over 3 runs, 4th run no-op, failure->review, real artifacts | (see git) |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 7436dfb |
+| 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog + state for router auto-execution [bridge-auto] | git post-commit hook | 8137c4a |
+| 2026-07-10 | Obsidian Bridge / automated | Losing-trade forensics: L1 Alpaca OVN -1,567 (state-loss oversize + missed ex... | git post-commit hook | 6a97f08 |
+| 2026-07-10 | Investigator / Claude Code | **Losing-trade forensics** (docs/LOSING_TRADE_FORENSICS.md): 2 losers total; L1 -1,567 = state-loss oversize (134 vs 33) + missed exit + naked (all since fixed); L2 = S5 mid-bar entry, within stop envelope; recommends fill ledger as single fix; flags unattributable ticket 335622424 | sizing reconstruction + MT5 snapshots + equity trail; corrects 'pre-existing' claim | (see git) |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | a8e2623 |
+| 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog for losing-trade forensics [bridge-auto] | git post-commit hook | 6039c5b |
+| 2026-07-10 | Obsidian Bridge / automated | Fill ledger: record every order at the place_order_safe boundary (logging only) | git post-commit hook | 14c10e6 |
+| 2026-07-10 | Lead Engineer / Claude Code | **Fill ledger** (fill_ledger.py -> logs/fills.csv): signal vs bid/ask/fill per order, derived spread+slippage bps, dry-run labeled, fail-safe by construction | 17/17 tests; dry-runs clean; constants byte-identical; 0 sizing/filter lines changed | (see git) |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 9fc5770 |
+| 2026-07-10 | Obsidian Bridge / automated | Bookkeeping: changelog + state for fill ledger [bridge-auto] | git post-commit hook | b71c8cb |
+| 2026-07-10 | Obsidian Bridge / automated | tools/analyze_execution.py: execution-quality analytics over logs/fills.csv (... | git post-commit hook | af5a494 |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 77d6191 |
+| 2026-07-10 | Obsidian Bridge / automated | Setup-supply analysis: setups at 3y highs (96th pct), filters not over-reject... | git post-commit hook | 18322de |
+| 2026-07-10 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | b8fc385 |
+| 2026-07-11 | Obsidian Bridge / automated | tools/audit_signal_parity.py: day-by-day expected vs live signal counts (S1/S... | git post-commit hook | 1557811 |
+| 2026-07-11 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | c346b7a |
+| 2026-07-11 | Obsidian Bridge / automated | Macro regime survey: 6 filter families reviewed, 1 survivor (VIX term-structu... | git post-commit hook | 2d97b34 |
+| 2026-07-11 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 87e98ae |
+| 2026-07-11 | Obsidian Bridge / automated | EXP-20260711-01 run: VIX term-structure gate — S1 no value; S5 beats level ga... | git post-commit hook | 2f623e8 |
+| 2026-07-11 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 703cbd0 |
+| 2026-07-11 | Obsidian Bridge / automated | EXP-20260711-01 adversarial review: VALIDATED_FOR_FORWARD_SHADOW — look-ahead... | git post-commit hook | d1ba90c |
+| 2026-07-11 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | d9df262 |
+| 2026-07-11 | Obsidian Bridge / automated | Head of Research program: universe expansion (11 keepers, pooled 2.32, corr 0... | git post-commit hook | 1a7174c |
+| 2026-07-11 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 9de8b8a |
+| 2026-07-12 | Obsidian Bridge / automated | Evidence cycle: ETF review VALIDATED_FOR_FORWARD_SHADOW (9 survivors, corr 0.... | git post-commit hook | e99c0dd |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | b6f294c |
+| 2026-07-12 | Obsidian Bridge / automated | ATR compression filter: REJECT (adversarial review) — look-ahead + post-hoc s... | git post-commit hook | 9541f4e |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 0688da5 |
+| 2026-07-12 | Obsidian Bridge / automated | Survey triage: #1 citation verified REAL but mechanism stated backwards (intr... | git post-commit hook | 0a74e18 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | a3796c1 |
+| 2026-07-12 | Obsidian Bridge / automated | Evidence month: EVIDENCE_LEDGER (daily/weekly) + MONTH_1_LIVE_REPORT comparat... | git post-commit hook | 29c30cc |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 84f7a01 |
+| 2026-07-12 | Obsidian Bridge / automated | State: standing directive -- evidence month [bridge-auto] | git post-commit hook | ce8e406 |
+| 2026-07-12 | Obsidian Bridge / automated | Router state + execution-analysis placeholder (residue) [bridge-auto] | git post-commit hook | c408307 |
+| 2026-07-12 | Obsidian Bridge / automated | Monthly evidence committee report (--committee mode): research vs shadow vs l... | git post-commit hook | 489a709 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | ae5d61c |
+| 2026-07-12 | Obsidian Bridge / automated | ETF forward-shadow review day 1: all NEEDS MORE DATA; decision rule pre-regis... | git post-commit hook | 9290fa6 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 13f8c05 |
+| 2026-07-12 | Obsidian Bridge / automated | Drift investigation: sizing verified clean (display-rounding false alarm), re... | git post-commit hook | ddb02a0 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 2b67146 |
+| 2026-07-12 | Obsidian Bridge / automated | Macro filter review: ts corroborated (6/6), DXY parked (6/6 but era-lumpy, -5... | git post-commit hook | e0ea784 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 55ea5d2 |
+| 2026-07-12 | Obsidian Bridge / automated | Overnight momentum review: REJECT — RFS mechanism replicates at ETF level but... | git post-commit hook | e3f5d8f |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 33e5cec |
+| 2026-07-12 | Obsidian Bridge / automated | Graveyard audit: 33 rejections reviewed — 30 STAND, 2 refined/partially super... | git post-commit hook | 674315e |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 155d5b8 |
+| 2026-07-12 | Obsidian Bridge / automated | Prop readiness: design ready, evidence not — 8 blockers ranked; decision belo... | git post-commit hook | b86a445 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | cb3c5d2 |
+| 2026-07-12 | Obsidian Bridge / automated | S5 re-entry divergence quantified: KEEP — 12 extra trades/7.5y, breakeven, de... | git post-commit hook | e839f8b |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 23a1351 |
+| 2026-07-12 | Obsidian Bridge / automated | Research freeze: backlog triaged — 3 SHADOW, 5 WAITING, 5 REJECTED (incl. moo... | git post-commit hook | 699bbc6 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 3443134 |
+| 2026-07-12 | Obsidian Bridge / automated | Command Center: one-page operational dashboard (7 sections, summarizes existi... | git post-commit hook | a655536 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 428c8da |
+| 2026-07-12 | Obsidian Bridge / automated | Streamlit dashboard v2: 7 pages (HOME/LIVE/SHADOW/RESEARCH/EVIDENCE/LOGS/SETT... | git post-commit hook | 115f30d |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 5e7fb88 |
+| 2026-07-12 | Obsidian Bridge / automated | FINDING: S2 gold FVG structurally inert live — daily-gap concept on hourly ba... | git post-commit hook | 70b8487 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 26ab180 |
+| 2026-07-12 | Obsidian Bridge / automated | FIX S2: port to validated daily-FVG lineage (human-authorized) | git post-commit hook | 614e1ba |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 0ea4154 |
+| 2026-07-12 | Obsidian Bridge / automated | Strategy Validation Audit: 8 questions x 8 strategies — S3 provenance drift f... | git post-commit hook | a219f81 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | ac0491d |
+| 2026-07-12 | Obsidian Bridge / automated | Cockpit upgrade: 9-page decision dashboard — status cards, AI Commander (rule... | git post-commit hook | f34575b |
 
 
 Back: [[AI Index]] | [[00 Dashboard]]

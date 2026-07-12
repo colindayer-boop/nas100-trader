@@ -1,13 +1,13 @@
 # Research Notes
 
 <!-- AUTO:BEGIN (do not edit inside this block) -->
-_generated 2026-07-10 10:40 by the Obsidian Bridge_
+_generated 2026-07-12 21:22 by the Obsidian Bridge_
 
 Research state (generated pointers -- the graveyard is authoritative).
 
 - **HUNT_LOG.md**: 294 lines (repo root)
 - **SWEEP_SUMMARY.md**: 20 lines (repo root)
-- **FINDINGS.md**: 574 lines (repo root)
+- **FINDINGS.md**: 649 lines (repo root)
 - Hand-written: [[02-Strategy-Research/Gauntlet|The Gauntlet]], [[02-Strategy-Research/Rejected Ideas|Rejected Ideas]]
 - Pipeline rules: AI_OPERATING_SYSTEM.md section 6 (repo docs/)
 

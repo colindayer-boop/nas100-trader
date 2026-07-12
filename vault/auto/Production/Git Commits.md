@@ -1,42 +1,42 @@
 # Git Commits
 
 <!-- AUTO:BEGIN (do not edit inside this block) -->
-_generated 2026-07-10 10:40 by the Obsidian Bridge_
+_generated 2026-07-12 21:22 by the Obsidian Bridge_
 
 Last 30 commits on `main`.
 
 | hash | date | subject |
 |---|---|---|
-| `69cb675` | 2026-07-10 | Bookkeeping: changelog for TensorTrade evaluation [bridge-auto] |
-| `b1f800d` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
-| `e5d9102` | 2026-07-10 | TensorTrade evaluation: installs w/ surgery (py3.13), smoke test PASS, verdict DEFER |
-| `26772ba` | 2026-07-10 | Bookkeeping: changelog + state for AI Task Router [bridge-auto] |
-| `aa7a711` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
-| `39482e5` | 2026-07-10 | AI Task Router: orchestration layer (scan/sort/dispatch/state), infrastructure only |
-| `825f111` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
-| `9c189d7` | 2026-07-10 | Add automatic paper ingestion: scripts/research/import_paper.py |
-| `a5e2ef0` | 2026-07-10 | Commit run_experiment.py from parallel session (compiles, research-only, no production imports) [bridge-auto] |
-| `24759f0` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
-| `1eebf04` | 2026-07-10 | ROADMAP_V2: 10 proposed systems for the research platform (design only, window-safe ordering) |
-| `a78595d` | 2026-07-10 | Bookkeeping: changelog + state for Nightly Ops Runner v1 [bridge-auto] |
-| `201c6df` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
-| `b070fa7` | 2026-07-10 | Nightly Ops Runner v1: scripts/ops/daily_check.py -> docs/DAILY_OPS_REPORT.md |
-| `eac5f8a` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
-| `970d46b` | 2026-07-10 | Daily Ops Report 2026-07-10: no production bug detected, system nominal |
-| `147896b` | 2026-07-10 | Bookkeeping: changelog + state for Experiment Pipeline [bridge-auto] |
-| `fd09e4f` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
-| `ee19aee` | 2026-07-10 | Experiment Pipeline: queue/experiments/archive lifecycle + new_experiment/promote_experiment |
-| `cc0138d` | 2026-07-10 | Bookkeeping: changelog + state for Research OS v1 [bridge-auto] |
-| `5d68a5a` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
-| `30a78e4` | 2026-07-10 | Research OS v1: ideas/papers/experiments intake + new_idea/new_paper generators |
-| `259f3dd` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
-| `70a88b2` | 2026-07-10 | Remove test placeholder |
-| `c9c26b4` | 2026-07-10 | Obsidian bridge auto-sync [bridge-auto] |
-| `25b02a0` | 2026-07-10 | Add scripts/README.md placeholder |
-| `aaa876b` | 2026-07-10 | Fix: prevent infinite post-commit loop (skip [bridge-auto] commits) |
-| `b82759a` | 2026-07-10 | Hook installer: skip [bridge-auto] commits (loop guard, from parallel session) |
-| `e4ba048` | 2026-07-10 | Commit post-commit-hook residue (changelog/state/vault rows for 80c63d5) [hook bypassed to end loop] |
-| `80c63d5` | 2026-07-10 | Bridge follow-up: enrich changelog row with verification evidence; register bridge in CURRENT_PROJECT_STATE; commit hook-generated vault updates |
+| `60d7f06` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `f34575b` | 2026-07-12 | Cockpit upgrade: 9-page decision dashboard — status cards, AI Commander (rule-derived, max 3 recs), strategy cards (validation-audit-sourced), colored shadow comparison, pipeline counts, searchable graveyard, execution charts, Obsidian buttons, readiness progress widgets, refresh toggle. Read-only; VPS-blind cells say 'Available on VPS'. |
+| `ac0491d` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `a219f81` | 2026-07-12 | Strategy Validation Audit: 8 questions x 8 strategies — S3 provenance drift found (live rule = strict subset, 4/yr vs validated 15/yr), S5-on-CFD premise flagged, BTC venue swap flagged; committee expectations corrected |
+| `0ea4154` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `614e1ba` | 2026-07-12 | FIX S2: port to validated daily-FVG lineage (human-authorized) |
+| `26ab180` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `70b8487` | 2026-07-12 | FINDING: S2 gold FVG structurally inert live — daily-gap concept on hourly bars fires 0/75 days; London window is 1 bar on Alpaca feed. Post-window decision queued; committee expectation corrected to 0 |
+| `5e7fb88` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `115f30d` | 2026-07-12 | Streamlit dashboard v2: 7 pages (HOME/LIVE/SHADOW/RESEARCH/EVIDENCE/LOGS/SETTINGS), read-only view layer over existing artifacts |
+| `428c8da` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `a655536` | 2026-07-12 | Command Center: one-page operational dashboard (7 sections, summarizes existing artifacts, idempotent, graceful on missing files) — answers 'what should I do today' |
+| `3443134` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `699bbc6` | 2026-07-12 | Research freeze: backlog triaged — 3 SHADOW, 5 WAITING, 5 REJECTED (incl. moot DIX exp closed via lifecycle), 8 ARCHIVED, READY empty by design |
+| `23a1351` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `e839f8b` | 2026-07-12 | S5 re-entry divergence quantified: KEEP — 12 extra trades/7.5y, breakeven, deltas within noise; drift blocker closed as accepted |
+| `cb3c5d2` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `b86a445` | 2026-07-12 | Prop readiness: design ready, evidence not — 8 blockers ranked; decision belongs to the month-end report (~08-11), not today |
+| `155d5b8` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `674315e` | 2026-07-12 | Graveyard audit: 33 rejections reviewed — 30 STAND, 2 refined/partially superseded (via pipeline, not nostalgia), CFD-financing law identified as most re-confirmed pattern |
+| `33e5cec` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `e3f5d8f` | 2026-07-12 | Overnight momentum review: REJECT — RFS mechanism replicates at ETF level but breadth-starved and CFD-dead; idea closed, graveyard updated |
+| `55ea5d2` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `e0ea784` | 2026-07-12 | Macro filter review: ts corroborated (6/6), DXY parked (6/6 but era-lumpy, -58% trades), curve/netliq/HY rejected (0/6) — no adoption, evidence month respected |
+| `2b67146` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `ddb02a0` | 2026-07-12 | Drift investigation: sizing verified clean (display-rounding false alarm), re-entry divergence ranked #1, bracket-close ledger hole found; ONE investigation recommended (quantify re-entry in replay) |
+| `13f8c05` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `9290fa6` | 2026-07-12 | ETF forward-shadow review day 1: all NEEDS MORE DATA; decision rule pre-registered (40% rate + corr<0.5 at >=15 days) so the future verdict can't be fitted |
+| `ae5d61c` | 2026-07-12 | Obsidian bridge auto-sync [bridge-auto] |
+| `489a709` | 2026-07-12 | Monthly evidence committee report (--committee mode): research vs shadow vs live vs execution vs parity, per-strategy recommendation (PROMOTE structurally blocked during window; REJECT/INVESTIGATE rule-driven); day-2 report generated honestly (all CONTINUE) |
 
 Back: [[Production Index]] | [[00 Dashboard]]
 <!-- AUTO:END -->

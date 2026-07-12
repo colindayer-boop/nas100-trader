@@ -4,6 +4,7 @@ key: S5
 status: validated
 venue: [MT5, Alpaca]
 exit: bracket
+validation: PARTIAL on CFD (9:00 bar is not an auction open on NAS100; measured via fills)
 stop_pct: 0.01
 rr: 3.0
 sharpe: 1.0
