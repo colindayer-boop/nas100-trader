@@ -89,14 +89,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+c70477d  S3 validation review: research vs live implementation
+e8843fe  Obsidian bridge auto-sync [bridge-auto]
 56e9d11  LLM bridge (GLM/Qwen subagents) + vault update
 60d7f06  Obsidian bridge auto-sync [bridge-auto]
 f34575b  Cockpit upgrade: 9-page decision dashboard — status cards, AI Commander (rule-derived, max 3 recs), strategy cards (validation-audit-sourced), colored shadow comparison, pipeline counts, searchable graveyard, execution charts, Obsidian buttons, readiness progress widgets, refresh toggle. Read-only; VPS-blind cells say 'Available on VPS'.
 ac0491d  Obsidian bridge auto-sync [bridge-auto]
 a219f81  Strategy Validation Audit: 8 questions x 8 strategies — S3 provenance drift found (live rule = strict subset, 4/yr vs validated 15/yr), S5-on-CFD premise flagged, BTC venue swap flagged; committee expectations corrected
 0ea4154  Obsidian bridge auto-sync [bridge-auto]
-614e1ba  FIX S2: port to validated daily-FVG lineage (human-authorized)
-26ab180  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)

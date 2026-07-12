@@ -146,3 +146,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-12 | Obsidian Bridge / automated | Cockpit upgrade: 9-page decision dashboard — status cards, AI Commander (rule... | git post-commit hook | f34575b |
 | 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 60d7f06 |
 | 2026-07-12 | Obsidian Bridge / automated | LLM bridge (GLM/Qwen subagents) + vault update | git post-commit hook | 56e9d11 |
+| 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | e8843fe |
+| 2026-07-12 | Obsidian Bridge / automated | S3 validation review: research vs live implementation | git post-commit hook | c70477d |
