@@ -628,3 +628,15 @@ vol spikes, it stays spiked). No whipsaw risk in regime-based rules.
 **Macro gates (2026-07-12): curve/netliq/HY REJECTED as incremental gates (0/6 splits vs existing VIX gate); DXY parked NEEDS_MORE_EVIDENCE (post-window battery); ts corroborated 6/6 (already in shadow). docs/MACRO_FILTER_REVIEW.md**
 **Intraday-return momentum (RFS 2026 mechanism), 2026-07-12: REJECTED for this shop.** Replicates at ETF level (intraday 0.40 > total 0.20 > overnight -0.22) but breadth-starved at 8 ETFs (<0.5 bar), CFD financing kills it (-0.26). Real mechanism, no edge for us. docs/OVERNIGHT_MOMENTUM_REVIEW.md
 **S5 same-day re-entry divergence (2026-07-12): QUANTIFIED — KEEP live behavior.** 12 extra trades in 7.5y (3%), breakeven (avgR +0.000), Sharpe 1.32 vs 1.31, DD within path noise. One-entry-per-day guard NOT worth a clock reset. docs/S5_REENTRY_REVIEW.md
+
+### S2 Gold FVG: live implementation is STRUCTURALLY INERT (2026-07-12)
+Empirical funnel on 75 days of real GLD hourly: Asian sweeps exist (~195/yr), sweeps
+inside London exist (~37/yr), but the FVG condition (Low > High[t-2], a true price
+gap) fired ZERO times long or short. Root cause: the validated backtest (full_yearly)
+used DAILY-bar FVG (overnight gaps common); live transplanted it to HOURLY bars where
+contiguous trading means such gaps essentially never occur. Compounding: Alpaca
+extended hours start 04:00 ET, so the "2-5 ET London window" contains ~1 bar, not 3.
+S2 has been evaluating honestly and printing "No signal" since go-live -- dead code.
+POST-WINDOW decision required (strategy surgery = clock reset): port back to daily
+FVG (the validated lineage) or retire S2. Until then: expected S2 trades = 0, and the
+committee report's S2 expectation should read 0, not 0.05/day.
