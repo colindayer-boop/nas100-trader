@@ -162,3 +162,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-13 | Obsidian Bridge / automated | Trading OS.app: native macOS launcher shell (presentation+launcher only) | git post-commit hook | d07c49f |
 | 2026-07-13 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | d9e4c58 |
 | 2026-07-13 | Obsidian Bridge / automated | Alpha Leak Audit: forensic implementation-drift pass over all 8 strategies — ... | git post-commit hook | be98a67 |
+| 2026-07-13 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 912a570 |
+| 2026-07-13 | Obsidian Bridge / automated | Forensic Investigation: Phase 1 production forensics + Phase 2 regime audit +... | git post-commit hook | 534d2f6 |
