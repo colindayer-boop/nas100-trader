@@ -33,3 +33,7 @@ tightening, S5/BTC venue semantics). None was caught by parity checks -- parity
 verifies the code matches ITSELF across environments; validation drift is the code
 no longer matching ITS EVIDENCE. This audit class should re-run whenever a strategy
 is ported across timeframe, venue, or data source.
+
+
+## Decision log
+- **2026-07-13 (human):** S3 drift -> KEEP AS-IS. The live rule is a safe subset (not wrong); no revert. Re-decide at the 2026-08-16 committee with a full clean month. S5-CFD / BTC-venue remain measure-only. No code change.
