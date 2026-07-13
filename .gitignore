@@ -18,3 +18,4 @@ optionsdx/
 *.txt
 !requirements.txt
 .DS_Store
+dashboard/streamlit*.log
