@@ -154,3 +154,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-13 | Obsidian Bridge / automated | Decision log: S3 drift KEEP AS-IS (human 2026-07-13) — safe subset, defer to ... | git post-commit hook | 0e13cbd |
 | 2026-07-13 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 9ff3654 |
 | 2026-07-13 | Obsidian Bridge / automated | Fix nas100-update task (0x800710E0/4320): run as SYSTEM + non-hanging git pull | git post-commit hook | bcbedfc |
+| 2026-07-13 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | d4eba05 |
+| 2026-07-13 | Obsidian Bridge / automated | Validation Audit #2 (weekend exposure): S5 benefits from weekend holds, S3 ha... | git post-commit hook | 96d8ed3 |
