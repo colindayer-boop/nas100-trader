@@ -59,8 +59,21 @@ if (Select-String -Path .\mt5_broker.py -Pattern 'BTCUSD' -Quiet) {
 }
 
 Write-Host "== 5. registering scheduled tasks ==" -ForegroundColor Cyan
-$trUpdate = 'cmd /c cd /d "' + $Repo + '" && git pull'
-schtasks /create /tn "nas100-update" /sc MINUTE /mo 30 /f /tr $trUpdate | Out-Null
+# nas100-update must run WHETHER OR NOT the operator is logged on. A bare task
+# with no /ru defaults to "run only when user is logged on" -> when the RDP
+# session is logged off the trigger returns 0x800710E0 (4320, operator-refused).
+# Run it as SYSTEM: always "logged on", no stored password, has the Machine PATH
+# (git) and network for a PUBLIC-repo pull (no credentials needed).
+# The action is also hardened so it can never HANG (a hung instance yields the
+# SAME 4320 under the default do-not-start-new-instance policy):
+#   GIT_TERMINAL_PROMPT=0  -> fail fast instead of blocking on a credential prompt
+#   git pull --ff-only     -> never opens a merge editor, never auto-merges
+#   safe.directory         -> trust the admin-owned tree when pulling as SYSTEM
+# Neither `git pull` nor `--ff-only` deletes untracked files; config.ini is
+# gitignored and is preserved. ponytail: safe.directory --add appends one line
+# to SYSTEM's .gitconfig per run (inert dupes); switch to --replace-all if it ever matters.
+$trUpdate = 'cmd /c cd /d "' + $Repo + '" && set GIT_TERMINAL_PROMPT=0 && git config --global --add safe.directory "' + $Repo + '" && git pull --ff-only'
+schtasks /create /tn "nas100-update" /sc MINUTE /mo 30 /f /ru SYSTEM /tr $trUpdate | Out-Null
 # session tasks (all/overnight/btc/btctrend/rebal) come from schedule_mt5.ps1 —
 # drop the old standalone BTC task so the hourly session does not run twice
 # guarded: delete only if it exists, then reset exit code so a missing task (a
