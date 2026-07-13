@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+0e13cbd  Decision log: S3 drift KEEP AS-IS (human 2026-07-13) — safe subset, defer to 08-16 committee; no code change
+cb605dd  Obsidian bridge auto-sync [bridge-auto]
 d454e02  Bookkeeping: clock RESET to 2026-07-14 after signal-touching S2 fix (614e1ba)
 205ad79  Obsidian bridge auto-sync [bridge-auto]
 c70477d  S3 validation review: research vs live implementation
 e8843fe  Obsidian bridge auto-sync [bridge-auto]
 56e9d11  LLM bridge (GLM/Qwen subagents) + vault update
 60d7f06  Obsidian bridge auto-sync [bridge-auto]
-f34575b  Cockpit upgrade: 9-page decision dashboard — status cards, AI Commander (rule-derived, max 3 recs), strategy cards (validation-audit-sourced), colored shadow comparison, pipeline counts, searchable graveyard, execution charts, Obsidian buttons, readiness progress widgets, refresh toggle. Read-only; VPS-blind cells say 'Available on VPS'.
-ac0491d  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)

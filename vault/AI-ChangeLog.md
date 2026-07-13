@@ -150,3 +150,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-12 | Obsidian Bridge / automated | S3 validation review: research vs live implementation | git post-commit hook | c70477d |
 | 2026-07-12 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 205ad79 |
 | 2026-07-13 | Obsidian Bridge / automated | Bookkeeping: clock RESET to 2026-07-14 after signal-touching S2 fix (614e1ba) | git post-commit hook | d454e02 |
+| 2026-07-13 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | cb605dd |
+| 2026-07-13 | Obsidian Bridge / automated | Decision log: S3 drift KEEP AS-IS (human 2026-07-13) — safe subset, defer to ... | git post-commit hook | 0e13cbd |
