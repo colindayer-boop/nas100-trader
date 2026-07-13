@@ -647,3 +647,4 @@ version: daily FVG_Up + green + SPY-bull, long-only, stop 1.2% / RR 2.0 (lineage
 params). Replay on current data: ~16 tr/yr, 56% win, Sharpe 1.58 (OOS 1.79), DD -3.3%.
 S2's evidence clock restarts at its first post-deploy trading day (~07-14); all other
 strategies' window evidence is UNAFFECTED (S2 contributed zero trades before the fix).
+**Weekend exposure audit (2026-07-13):** S5 BENEFITS from weekend holds (Sharpe .88 vs .72, +15.9k gap P&L, net positive even after CFD financing); S3 HARMED (force-close flips PF 1.03->1.24); S1 marginal. Breach tail: worst weekend -4.09% eq, 0/373 breaches. ETF/CFD agree on direction. No change; committee 08-16. docs/WEEKEND_EXPOSURE_AUDIT.md
