@@ -150,3 +150,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-13 | Obsidian Bridge / automated | Fix nas100-update task (0x800710E0/4320): run as SYSTEM + non-hanging git pull | git post-commit hook | bcbedfc |
 | 2026-07-13 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | d4eba05 |
 | 2026-07-13 | Obsidian Bridge / automated | Validation Audit #2 (weekend exposure): S5 benefits from weekend holds, S3 ha... | git post-commit hook | 96d8ed3 |
+| 2026-07-13 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 65b05c9 |
+| 2026-07-13 | Obsidian Bridge / automated | Knowledge graph: KNOWLEDGE_GRAPH.md (8 strategies x 11 facets) + knowledge_gr... | git post-commit hook | 634eb49 |
