@@ -18,16 +18,22 @@ $ErrorActionPreference = "Stop"
 $sync = Join-Path $Repo "scripts\ops\sync_mt5_evidence.ps1"
 $action = "powershell -ExecutionPolicy Bypass -File `"$sync`" -Repo `"$Repo`" -Evidence `"$Evidence`" -Python `"$Python`""
 
-# delete+recreate (idempotent). /RL LIMITED (no elevation needed for read-only export).
-schtasks /query /tn "nas100-evidence-export" *> $null
-if ($LASTEXITCODE -eq 0) { schtasks /delete /tn "nas100-evidence-export" /f | Out-Null }
+# /IT = run only when $RunUser is logged on (interactive) -> NO stored password needed
+# and matches MT5's need for the live desktop session (same mode as the trading tasks).
+# /RL LIMITED = no elevation (read-only export). Idempotent: delete then create /f.
+function New-EvidenceTask($name, $time) {
+  schtasks /query /tn $name *> $null
+  if ($LASTEXITCODE -eq 0) { schtasks /delete /tn $name /f *> $null }
+  schtasks /create /tn $name /sc DAILY /st $time /ru $RunUser /it /rl LIMITED /tr $action /f
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "  /it create failed for $name; retrying without /rl..." -ForegroundColor Yellow
+    schtasks /create /tn $name /sc DAILY /st $time /ru $RunUser /it /tr $action /f
+  }
+  if ($LASTEXITCODE -ne 0) { throw "failed to register $name (exit $LASTEXITCODE)" }
+}
+New-EvidenceTask "nas100-evidence-export"   $Time1
+New-EvidenceTask "nas100-evidence-export-2" $Time2
 
-schtasks /create /tn "nas100-evidence-export" /sc DAILY /st $Time1 /ru $RunUser `
-  /tr $action /f | Out-Null
-# second daily trigger (optional, after overnight) -- add as a repetition
-schtasks /create /tn "nas100-evidence-export-2" /sc DAILY /st $Time2 /ru $RunUser `
-  /tr $action /f | Out-Null
-
-Write-Host "Registered nas100-evidence-export ($Time1) + -2 ($Time2) as $RunUser" -ForegroundColor Green
+Write-Host "Registered nas100-evidence-export ($Time1) + -2 ($Time2) as $RunUser [/it, no password]" -ForegroundColor Green
 Write-Host "It is INDEPENDENT of trading tasks; an export failure cannot interrupt trading." -ForegroundColor Cyan
 Write-Host "Verify:  schtasks /query /tn nas100-evidence-export /fo LIST /v | findstr /i `"Last Result Run`""

@@ -12,7 +12,7 @@ import argparse
 import csv
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 MIN_SAMPLE = 10   # below this: no expectancy verdict (INSUFFICIENT_SAMPLE)
 
@@ -148,7 +148,7 @@ def write_reports(repo, snap, result):
     else:
         md.append("\n## Anomalies\n- none")
     open(os.path.join(rdir, f"{date}_LIVE_EVIDENCE.md"), "w").write("\n".join(md) + "\n")
-    latest = {"date": date, "generated_utc": datetime.utcnow().isoformat(timespec="seconds"), **result}
+    latest = {"date": date, "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), **result}
     open(os.path.join(rdir, "latest.json"), "w").write(json.dumps(latest, indent=1, default=str))
     open(os.path.join(rdir, "latest"), "w").write(f"{date}_LIVE_EVIDENCE.md\n")  # stable pointer
     return os.path.join(rdir, f"{date}_LIVE_EVIDENCE.md")

@@ -35,15 +35,26 @@ try {
   & $Python (Join-Path $Repo "scripts\ops\verify_manifest.py") (Join-Path $Evidence "daily\$today")
   if ($LASTEXITCODE -ne 0) { Log "manifest/checksum validation FAILED -- not committing"; exit 3 }
 
-  # 3-7. commit ONLY the new evidence dir to the private repo
+  # 3-7. commit ONLY the new evidence dir to the private repo (empty-repo safe)
   Push-Location $Evidence
   try {
-    git pull --ff-only 2>&1 | Out-Null           # safe, non-interactive
-    git add -- "daily/$today" "reports/" 2>&1 | Out-Null   # ONLY evidence paths
-    $changed = (git status --porcelain -- "daily/$today" "reports/")
+    # ensure a commit identity exists (a freshly cloned empty repo often has none)
+    if (-not (git config user.email)) { git config user.email "evidence-bot@nas100.local" | Out-Null }
+    if (-not (git config user.name))  { git config user.name  "nas100-evidence-bot"      | Out-Null }
+    # ensure we are on 'main' (GitHub default); create it if the empty clone has no branch
+    git checkout -B main 2>&1 | Out-Null
+    # only pull if the REMOTE already has main (empty repo -> skip, don't error)
+    $remoteMain = (git ls-remote --heads origin main 2>$null)
+    if (-not [string]::IsNullOrWhiteSpace($remoteMain)) {
+      git pull --ff-only origin main 2>&1 | Out-Null
+    } else { Log "remote main empty -- first push will initialize it" }
+    # stage ONLY evidence paths that exist
+    git add -- "daily/$today" 2>&1 | Out-Null
+    if (Test-Path "reports") { git add -- "reports" 2>&1 | Out-Null }
+    $changed = (git status --porcelain)
     if ([string]::IsNullOrWhiteSpace($changed)) { Log "no new evidence content -- nothing to commit"; exit 0 }
-    git commit -m "evidence $today" -- "daily/$today" "reports/" 2>&1 | Out-Null
-    git push origin HEAD 2>&1 | Out-Null          # never --force
+    git commit -m "evidence $today" 2>&1 | Out-Null
+    git push -u origin main 2>&1 | Out-Null       # -u sets upstream on first push; never --force
     if ($LASTEXITCODE -ne 0) { Log "push failed (GitHub down?) -- local commit preserved, retry next run"; exit 4 }
     Log "pushed evidence $today OK"
   } finally { Pop-Location }
