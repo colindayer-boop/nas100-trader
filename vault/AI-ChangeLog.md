@@ -202,3 +202,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-14 | Obsidian Bridge / automated | Bucket B (measurement): signal_ts telemetry + Research/Shadow/Live dashboard | git post-commit hook | 071d5b9 |
 | 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | ce77588 |
 | 2026-07-14 | Obsidian Bridge / automated | Evidence bridge #1: read-only MT5 exporter + reconciler + 20-case tests | git post-commit hook | 0c3ef2c |
+| 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | add232b |
+| 2026-07-14 | Obsidian Bridge / automated | Evidence bridge #2: VPS sync + scheduler + Phase-1 probe | git post-commit hook | 3ec1963 |
