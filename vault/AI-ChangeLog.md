@@ -204,3 +204,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-14 | Obsidian Bridge / automated | Evidence bridge #1: read-only MT5 exporter + reconciler + 20-case tests | git post-commit hook | 0c3ef2c |
 | 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | add232b |
 | 2026-07-14 | Obsidian Bridge / automated | Evidence bridge #2: VPS sync + scheduler + Phase-1 probe | git post-commit hook | 3ec1963 |
+| 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 62d9eaa |
+| 2026-07-14 | Obsidian Bridge / automated | Evidence bridge #3: Mac pull + Trading OS evidence controls + docs/rollback | git post-commit hook | 43207fc |

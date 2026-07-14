@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+43207fc  Evidence bridge #3: Mac pull + Trading OS evidence controls + docs/rollback
+62d9eaa  Obsidian bridge auto-sync [bridge-auto]
 3ec1963  Evidence bridge #2: VPS sync + scheduler + Phase-1 probe
 add232b  Obsidian bridge auto-sync [bridge-auto]
 0c3ef2c  Evidence bridge #1: read-only MT5 exporter + reconciler + 20-case tests
 ce77588  Obsidian bridge auto-sync [bridge-auto]
 071d5b9  Bucket B (measurement): signal_ts telemetry + Research/Shadow/Live dashboard
 d57a268  Obsidian bridge auto-sync [bridge-auto]
-155ed21  Fill<->broker<->research reconciliation (measured, n=2): both live S5 fills match MT5 exactly; spread ~0.34bps, slippage 0.13-0.37bps, commission 0; measured swap -18.29 (~1.7bps/day, BELOW the 3bps model); venue=NAS100 CFD not QQQ ETF; #1 weekend-stopped. No missing/dup. n=2 -> expectancy INSUFFICIENT_DATA. Evidence only, no code change
-573cc60  Add MT5 account history
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
