@@ -58,6 +58,7 @@ class MT5Broker(Broker):
         login  = cfg.get("login", "")
         passwd = cfg.get("password", "")
         server = cfg.get("server", "")
+        self._login, self._passwd, self._server = login, passwd, server  # for reconnect
         if not login or login.startswith("YOUR_"):
             raise NotConfiguredError(
                 "MT5 credentials missing. Set [mt5] login/password/server in config.ini.")
@@ -105,6 +106,36 @@ class MT5Broker(Broker):
             raise ValueError(f"Unsupported timeframe '{tf}'")
         return table[tf]
 
+    def _ensure_connected(self):
+        """Re-initialize the terminal if the connection dropped mid-session. A live
+        terminal drop otherwise makes account_info()/copy_rates() return None and the
+        session CRASHES before any strategy runs. Bounded (3 tries); logs on recovery.
+        Returns True if connected. Does NOT change any trading decision -- pure
+        transport health."""
+        import time as _time
+        m = self._mt5
+        try:
+            if m.terminal_info() is not None and m.account_info() is not None:
+                return True
+        except Exception:
+            pass
+        for attempt in range(3):
+            try:
+                m.shutdown()
+            except Exception:
+                pass
+            try:
+                if m.initialize(login=int(self._login), password=self._passwd,
+                                server=self._server) and m.account_info() is not None:
+                    logger.warning(f"MT5 reconnected after dropped connection "
+                                   f"(attempt {attempt + 1})")
+                    return True
+            except Exception as e:
+                logger.warning(f"MT5 reconnect attempt {attempt + 1} failed: {e}")
+            _time.sleep(2)
+        logger.error("MT5 reconnect failed after 3 attempts -- terminal down")
+        return False
+
     def _ensure_symbol(self, sym):
         if not self._mt5.symbol_select(sym, True):
             raise ValueError(f"Symbol '{sym}' not available on this broker "
@@ -121,12 +152,14 @@ class MT5Broker(Broker):
         return (None, None)
 
     def get_account(self) -> float:
+        self._ensure_connected()
         info = self._mt5.account_info()
         if info is None:
             raise RuntimeError(f"MT5 account_info failed: {self._mt5.last_error()}")
         return float(info.equity)
 
     def get_positions(self) -> dict:
+        self._ensure_connected()
         out = {}
         for p in (self._mt5.positions_get() or []):
             # reverse-map CFD symbol back to internal ticker where possible
@@ -135,6 +168,7 @@ class MT5Broker(Broker):
         return out
 
     def get_bars(self, symbol: str, tf: str, lookback: int) -> pd.DataFrame:
+        self._ensure_connected()
         sym = self.map(symbol)
         self._ensure_symbol(sym)
         rates = self._mt5.copy_rates_from_pos(sym, self._tf(tf), 0, lookback)
@@ -159,6 +193,7 @@ class MT5Broker(Broker):
 
     def place_order(self, symbol: str, qty: float, side: str, tag: str,
                     sl: float = None, tp: float = None):
+        self._ensure_connected()
         m = self._mt5; sym = self.map(symbol); self._ensure_symbol(sym)
         lots = self._units_to_lots(sym, qty)
         tick = m.symbol_info_tick(sym)
@@ -197,6 +232,7 @@ class MT5Broker(Broker):
         return res.order
 
     def close_position(self, symbol: str):
+        self._ensure_connected()
         m = self._mt5; sym = self.map(symbol)
         positions = [p for p in (m.positions_get(symbol=sym) or [])]
         if not positions:
