@@ -1,3 +1,17 @@
+# RESEARCH LAB — architecture v3 (APPROVED + Phase A BUILT)
+
+> **v3 (2026-07-14):** Approved with two changes now applied — (1) ingestion +
+> registry + knowledge base moved FIRST (research begins with discovering external
+> ideas); (2) the **Research Knowledge Graph is the CORE backbone**, not a supporting
+> feature — every paper/hypothesis/experiment/factor/dataset/benchmark/validation/
+> reviewer-decision/promotion-decision/lesson is a connected, searchable node for
+> institutional memory. **Phase A is implemented in the SEPARATE `research-lab/` repo**
+> (KG core + ingestion + registry + data-quality + no-broker engine + walk-forward
+> runner + reproducible run cards + CI firewall test; 8 tests pass). Production
+> untouched. Roadmap B/C/D (robustness, discovery, intelligence) per the ranking below.
+
+---
+
 # RESEARCH LAB — architecture v2 (Phase 1: design for approval)
 
 _2026-07-14. DESIGN ONLY — no implementation until approved. A SEPARATE, world-class
