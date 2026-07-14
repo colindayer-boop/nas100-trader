@@ -180,3 +180,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-14 | Obsidian Bridge / automated | Ops Tier-0 #2: MT5 mid-session reconnect (was: transient drop crashes session) | git post-commit hook | 2338ee9 |
 | 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 54153e8 |
 | 2026-07-14 | Obsidian Bridge / automated | Ops Tier-0 #3: alert dead-man's switch (silent alert failures now detectable) | git post-commit hook | 845daeb |
+| 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 6b90a3d |
+| 2026-07-14 | Obsidian Bridge / automated | Ops #2 follow-up: reconnect tests (8 cases) + clear 'connection down -> no su... | git post-commit hook | 27a56bb |

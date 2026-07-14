@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+27a56bb  Ops #2 follow-up: reconnect tests (8 cases) + clear 'connection down -> no submit' guard
+6b90a3d  Obsidian bridge auto-sync [bridge-auto]
 845daeb  Ops Tier-0 #3: alert dead-man's switch (silent alert failures now detectable)
 54153e8  Obsidian bridge auto-sync [bridge-auto]
 2338ee9  Ops Tier-0 #2: MT5 mid-session reconnect (was: transient drop crashes session)
 0255617  Obsidian bridge auto-sync [bridge-auto]
 410dcf1  Ops Tier-0 #1: arm the daily kill-switch (was inert by default)
 520dfb6  Obsidian bridge auto-sync [bridge-auto]
-c075c01  Operational readiness audit: 15 ranked ops-failure risks (P*I) + tiered remediation checklist. Top: daily kill-switch inert by default (session_start_equity=0), no MT5 reconnect, silent alerts, single-VPS no watchdog. Audit-only, no trading logic changed
-51a2c87  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
