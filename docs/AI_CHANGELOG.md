@@ -176,3 +176,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-14 | Obsidian Bridge / automated | Operational readiness audit: 15 ranked ops-failure risks (P*I) + tiered remed... | git post-commit hook | c075c01 |
 | 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 520dfb6 |
 | 2026-07-14 | Obsidian Bridge / automated | Ops Tier-0 #1: arm the daily kill-switch (was inert by default) | git post-commit hook | 410dcf1 |
+| 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 0255617 |
+| 2026-07-14 | Obsidian Bridge / automated | Ops Tier-0 #2: MT5 mid-session reconnect (was: transient drop crashes session) | git post-commit hook | 2338ee9 |
