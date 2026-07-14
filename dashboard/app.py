@@ -273,7 +273,17 @@ if page == "HOME":
         st.table(fired or [{"info": "none fired yet"}])
     with f2:
         st.markdown("**Latest fills (live)**")
-        st.table(live_fills()[-6:] or [{"info": "No live fills yet"}])
+        _lf = live_fills()[-6:]
+        if not _lf:
+            st.table([{"info": "No live fills yet"}])
+        else:
+            # compact view: only the key execution columns (avoid 27-col header wrap)
+            _key = ["timestamp_utc", "strategy", "symbol", "side", "fill_price",
+                    "slippage_bps", "spread_bps", "status"]
+            st.table([{k: r.get(k, "") for k in _key} for r in _lf])
+            with st.expander("full fill detail (all fields)"):
+                st.dataframe(_lf, use_container_width=True)
+            st.caption("Full per-trade reconciliation: **TRADE EXPLORER** page.")
     with f3:
         st.markdown("**Latest audit / research**")
         for label, rel in [("Validation Audit", "docs/STRATEGY_VALIDATION_AUDIT.md"),
