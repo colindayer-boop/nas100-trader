@@ -230,3 +230,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-14 | Obsidian Bridge / automated | Research Lab architecture (Phase 1 design, no implementation) | git post-commit hook | 6759a6b |
 | 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 7cac1e6 |
 | 2026-07-14 | Obsidian Bridge / automated | Research Lab architecture v2: framework-vs-capability (reject duplicate infra... | git post-commit hook | 985e48d |
+| 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 540b573 |
+| 2026-07-14 | Obsidian Bridge / automated | Research Lab v3 approved + Phase A built in separate research-lab repo (desig... | git post-commit hook | 18c8ce9 |
