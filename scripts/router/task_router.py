@@ -128,6 +128,15 @@ def main():
     c.add_argument("task_id")
     c.set_defaults(fn=lambda a: __import__("llm_bridge").collect(a.task_id))
 
+    d = sub.add_parser("delegate", help="run a task on a local/subscription model (qwen/qwen-deep/glm/auto)")
+    d.add_argument("task_id")
+    d.add_argument("--backend", default="auto", choices=["auto", "qwen", "qwen-deep", "glm"])
+    d.add_argument("--force", action="store_true", help="re-run even if the task is terminal")
+    d.set_defaults(fn=lambda a: __import__("delegate").delegate(a.task_id, a.backend, a.force))
+
+    bs = sub.add_parser("bridge-status", help="show Ollama/Qwen/OpenClaw/Z.ai bridge health")
+    bs.set_defaults(fn=lambda a: __import__("delegate").bridge_status())
+
     n = sub.add_parser("new")
     n.add_argument("title")
     n.add_argument("--type", default="research", choices=TYPES)

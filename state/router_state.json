@@ -151,5 +151,23 @@
     "TASK-20260710-06"
    ]
   }
- ]
+ ],
+ "delegations": {
+  "last_success": {
+   "task": "TASK-20260710-02",
+   "backend": "glm",
+   "model": "glm-5.2",
+   "start": "2026-07-14T14:15:18",
+   "routing_reason": "explicit --backend",
+   "retry_count": 0,
+   "brief": "research/handoffs/GLM/TASK-20260710-02-BRIEF.md",
+   "reply": "research/handoffs/GLM/TASK-20260710-02-REPLY.md",
+   "stderr": "research/handoffs/GLM/TASK-20260710-02-STDERR.log",
+   "duration": 85.0,
+   "exit_code": 0,
+   "cmd": "/Users/colindayer/.nvm/versions/node/v24.18.0/bin/openclaw agent --model glm-5.2 --message-file /Users/colindayer/nas100_backtest/research/handoffs/GLM/TASK-20260710-02-BRIEF.md --json --session-key delegate-TASK-20260710-02",
+   "recommendation": "NO_ACTION",
+   "validation": "ok"
+  }
+ }
 }

@@ -72,6 +72,10 @@ def build_menu_app():
                             rumps.MenuItem("OpenClaw", callback=lambda _: core.open_url(s["external"]["OpenClaw"])),
                             rumps.MenuItem("OpenAI", callback=lambda _: core.open_url(s["external"]["OpenAI"])),
                             rumps.MenuItem("Perplexity", callback=lambda _: core.open_url(s["external"]["Perplexity"]))]),
+                ("Bridge", [rumps.MenuItem("Status", callback=self._bridge_status),
+                            rumps.MenuItem("Restart Ollama", callback=lambda _: rumps.notification("Trading OS", "Bridge", core.restart_ollama())),
+                            rumps.MenuItem("Test Qwen", callback=lambda _: _run_bg(lambda: rumps.notification("Trading OS", "Qwen", core.test_qwen()))),
+                            rumps.MenuItem("Test GLM", callback=lambda _: _run_bg(lambda: rumps.notification("Trading OS", "GLM", core.test_glm())))]),
                 ("Quick Actions", [rumps.MenuItem(k, callback=self._quick) for k in core.QUICK]),
                 ("Report Center", [rumps.MenuItem(k, callback=self._doc) for k in DOC]),
                 ("Open File", [rumps.MenuItem(k, callback=self._file) for k in FILE]),
@@ -86,6 +90,9 @@ def build_menu_app():
 
         def _refresh(self, _):
             self.title = ICON.get(core.dashboard_health(), ICON["UNKNOWN"])
+
+        def _bridge_status(self, _):
+            rumps.notification("Trading OS — Bridge", "", core.bridge_status().replace("\n", " · ")[:200])
 
         def _quick(self, sender):
             out = core.run_quick(sender.title)

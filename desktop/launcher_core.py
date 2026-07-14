@@ -250,6 +250,55 @@ def open_vps_rdp() -> None:
     open_url(f"rdp://{settings()['vps_host']}")
 
 
+# --------------------------------------------------- bridge (delegate) ----
+# Display-only + the three allowed actions. Reuses scripts/router (never a second
+# server; kickstart the existing LaunchAgent).
+def bridge_status() -> str:
+    try:
+        r = subprocess.run(["python3", "scripts/router/task_router.py", "bridge-status"],
+                           cwd=str(repo()), capture_output=True, text=True, timeout=15)
+        return r.stdout or r.stderr
+    except Exception as e:
+        return f"bridge-status failed: {e}"
+
+
+def restart_ollama() -> str:
+    import os as _os
+    try:
+        subprocess.run(["launchctl", "kickstart", "-k",
+                        f"gui/{_os.getuid()}/com.colindayer.ollama"],
+                       capture_output=True, timeout=10)
+        log("kickstarted ollama LaunchAgent")
+        return "Ollama LaunchAgent kickstarted"
+    except Exception as e:
+        log(f"restart_ollama failed: {e}")
+        return f"failed: {e}"
+
+
+def test_qwen() -> str:
+    try:
+        r = subprocess.run(["/opt/homebrew/bin/ollama", "run", "qwen2.5-coder:7b"],
+                           input="Reply with exactly: QWEN_OK", capture_output=True,
+                           text=True, timeout=90)
+        return (r.stdout or r.stderr).strip()[:120] or "no output"
+    except Exception as e:
+        return f"qwen test failed: {e}"
+
+
+def test_glm() -> str:
+    import tempfile
+    try:
+        f = tempfile.NamedTemporaryFile("w", suffix=".md", delete=False)
+        f.write("Reply with exactly BRIDGE_OK."); f.close()
+        oc = "openclaw"
+        r = subprocess.run([oc, "agent", "--model", "glm-5.2", "--message-file", f.name,
+                            "--json", "--session-key", "launcher-test"],
+                           capture_output=True, text=True, timeout=120)
+        return f"rc={r.returncode} " + (r.stdout or r.stderr).strip()[:160]
+    except Exception as e:
+        return f"glm test failed: {e}"
+
+
 # --------------------------------------------------- quick actions --------
 QUICK = {  # label -> (existing script/command, args). REUSE, never reimplement.
     "Git Pull":                (["git", "pull", "--ff-only"], True),
