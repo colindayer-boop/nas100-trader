@@ -1012,6 +1012,7 @@ def _crash_alert(exc_type, exc, tb):
         msg = f"CRASH session={getattr(args, 'session', '?')}: {exc_type.__name__}: {exc}"
         logger.critical(msg)
         alerts.send(msg)
+        alerts.ping_watchdog(ok=False)   # signal the external dead-man's switch immediately
     except Exception:
         pass
     sys.__excepthook__(exc_type, exc, tb)
@@ -1142,3 +1143,7 @@ if now_et().hour == 17:
     alerts.send(f"Daily heartbeat: session {args.session} ok | equity ${equity:,.2f}")
 else:
     logger.info(f"Session {args.session} complete | equity ${equity:,.2f}")
+# external dead-man's-switch: ping on every successful session end. If the VPS/scheduler
+# dies, the pings stop and the external service (healthchecks.io) alarms. Opt-in via
+# [watchdog] ping_url; a no-op (and never raises) when unset.
+alerts.ping_watchdog(ok=True)

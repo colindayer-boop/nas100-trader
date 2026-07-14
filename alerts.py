@@ -76,6 +76,25 @@ def alert_health() -> dict:
         return {}
 
 
+def ping_watchdog(ok: bool = True) -> bool:
+    """Opt-in dead-man's-switch heartbeat. Pings [watchdog] ping_url on each successful
+    session; an EXTERNAL service (e.g. healthchecks.io) alarms if pings STOP -> detects
+    a dead VPS/scheduler that no internal alert could report. No-op when unset. Fail-safe;
+    logs only the error, NEVER the URL (it is a per-check secret)."""
+    try:
+        url = load_config("watchdog").get("ping_url", "").strip()
+    except Exception:
+        url = ""
+    if not url or url.startswith("YOUR_"):
+        return False
+    try:
+        requests.get(url if ok else url.rstrip("/") + "/fail", timeout=8)
+        return True
+    except Exception as e:
+        logger.warning(f"watchdog ping failed: {e}")
+        return False
+
+
 def _try_telegram(msg: str) -> None:
     # .strip() removes stray spaces/newlines from pasted secrets (#1 cause of failures)
     token   = _cfg.get("telegram_token", "").strip()
