@@ -210,3 +210,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-14 | Obsidian Bridge / automated | Evidence bridge: 4-timestamp execution schema (telemetry-only) | git post-commit hook | fdd0540 |
 | 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 1f55285 |
 | 2026-07-14 | Obsidian Bridge / automated | Evidence bridge: real VPS path + 4-stage latency reconciliation + tests | git post-commit hook | f064059 |
+| 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | d702a3d |
+| 2026-07-14 | Obsidian Bridge / automated | Evidence bridge: operational fixes (empty-repo sync, fresh-machine scheduler,... | git post-commit hook | cff2eed |
