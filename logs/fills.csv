@@ -1,0 +1,3 @@
+timestamp_utc,broker,account,strategy,session,symbol,side,quantity,signal_timestamp,signal_price,bid_at_submission,ask_at_submission,spread,spread_bps,requested_price,fill_price,slippage,slippage_bps,stop_price,target_price,account_equity,risk_scale,order_id,position_id,dry_run,status,error
+2026-07-10 16:48:50,MT5Broker,61552095,S5,all,QQQ,buy,1.18552,,29800.1,29800.1,29801.1,1,0.33556,29801.1,29801.2,1.1,0.36913,29502.099,30694.103,49831.63,0.945,339422299,266746138,False,submitted,
+2026-07-14 15:48:49,MT5Broker,61552095,S5,all,QQQ,buy,1.06512,,29636.5,29636.5,29637.5,1,0.33742,29637.5,29636.9,0.4,0.13497,29340.135,30525.595,49454.35,0.851,341029450,267936208,False,submitted,
