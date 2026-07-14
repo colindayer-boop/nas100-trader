@@ -42,8 +42,18 @@ try:
     print(f"  token set: {tok_ok} | chat_id set: {bool(chat)}")
     if tok_ok and chat and "--ping" in sys.argv:
         import alerts
-        alerts.send("status.py test ping -- venues wired")
-        print("  test ping sent -> check your phone")
+        ok = alerts.send("status.py test ping -- venues wired")
+        print(f"  test ping delivered: {ok} -> check your phone")
+    # alert-delivery health (dead-man's switch: silent failures become visible)
+    import alerts as _al
+    h = _al.alert_health()
+    if h:
+        cf = int(h.get("consecutive_failures", 0))
+        verdict = "HEALTHY" if cf == 0 else f"DEGRADED ({cf} consecutive failures)"
+        print(f"  alert delivery: {verdict} | last success: {h.get('last_success','never')}"
+              + (f" | last error: {h.get('last_error','')}" if cf else ""))
+    else:
+        print("  alert delivery: no history yet (send an alert or --ping)")
 except Exception as e:
     print(f"  telegram check error: {e}")
 

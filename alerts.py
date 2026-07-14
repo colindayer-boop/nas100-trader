@@ -20,12 +20,60 @@ logger = logging.getLogger("trader")
 _cfg   = load_config("alerts")
 
 
-def send(msg: str) -> None:
-    """Dispatch an alert through available channels; always prints to console."""
+_HEALTH_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "logs", "alert_health.json")
+
+
+def send(msg: str) -> bool:
+    """Dispatch an alert through available channels; always prints to console.
+    Returns True if a REMOTE channel delivered. Records delivery health so a silently
+    broken channel (bad token / network down on the headless VPS) becomes DETECTABLE
+    via alert_health() / status.py -- was: failures only printed and vanished."""
     print(f"[ALERT] {msg}")
     logger.info(f"ALERT {msg}")
-    _try_telegram(msg)
-    _try_email(msg)
+    tg = _try_telegram(msg)   # True/False = attempted; None = not configured
+    em = _try_email(msg)
+    delivered = bool(tg or em)
+    configured = (tg is not None) or (em is not None)
+    _record_health(configured, delivered, msg)
+    return delivered
+
+
+def _record_health(configured: bool, delivered: bool, msg: str) -> None:
+    """Persist last-success / consecutive-failure so absence of delivery is visible.
+    Fail-safe: never raises (an alert path must not crash the trader)."""
+    import json
+    from datetime import datetime, timezone
+    try:
+        h = {}
+        if os.path.exists(_HEALTH_PATH):
+            with open(_HEALTH_PATH) as f:
+                h = json.load(f)
+        now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        h["last_attempt"] = now
+        h["configured"] = configured
+        if delivered:
+            h["last_success"] = now
+            h["consecutive_failures"] = 0
+            h["last_error"] = ""
+        elif configured:
+            h["consecutive_failures"] = int(h.get("consecutive_failures", 0)) + 1
+            h["last_error"] = f"no remote channel delivered: {msg[:80]}"
+        os.makedirs(os.path.dirname(_HEALTH_PATH), exist_ok=True)
+        with open(_HEALTH_PATH, "w") as f:
+            json.dump(h, f)
+    except Exception as e:
+        logger.warning(f"alert health record failed: {e}")
+
+
+def alert_health() -> dict:
+    """Read the persisted alert-delivery health (for status.py / daily_check)."""
+    import json
+    try:
+        with open(_HEALTH_PATH) as f:
+            return json.load(f)
+    except Exception:
+        return {}
 
 
 def _try_telegram(msg: str) -> None:
@@ -38,7 +86,7 @@ def _try_telegram(msg: str) -> None:
     if not token or not chat_id or token.startswith("YOUR_"):
         print(f"[TELEGRAM] skipped — token set: {bool(token)}, chat_id set: {bool(chat_id)} "
               f"(check secrets TELEGRAM_TOKEN/CHAT_ID + workflow env)")
-        return
+        return None
     try:
         resp = requests.post(
             f"https://api.telegram.org/bot{token}/sendMessage",
@@ -47,12 +95,14 @@ def _try_telegram(msg: str) -> None:
         )
         if resp.ok:
             print("[TELEGRAM] sent ✓")
-        else:
-            print(f"[TELEGRAM] FAILED: {resp.text}")
-            logger.warning(f"Telegram alert failed: {resp.text}")
+            return True
+        print(f"[TELEGRAM] FAILED: {resp.text}")
+        logger.warning(f"Telegram alert failed: {resp.text}")
+        return False
     except Exception as e:
         print(f"[TELEGRAM] error: {e}")
         logger.warning(f"Telegram alert error: {e}")
+        return False
 
 
 def _try_email(msg: str) -> None:
@@ -61,7 +111,7 @@ def _try_email(msg: str) -> None:
     password = _cfg.get("smtp_pass", "")
     to_addr  = _cfg.get("to_email", "")
     if not all([host, user, password, to_addr]) or host.startswith("YOUR_"):
-        return
+        return None
     try:
         port = int(_cfg.get("smtp_port", 587))
         mime = MIMEText(msg)
@@ -71,5 +121,7 @@ def _try_email(msg: str) -> None:
         with smtplib.SMTP(host, port, timeout=10) as s:
             s.ehlo(); s.starttls(); s.login(user, password)
             s.send_message(mime)
+        return True
     except Exception as e:
         logger.warning(f"Email alert error: {e}")
+        return False
