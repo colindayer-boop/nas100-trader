@@ -202,3 +202,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-14 | Obsidian Bridge / automated | Evidence bridge #3: Mac pull + Trading OS evidence controls + docs/rollback | git post-commit hook | 43207fc |
 | 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 30ce98a |
 | 2026-07-14 | Obsidian Bridge / automated | Evidence bridge: 4-timestamp execution schema (telemetry-only) | git post-commit hook | fdd0540 |
+| 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 1f55285 |
+| 2026-07-14 | Obsidian Bridge / automated | Evidence bridge: real VPS path + 4-stage latency reconciliation + tests | git post-commit hook | f064059 |

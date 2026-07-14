@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+f064059  Evidence bridge: real VPS path + 4-stage latency reconciliation + tests
+1f55285  Obsidian bridge auto-sync [bridge-auto]
 fdd0540  Evidence bridge: 4-timestamp execution schema (telemetry-only)
 30ce98a  Obsidian bridge auto-sync [bridge-auto]
 43207fc  Evidence bridge #3: Mac pull + Trading OS evidence controls + docs/rollback
 62d9eaa  Obsidian bridge auto-sync [bridge-auto]
 3ec1963  Evidence bridge #2: VPS sync + scheduler + Phase-1 probe
 add232b  Obsidian bridge auto-sync [bridge-auto]
-0c3ef2c  Evidence bridge #1: read-only MT5 exporter + reconciler + 20-case tests
-ce77588  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
