@@ -38,23 +38,41 @@ try {
   # 3-7. commit ONLY the new evidence dir to the private repo (empty-repo safe)
   Push-Location $Evidence
   try {
-    # ensure a commit identity exists (a freshly cloned empty repo often has none)
+    # ensure a commit identity exists (a freshly cloned empty repo has none)
     if (-not (git config user.email)) { git config user.email "evidence-bot@nas100.local" | Out-Null }
     if (-not (git config user.name))  { git config user.name  "nas100-evidence-bot"      | Out-Null }
-    # ensure we are on 'main' (GitHub default); create it if the empty clone has no branch
-    git checkout -B main 2>&1 | Out-Null
-    # only pull if the REMOTE already has main (empty repo -> skip, don't error)
+
+    # does the LOCAL repo have any commit yet?
+    git rev-parse --verify HEAD *> $null
+    $hasCommits = ($LASTEXITCODE -eq 0)
+
+    if (-not $hasCommits) {
+      # ---- EMPTY REPO: bootstrap main with the initial commit, then push ----
+      Log "empty repository -> initializing main with the first commit"
+      git symbolic-ref HEAD refs/heads/main 2>&1 | Out-Null   # unborn 'main', no commit required
+      if (-not (Test-Path "README.md")) {
+        "# nas100 live evidence`n`nRead-only MT5 evidence snapshots (auto-generated). Do not edit by hand." |
+          Out-File -Encoding utf8 "README.md"
+      }
+      git add -- "README.md" "daily/$today" 2>&1 | Out-Null
+      if (Test-Path "reports") { git add -- "reports" 2>&1 | Out-Null }
+      git commit -m "init evidence repo + $today" 2>&1 | Out-Null
+      git push -u origin main 2>&1 | Out-Null                 # creates remote main; never --force
+      if ($LASTEXITCODE -ne 0) { Log "initial push failed (GitHub down?) -- local commit preserved, retry next run"; exit 4 }
+      Log "initialized main + pushed evidence $today OK"
+      exit 0
+    }
+
+    # ---- REPO HAS HISTORY: normal path (pull only if remote main exists, then push) ----
+    git checkout main 2>&1 | Out-Null
     $remoteMain = (git ls-remote --heads origin main 2>$null)
-    if (-not [string]::IsNullOrWhiteSpace($remoteMain)) {
-      git pull --ff-only origin main 2>&1 | Out-Null
-    } else { Log "remote main empty -- first push will initialize it" }
-    # stage ONLY evidence paths that exist
+    if (-not [string]::IsNullOrWhiteSpace($remoteMain)) { git pull --ff-only origin main 2>&1 | Out-Null }
     git add -- "daily/$today" 2>&1 | Out-Null
     if (Test-Path "reports") { git add -- "reports" 2>&1 | Out-Null }
     $changed = (git status --porcelain)
     if ([string]::IsNullOrWhiteSpace($changed)) { Log "no new evidence content -- nothing to commit"; exit 0 }
     git commit -m "evidence $today" 2>&1 | Out-Null
-    git push -u origin main 2>&1 | Out-Null       # -u sets upstream on first push; never --force
+    git push origin main 2>&1 | Out-Null                       # upstream already set; never --force
     if ($LASTEXITCODE -ne 0) { Log "push failed (GitHub down?) -- local commit preserved, retry next run"; exit 4 }
     Log "pushed evidence $today OK"
   } finally { Pop-Location }
