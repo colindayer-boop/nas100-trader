@@ -222,3 +222,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-14 | Obsidian Bridge / automated | install task: treat 'schtasks /query task-not-found' as normal, not an error | git post-commit hook | 42e4afb |
 | 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 2f7d647 |
 | 2026-07-14 | Obsidian Bridge / automated | install task: work around schtasks /tr 261-char limit via a short launcher .cmd | git post-commit hook | 4830659 |
+| 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 3878a9a |
+| 2026-07-14 | Obsidian Bridge / automated | dashboard: compact 'Latest fills' table (fix 27-col header wrap) | git post-commit hook | 4ceb778 |
