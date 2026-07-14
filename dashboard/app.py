@@ -218,8 +218,8 @@ def ticker():
 
 
 # ------------------------------------------------------------------ pages --
-PAGES = ["HOME", "STRATEGIES", "TRADE EXPLORER", "SHADOW", "RESEARCH", "GRAVEYARD",
-         "EXECUTION", "EVIDENCE", "TIMELINE", "LOGS", "SETTINGS"]
+PAGES = ["HOME", "STRATEGIES", "RvSvL", "TRADE EXPLORER", "SHADOW", "RESEARCH",
+         "GRAVEYARD", "EXECUTION", "EVIDENCE", "TIMELINE", "LOGS", "SETTINGS"]
 page = st.sidebar.radio("Cockpit", PAGES)
 auto = st.sidebar.toggle("Auto-refresh 60 s", value=True)
 if auto:
@@ -304,6 +304,70 @@ elif page == "STRATEGIES":
                     obsidian_button(f"{s} note", f"vault/03-Validated-Strategies/{obs}.md")
     st.caption("Status is rule-derived from expected rate x window days vs logged fills + "
                "knowledge-graph validation. No AI. See docs/KNOWLEDGE_GRAPH.md.")
+
+elif page == "RvSvL":
+    st.subheader("Research vs Shadow vs Live — per strategy (measurement only)")
+    st.caption("Every value is measured from an existing artifact. Live n is tiny; "
+               "expectancy claims are withheld as INSUFFICIENT until the sample grows.")
+    exp = expected_per_day()
+    sh = csv_rows("research/results/shadow_signals.csv")
+    fills = live_fills()
+    win_days = trading_days(WINDOW_START, date.today())
+    # shadow rate/day per base strategy (streams like S1_QQQ, S5_IWM)
+    sh_by = {}
+    for r in sh:
+        base = r["stream"].split("_")[0]
+        sh_by.setdefault(base, [0, 0])
+        sh_by[base][0] += int(r["signal"]); sh_by[base][1] += 1
+    sh_days = len({r["date"] for r in sh})
+
+    def num(v, nd=2):
+        try:
+            return f"{float(v):.{nd}f}"
+        except (TypeError, ValueError):
+            return "—"
+
+    rows = []
+    for s in STRAT:
+        fr, shp, wn, avgr, _ = EXPECTED.get(s, (None, None, None, None, None))
+        res_day = exp.get(s, None)
+        # shadow
+        sd = sh_by.get(s)
+        shadow_day = f"{sd[0]/max(sd[1],1):.2f}" if sd else "—"
+        # live
+        lf = [r for r in fills if r.get("strategy") == s]
+        slip = [float(r["slippage_bps"]) for r in lf if r.get("slippage_bps") not in ("", None)]
+        spr = [float(r["spread_bps"]) for r in lf if r.get("spread_bps") not in ("", None)]
+        live_day = f"{len(lf)/max(win_days,1):.2f}" if lf else "0.00"
+        # verdict (frequency only; expectancy is INSUFFICIENT at low n)
+        if not lf:
+            verdict = "no live fills"
+        elif len(lf) < 10:
+            verdict = f"n={len(lf)} INSUFFICIENT"
+        else:
+            verdict = "sufficient"
+        rows.append({
+            "strategy": s,
+            "research exp/day": num(res_day, 3) if res_day is not None else "—",
+            "research Sharpe": num(shp) if shp else "—",
+            "research win": f"{wn:.0%}" if wn else "—",
+            "shadow/day": shadow_day + (f" ({sh_days}d)" if sd else ""),
+            "live fills": len(lf),
+            "live/day": live_day,
+            "live slip bps": num(sum(slip)/len(slip)) if slip else "—",
+            "live spread bps": num(sum(spr)/len(spr)) if spr else "—",
+            "verdict": verdict,
+        })
+    st.dataframe(rows, use_container_width=True)
+    st.markdown(
+        "- **Research** = validated expectation (EXPECTED_PER_DAY + audit Sharpe/win). "
+        "**Shadow** = forward-logged would-be signals (no orders). **Live** = fills.csv.\n"
+        "- **Realized R / PnL per strategy = INSUFFICIENT_DATA** — fills.csv logs entries; "
+        "closed-trade R needs the MT5 history reconciliation (see FILL_BROKER_RECONCILIATION).\n"
+        "- Only S5 has live fills so far; all frequency comparisons are logged, no "
+        "expectancy verdict is drawn below n=10.")
+    obsidian_button("Fill↔Broker reconciliation", "docs/FILL_BROKER_RECONCILIATION.md")
+    obsidian_button("Live evidence reconciliation", "docs/LIVE_EVIDENCE_RECONCILIATION.md")
 
 elif page == "TRADE EXPLORER":
     st.subheader("Trade Explorer — investigate any trade in <30s")
