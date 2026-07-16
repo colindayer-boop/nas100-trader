@@ -912,11 +912,28 @@ def run_btc_trend(broker, equity, open_syms):
     delta = round(target_qty - cur, 5)
     print(f"  trend={'UP' if in_trend else 'flat'} vol={rvol:.0%} target_frac={target_frac:.2f} "
           f"target={target_qty} cur={cur} delta={delta}")
+    # R1 repair path: every daily run, ensure any existing BTC position has the emergency
+    # floor (attach if naked, ratchet up as price rises, never loosen a tighter stop).
+    # Runs BEFORE the tolerance check so a held position is protected even on no-rebalance days.
+    from emergency_protection import ensure_btc_protection
+    rep = ensure_btc_protection(broker, "BTC")
+    if rep["checked"]:
+        print(f"  protection: checked={rep['checked']} repaired={rep['repaired']} "
+              f"tighter-kept={rep['skipped_tighter']} failed={rep['failed']}")
     if abs(delta) * price < max(10, equity * 0.01):
         print("  within tolerance, no rebalance")
         return
     side = "buy" if delta > 0 else "sell"
-    broker.place_order_safe("BTC", abs(delta), side, "BTCTREND")
+    if side == "buy":
+        # R1: mandatory broker-side emergency floor attached WITH the entry (atomic).
+        # Catastrophe protection only -- the Donchian exit above is unchanged. If the
+        # order (incl. SL) is rejected, place_order raises and NO naked position opens.
+        from emergency_protection import emergency_floor
+        broker.place_order_safe("BTC", abs(delta), side, "BTCTREND",
+                                sl=emergency_floor(price, "long"))
+    else:
+        # reductions toward flat close exposure; no SL applies to a closing order
+        broker.place_order_safe("BTC", abs(delta), side, "BTCTREND")
     with open(_btctrend_state, "w") as f:
         json.dump({"qty": target_qty, "price": price}, f)
 
