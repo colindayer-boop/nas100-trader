@@ -234,3 +234,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-14 | Obsidian Bridge / automated | Research Lab v3 approved + Phase A built in separate research-lab repo (desig... | git post-commit hook | 18c8ce9 |
 | 2026-07-14 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 7f788c1 |
 | 2026-07-16 | Obsidian Bridge / automated | docs: C3 production execution architecture (design only, no code) | git post-commit hook | 8d22f84 |
+| 2026-07-16 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 62957de |
+| 2026-07-16 | Obsidian Bridge / automated | R1: broker-side emergency floor for BTCTREND (evidence-selected fixed 20%, ra... | git post-commit hook | 84d4932 |

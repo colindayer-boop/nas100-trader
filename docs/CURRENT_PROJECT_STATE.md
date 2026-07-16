@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+84d4932  R1: broker-side emergency floor for BTCTREND (evidence-selected fixed 20%, ratcheted)
+62957de  Obsidian bridge auto-sync [bridge-auto]
 8d22f84  docs: C3 production execution architecture (design only, no code)
 7f788c1  Obsidian bridge auto-sync [bridge-auto]
 18c8ce9  Research Lab v3 approved + Phase A built in separate research-lab repo (design-record update)
 540b573  Obsidian bridge auto-sync [bridge-auto]
 985e48d  Research Lab architecture v2: framework-vs-capability (reject duplicate infra, maximize research capability)
 7cac1e6  Obsidian bridge auto-sync [bridge-auto]
-6759a6b  Research Lab architecture (Phase 1 design, no implementation)
-83aa059  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
