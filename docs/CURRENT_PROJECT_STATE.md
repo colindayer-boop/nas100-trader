@@ -1,4 +1,4 @@
-# CURRENT PROJECT STATE — 2026-07-14
+# CURRENT PROJECT STATE — 2026-07-16
 
 _Onboarding snapshot for any agent/human joining. Sources: LIVE_TRADING_PARITY,
 PRODUCTION_READINESS_REVIEW, NEXT_30_DAY_MONITORING_PLAN, LIVE_TRADE_REVIEW,
@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+8d22f84  docs: C3 production execution architecture (design only, no code)
+7f788c1  Obsidian bridge auto-sync [bridge-auto]
 18c8ce9  Research Lab v3 approved + Phase A built in separate research-lab repo (design-record update)
 540b573  Obsidian bridge auto-sync [bridge-auto]
 985e48d  Research Lab architecture v2: framework-vs-capability (reject duplicate infra, maximize research capability)
 7cac1e6  Obsidian bridge auto-sync [bridge-auto]
 6759a6b  Research Lab architecture (Phase 1 design, no implementation)
 83aa059  Obsidian bridge auto-sync [bridge-auto]
-38b82f6  Audit HKUDS/Vibe-Trading vs NAS100 system (read-only, no merge)
-06f8455  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
