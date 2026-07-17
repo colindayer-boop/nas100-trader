@@ -903,12 +903,27 @@ def run_btc_trend(broker, equity, open_syms):
     target_frac = min(BTC_TREND_VOLTARGET / rvol, 1.0) if (in_trend and rvol > 0) else 0.0
     price = float(close.iloc[-1])
     target_qty = round((equity * target_frac * broker.RISK_SCALE) / price, 5)
-    # current qty held (state file; on the same account BTC may also be held by the sweep)
+    # current qty held: BROKER is the source of truth (net of BTCTREND-tagged positions);
+    # the state file is only a fallback for brokers without the MT5 helpers (dry-run/paper).
+    # Fixes the hedging-account divergence where the state said "reduced" while the broker
+    # actually held a long AND an opposing short.
     st = {}
     try:
         with open(_btctrend_state) as f: st = json.load(f)
     except Exception: pass
     cur = float(st.get("qty", 0.0))
+    _mt5b = broker if hasattr(broker, "net_qty") else getattr(broker, "_b", None)
+    if not hasattr(_mt5b, "net_qty"):
+        _mt5b = None
+    if _mt5b is not None:
+        try:
+            cur_broker = _mt5b.net_qty("BTC", tag="BTCTREND")
+            if abs(cur_broker - cur) > 1e-6:
+                logger.warning(f"BTCTREND state drift: state qty={cur} broker net={cur_broker} "
+                               f"-- using broker")
+            cur = cur_broker
+        except Exception as e:
+            logger.warning(f"BTCTREND: broker net_qty failed ({e}); using state file")
     delta = round(target_qty - cur, 5)
     print(f"  trend={'UP' if in_trend else 'flat'} vol={rvol:.0%} target_frac={target_frac:.2f} "
           f"target={target_qty} cur={cur} delta={delta}")
@@ -925,15 +940,35 @@ def run_btc_trend(broker, equity, open_syms):
         return
     side = "buy" if delta > 0 else "sell"
     if side == "buy":
-        # R1: mandatory broker-side emergency floor attached WITH the entry (atomic).
-        # Catastrophe protection only -- the Donchian exit above is unchanged. If the
-        # order (incl. SL) is rejected, place_order raises and NO naked position opens.
-        from emergency_protection import emergency_floor
-        broker.place_order_safe("BTC", abs(delta), side, "BTCTREND",
-                                sl=emergency_floor(price, "long"))
+        # Hedging-safe: first BUY-CLOSE any stray opposing short legs (increases net
+        # exposure without opening new positions), then market-buy the remainder.
+        rest = abs(delta)
+        if _mt5b is not None:
+            closed = _mt5b.close_into("BTC", rest, "short", tag="BTCTREND")
+            if closed:
+                print(f"  closed stray short leg: {closed} BTC")
+                rest = round(rest - closed, 8)
+        if rest * price >= max(10, equity * 0.01):
+            # R1: mandatory broker-side emergency floor attached WITH the entry (atomic).
+            # Catastrophe protection only -- the Donchian exit above is unchanged. If the
+            # order (incl. SL) is rejected, place_order raises and NO naked position opens.
+            from emergency_protection import emergency_floor
+            broker.place_order_safe("BTC", rest, side, "BTCTREND",
+                                    sl=emergency_floor(price, "long"))
     else:
-        # reductions toward flat close exposure; no SL applies to a closing order
-        broker.place_order_safe("BTC", abs(delta), side, "BTCTREND")
+        # Hedging-safe reduction: close INTO existing long tickets (position=<ticket>),
+        # never send a plain opposite deal that would open a short on a hedging account.
+        # BTCTREND is long/flat by design -- it must NEVER hold a net short.
+        rest = abs(delta)
+        if _mt5b is not None:
+            closed = _mt5b.close_into("BTC", rest, "long", tag="BTCTREND")
+            rest = round(rest - closed, 8)
+            if rest * price >= max(10, equity * 0.01):
+                logger.warning(f"BTCTREND: could not fully reduce (remaining {rest}); "
+                               f"NOT opening a short -- will retry next run")
+        else:
+            # netting brokers (paper/alpaca) reduce correctly with a plain sell
+            broker.place_order_safe("BTC", rest, side, "BTCTREND")
     with open(_btctrend_state, "w") as f:
         json.dump({"qty": target_qty, "price": price}, f)
 

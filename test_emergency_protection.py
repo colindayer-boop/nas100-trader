@@ -174,9 +174,12 @@ class BehaviorUnchanged(unittest.TestCase):
         self.assertIn('BTC_TREND_VOLTARGET = 0.20', SRC)
 
     def test_buy_carries_emergency_sl_sell_does_not(self):
-        # buys (exposure increases) attach the floor; sells (reductions) stay plain
+        # buys (exposure increases) attach the floor; reductions never carry an SL
+        # (hedging-safe close_into, or plain sell on netting fallback brokers)
         self.assertIn('sl=emergency_floor(price, "long")', SRC)
-        self.assertIn('broker.place_order_safe("BTC", abs(delta), side, "BTCTREND")\n', SRC)
+        seg = SRC[SRC.index("def run_btc_trend"):SRC.index("SWEEP_BASKET")]
+        sell_branch = seg[seg.index("else:", seg.index("sl=emergency_floor")):]
+        self.assertNotIn("sl=", sell_branch)                   # no SL on closing orders
 
     def test_no_take_profit_added(self):
         # R1 mandate: no TP unless evidence-supported -- BTCTREND must not gain one

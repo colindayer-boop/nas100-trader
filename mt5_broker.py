@@ -232,6 +232,65 @@ class MT5Broker(Broker):
                           "position_id": getattr(res, "deal", None)}
         return res.order
 
+    # ── hedging-account-safe rebalance helpers (used by BTCTREND) ────────────────
+    # On a HEDGING account a plain opposite-side deal OPENS a new position instead of
+    # reducing -- which left a stray BTCTREND short paying swap. These helpers read the
+    # true net position from the broker and reduce by closing INTO existing tickets
+    # (order_send with position=<ticket>), which is correct on netting AND hedging.
+
+    def tagged_positions(self, symbol: str, tag: str = None):
+        """Open MT5 positions for symbol, optionally filtered by comment tag."""
+        m = self._mt5; sym = self.map(symbol)
+        ps = m.positions_get(symbol=sym) or []
+        return [p for p in ps if tag is None or tag in (getattr(p, "comment", "") or "")]
+
+    def net_qty(self, symbol: str, tag: str = None) -> float:
+        """Net exposure in UNITS (long - short) from the BROKER, not a state file."""
+        m = self._mt5; sym = self.map(symbol)
+        info = m.symbol_info(sym)
+        cs = getattr(info, "trade_contract_size", 1.0) or 1.0
+        n = 0.0
+        for p in self.tagged_positions(symbol, tag):
+            n += p.volume * cs if p.type == m.POSITION_TYPE_BUY else -p.volume * cs
+        return round(n, 8)
+
+    def close_into(self, symbol: str, qty_units: float, close_side: str, tag: str = None) -> float:
+        """Reduce exposure by closing up to qty_units INTO existing positions of
+        close_side ('long' closes buys, 'short' closes sells). Partial closes allowed.
+        Returns units actually closed. Never opens a new position."""
+        if not self._ensure_connected():
+            raise RuntimeError("MT5 connection down; close NOT submitted")
+        m = self._mt5; sym = self.map(symbol)
+        info = m.symbol_info(sym)
+        cs = getattr(info, "trade_contract_size", 1.0) or 1.0
+        step = getattr(info, "volume_step", 0.01) or 0.01
+        want_type = m.POSITION_TYPE_BUY if close_side == "long" else m.POSITION_TYPE_SELL
+        remaining = abs(qty_units); closed = 0.0
+        for p in self.tagged_positions(symbol, tag):
+            if p.type != want_type or remaining <= 0:
+                continue
+            lots = min(p.volume, round((remaining / cs) / step) * step)
+            if lots < step:
+                continue
+            tick = m.symbol_info_tick(sym)
+            is_buy_pos = p.type == m.POSITION_TYPE_BUY
+            req = {
+                "action": m.TRADE_ACTION_DEAL, "symbol": sym, "volume": lots,
+                "type": m.ORDER_TYPE_SELL if is_buy_pos else m.ORDER_TYPE_BUY,
+                "position": p.ticket,
+                "price": tick.bid if is_buy_pos else tick.ask,
+                "deviation": 20, "magic": 770001, "comment": "REDUCE",
+                "type_filling": m.ORDER_FILLING_IOC, "type_time": m.ORDER_TIME_GTC,
+            }
+            res = m.order_send(req)
+            if res is not None and res.retcode == m.TRADE_RETCODE_DONE:
+                closed += lots * cs; remaining -= lots * cs
+                logger.info(f"MT5 REDUCE {sym} ticket={p.ticket} {lots} lots closed")
+            else:
+                logger.error(f"MT5 REDUCE FAIL {sym} ticket={p.ticket} "
+                             f"retcode={getattr(res, 'retcode', '?')}")
+        return round(closed, 8)
+
     def close_position(self, symbol: str):
         if not self._ensure_connected():
             raise RuntimeError("MT5 connection down; close NOT submitted")
