@@ -240,3 +240,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-17 | Obsidian Bridge / automated | Fix BTCTREND hedging-account rebalance: broker is source of truth, reduce by ... | git post-commit hook | 2c2f432 |
 | 2026-07-17 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 1cc120f |
 | 2026-07-17 | Obsidian Bridge / automated | docs: RT6 correction -- R1 floor bounds normal catastrophe, not gap-through s... | git post-commit hook | 8443c1e |
+| 2026-07-17 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | c749d26 |
+| 2026-07-20 | Obsidian Bridge / automated | BTCTREND never-hedge invariant: close ALL opposite legs, verify, abort on fai... | git post-commit hook | c859228 |
