@@ -1,4 +1,4 @@
-# CURRENT PROJECT STATE — 2026-07-20
+# CURRENT PROJECT STATE — 2026-07-23
 
 _Onboarding snapshot for any agent/human joining. Sources: LIVE_TRADING_PARITY,
 PRODUCTION_READINESS_REVIEW, NEXT_30_DAY_MONITORING_PLAN, LIVE_TRADE_REVIEW,
@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+e5b354b  Add DETERMINISTIC_RISK sizing flag (OFF by default; prop-challenge consistency)
+3b66990  Obsidian bridge auto-sync [bridge-auto]
 c859228  BTCTREND never-hedge invariant: close ALL opposite legs, verify, abort on failure
 c749d26  Obsidian bridge auto-sync [bridge-auto]
 8443c1e  docs: RT6 correction -- R1 floor bounds normal catastrophe, not gap-through slippage Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 1cc120f  Obsidian bridge auto-sync [bridge-auto]
 2c2f432  Fix BTCTREND hedging-account rebalance: broker is source of truth, reduce by closing into tickets
 b736d2c  Obsidian bridge auto-sync [bridge-auto]
-84d4932  R1: broker-side emergency floor for BTCTREND (evidence-selected fixed 20%, ratcheted)
-62957de  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)

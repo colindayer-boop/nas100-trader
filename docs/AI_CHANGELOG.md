@@ -236,3 +236,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-17 | Obsidian Bridge / automated | docs: RT6 correction -- R1 floor bounds normal catastrophe, not gap-through s... | git post-commit hook | 8443c1e |
 | 2026-07-17 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | c749d26 |
 | 2026-07-20 | Obsidian Bridge / automated | BTCTREND never-hedge invariant: close ALL opposite legs, verify, abort on fai... | git post-commit hook | c859228 |
+| 2026-07-20 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 3b66990 |
+| 2026-07-23 | Obsidian Bridge / automated | Add DETERMINISTIC_RISK sizing flag (OFF by default; prop-challenge consistency) | git post-commit hook | e5b354b |
