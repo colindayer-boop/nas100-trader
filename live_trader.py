@@ -113,6 +113,10 @@ def _check_and_set_lock(session):
         return True
 
 # -- RISK CONSTANTS (unchanged from validated backtest) ------------------------
+# DETERMINISTIC_RISK (env DETERMINISTIC_RISK=1, default OFF): risk EXACTLY each strategy's
+# configured RISK_Sx per trade -- neutralizes the VIX half-size step and the DD throttle, while
+# KEEPING the high-VIX pause. For prop-challenge consistency. OFF = identical to current behavior.
+DETERMINISTIC_RISK = os.environ.get("DETERMINISTIC_RISK", "0") == "1"
 RISK_S1 = 0.0070
 RISK_S2 = 0.0050
 RISK_S3 = 0.0040
@@ -250,7 +254,8 @@ def get_regime():
         logger.warning(f"get_regime: QQQ download failed: {e}, defaulting to bull")
         qqq_bear200 = False
 
-    mult = 0.0 if vix_ma21 > 25 else (0.5 if vix_ma21 >= 20 else 1.0)
+    mult = 0.0 if vix_ma21 > 25 else (
+        1.0 if DETERMINISTIC_RISK else (0.5 if vix_ma21 >= 20 else 1.0))
     logger.info(f"REGIME vix_ma21={vix_ma21:.1f} spy_bull={spy_bull} "
                 f"qqq_bear200={qqq_bear200} vix_mult={mult}")
     return vix_ma21, spy_bull, mult, qqq_bear200
@@ -1150,7 +1155,8 @@ vix_ma21, spy_bull, vix_mult, qqq_bear200 = get_regime()
 
 # -- Conformal DD-throttle: scale RISK_SCALE by live drawdown headroom --
 _throttle, _cur_dd, _peak, _month_pnl, _day_start = update_risk_state(equity, args.broker)
-broker.RISK_SCALE *= _throttle
+if not DETERMINISTIC_RISK:          # deterministic mode: no DD-throttle -> fixed risk per trade
+    broker.RISK_SCALE *= _throttle
 logger.info(f"DD-throttle: peak=${_peak:,.0f} dd={_cur_dd:+.1%} "
             f"throttle={_throttle:.2f} -> RISK_SCALE={broker.RISK_SCALE:.2f} "
             f"| month P&L {_month_pnl:+.1%}")
