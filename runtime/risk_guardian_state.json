@@ -1,0 +1,22 @@
+{
+ "timestamp_utc": "2026-07-23T12:32:42.755195+00:00",
+ "mode": "monitor",
+ "account_login": 0,
+ "server": "",
+ "balance": 0,
+ "equity": 0,
+ "allow_new_entries": false,
+ "reason_codes": [
+  "DATA_INCONSISTENT",
+  "BAD_ACCOUNT_VALUES",
+  "INTERNAL_DAILY_STOP",
+  "INTERNAL_TOTAL_STOP"
+ ],
+ "daily_loss_pct": 100.0,
+ "total_drawdown_pct": 100.0,
+ "hwm_drawdown_pct": 100.0,
+ "open_risk_pct": 0.0,
+ "consecutive_losses": 0,
+ "trades_today": 0,
+ "data_fresh": true
+}
