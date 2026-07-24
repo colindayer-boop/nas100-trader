@@ -74,3 +74,30 @@ if __name__ == "__main__":
         except AssertionError as e: print("FAIL", fn.__name__, e)
         except Exception as e: print("ERR ", fn.__name__, repr(e))
     print(f"\n{p}/{len(fns)} recovery-stage guarantees proven")
+
+# ---- PHASE 601 gap closure: belief + guardian are REAL and fail closed ----
+def test_belief_reader_fails_closed_without_snapshot():
+    from execution_safety.belief_reader import decide
+    d,det=decide("H_anything", path="/tmp/_no_such_belief.json")
+    assert d=="RESEARCH_ONLY" and det["reason"]=="NO_BELIEF_SNAPSHOT"
+
+def test_belief_reader_blocks_below_threshold():
+    import json, tempfile, os
+    p=os.path.join(tempfile.mkdtemp(),"b.json")
+    json.dump({"H":{"prior":0.25,"evidence":[{"supports":True,"weight":0.5}]}},open(p,"w"))
+    from execution_safety.belief_reader import decide
+    d,det=decide("H", threshold=0.60, path=p)
+    assert d=="BLOCK" and det["reason"]=="POSTERIOR_BELOW_THRESHOLD"
+
+def test_belief_reader_allows_above_threshold():
+    import json, tempfile, os
+    p=os.path.join(tempfile.mkdtemp(),"b.json")
+    json.dump({"H":{"prior":0.25,"evidence":[{"supports":True,"weight":3.0}]}},open(p,"w"))
+    from execution_safety.belief_reader import decide
+    d,_=decide("H", threshold=0.60, path=p)
+    assert d=="ALLOW_PAPER"
+
+def test_guardian_bridge_fails_closed_without_mt5():
+    from execution_safety.guardian_bridge import guardian_ok
+    ok,det=guardian_ok()
+    assert ok is False and "reason" in det      # no MT5 here -> must NOT allow

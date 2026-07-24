@@ -1,0 +1,72 @@
+{
+ "H_kronos_tradeable": {
+  "name": "H_kronos_tradeable",
+  "statement": "Kronos candle-forecast produces tradeable edge after costs",
+  "prior": 0.25,
+  "evidence": [
+   {
+    "experiment": "kronos_wf_3inst",
+    "supports": false,
+    "weight": 3.811,
+    "note": "no edge: CI negative (n=540)"
+   },
+   {
+    "experiment": "kronos_gold_longhorizon_sma",
+    "supports": false,
+    "weight": 2.457,
+    "note": "no edge: CI negative (n=200)"
+   }
+  ]
+ },
+ "H_kronos_gold_signal": {
+  "name": "H_kronos_gold_signal",
+  "statement": "Kronos predicts XAUUSD 12-bar direction better than chance",
+  "prior": 0.25,
+  "evidence": [
+   {
+    "experiment": "kronos_xau_auc",
+    "supports": true,
+    "weight": 2.599,
+    "note": "positive after costs, CI excludes 0 (n=180, 1/1 folds)"
+   },
+   {
+    "experiment": "kronos_gold_yearfold",
+    "supports": false,
+    "weight": 2.457,
+    "note": "no edge: CI negative (n=200)"
+   }
+  ]
+ },
+ "H_gsr_meanrev": {
+  "name": "H_gsr_meanrev",
+  "statement": "Gold/silver ratio mean-reversion has positive expectancy after costs",
+  "prior": 0.25,
+  "evidence": [
+   {
+    "experiment": "gsr_replication_ind",
+    "supports": true,
+    "weight": 2.404,
+    "note": "positive after costs, CI excludes 0 (n=51, 3/3 folds)"
+   }
+  ]
+ },
+ "H_portfolio_multisleeve": {
+  "name": "H_portfolio_multisleeve",
+  "statement": "Multi-sleeve trend+carry portfolio has positive expectancy after costs",
+  "prior": 0.25,
+  "evidence": [
+   {
+    "experiment": "portfolio_backtest_2012_2026",
+    "supports": true,
+    "weight": 2.2,
+    "note": "Sharpe 0.62 active period, 17/22 positive years, sleeve corr ~0, maxDD -18.8%"
+   },
+   {
+    "experiment": "prop_sim_audit_correction",
+    "supports": false,
+    "weight": 0.8,
+    "note": "pass-rate claim overstated: daily-close DD measurement + vol-target selection bias"
+   }
+  ]
+ }
+}

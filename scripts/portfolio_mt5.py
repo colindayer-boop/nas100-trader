@@ -291,12 +291,25 @@ def run(config="funded", live=False, report=False):
     except Exception as e:
         raise SystemExit(f"execution safety unavailable; refusing to trade ({e})")
     reg = StrategyRegistry()
+    # --- PHASE 601 gap closure: real Belief Graph + real Guardian (both fail closed) ---
+    from execution_safety.belief_reader import decide as belief_decide
+    from execution_safety.guardian_bridge import guardian_ok as guardian_check
+    b_dec, b_det = belief_decide("H_portfolio_multisleeve")
+    print(f"[belief]  {b_dec}  {b_det}")
+    if b_dec != "ALLOW_PAPER":
+        print(f"[belief]  HALT: belief graph does not authorise this strategy — no orders sent.")
+        return
+    g_ok, g_det = guardian_check(proposed_risk_pct=cfg.get("target_vol", 0.08) / 10)
+    print(f"[guardian] allow={g_ok}  {g_det if not g_ok else 'ok'}")
+    if not g_ok:
+        print(f"[guardian] HALT: guardian veto — no orders sent.")
+        return
     for it in intents:
         sig = Signal(signal_id=f"pf-{it['name']}-{int(time.time())}", strategy_id="portfolio_multisleeve",
                      strategy_version="v1", symbol=it["symbol"], direction=1 if it["delta"] > 0 else -1,
                      entry=mt5.symbol_info_tick(it["symbol"]).ask,
                      stop_loss=mt5.symbol_info_tick(it["symbol"]).ask * (0.90 if it["delta"] > 0 else 1.10))
-        dec = authorize(sig, registry=reg, inference=lambda s: "ALLOW_PAPER", guardian_ok=True,
+        dec = authorize(sig, registry=reg, inference=lambda s: b_dec, guardian_ok=g_ok,
                         equity=equity, account_is_demo=is_demo, open_positions=[], shadow=False)
         if dec["decision"] != "ALLOW_PAPER":
             print(f"  BLOCKED {it['name']}: {dec['reason_codes']}")
