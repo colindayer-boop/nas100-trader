@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+ebfafc7  contract: permit discovered broker symbols (WTOIL-PERP, Copper, US500...); decode MT5 retcodes; show sleeves_used
+536e2e8  Obsidian bridge auto-sync [bridge-auto]
 7e01674  Per-stage sleeve selection + PROMOTE portfolio to PAPER_APPROVED
 e2ed32e  Obsidian bridge auto-sync [bridge-auto]
 08d6b60  portfolio_mt5: map Pepperstone -PERP commodity names (WTOIL-PERP, COPPER-PERP)
 28f2056  Obsidian bridge auto-sync [bridge-auto]
 6dd3fa2  portfolio_mt5: broker symbol auto-discovery for oil/copper (+--discover)
 5201e5d  Obsidian bridge auto-sync [bridge-auto]
-468e40c  portfolio_mt5: fix 4 defects found in first live shadow run
-eebbcac  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
