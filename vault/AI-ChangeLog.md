@@ -272,3 +272,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-25 | Obsidian Bridge / automated | portfolio_mt5: broker symbol auto-discovery for oil/copper (+--discover) | git post-commit hook | 6dd3fa2 |
 | 2026-07-25 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 28f2056 |
 | 2026-07-25 | Obsidian Bridge / automated | portfolio_mt5: map Pepperstone -PERP commodity names (WTOIL-PERP, COPPER-PERP) | git post-commit hook | 08d6b60 |
+| 2026-07-25 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | e2ed32e |
+| 2026-07-25 | Obsidian Bridge / automated | Per-stage sleeve selection + PROMOTE portfolio to PAPER_APPROVED | git post-commit hook | 7e01674 |
