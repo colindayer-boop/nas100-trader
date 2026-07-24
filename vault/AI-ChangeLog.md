@@ -280,3 +280,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-25 | Obsidian Bridge / automated | BLOCKING FIXES from ORDER_LIFECYCLE audit + honest correction of the 48.8% claim | git post-commit hook | e6d6319 |
 | 2026-07-25 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 8cd192a |
 | 2026-07-25 | Obsidian Bridge / automated | PHASE 701: Live Market Intelligence Engine (evidence only, cannot trade) | git post-commit hook | 5112bd8 |
+| 2026-07-25 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | dfa9979 |
+| 2026-07-25 | Obsidian Bridge / automated | PHASE 601 gap closure: REAL Belief Graph + REAL Guardian wired (both fail clo... | git post-commit hook | 06631e6 |
