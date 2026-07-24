@@ -99,9 +99,42 @@ def from_csv(path: str = CSV_PATH) -> list[Event]:
     return out
 
 
+def from_api(url: str | None = None, token: str | None = None) -> list[Event]:
+    """Auto-fetch from a licensed JSON calendar API. Configure via env:
+         CALENDAR_API_URL   e.g. https://finnhub.io/api/v1/calendar/economic
+         CALENDAR_API_TOKEN your key
+       Understands Finnhub-style {"economicCalendar":[...]} and generic list-of-dicts.
+       Returns [] on any failure -- never fabricates."""
+    url = url or os.environ.get("CALENDAR_API_URL")
+    token = token or os.environ.get("CALENDAR_API_TOKEN", "")
+    if not url:
+        return []
+    try:
+        import urllib.request, json as _json
+        full = url + (("&" if "?" in url else "?") + "token=" + token if token else "")
+        with urllib.request.urlopen(full, timeout=15) as r:
+            data = _json.loads(r.read().decode())
+    except Exception:
+        return []
+    rows = data.get("economicCalendar", data) if isinstance(data, dict) else data
+    if not isinstance(rows, list):
+        return []
+    out = []
+    for i, d in enumerate(rows):
+        name = d.get("event") or d.get("name") or d.get("title") or "?"
+        out.append(Event(event_id=str(d.get("id", f"api-{i}")), name=name,
+                         currency=d.get("country") or d.get("currency") or "",
+                         scheduled=str(d.get("time") or d.get("date") or d.get("scheduled") or ""),
+                         impact=_impact_of(name, str(d.get("impact", ""))),
+                         previous=_f(d.get("prev") or d.get("previous")),
+                         forecast=_f(d.get("estimate") or d.get("forecast")),
+                         actual=_f(d.get("actual")), unit=str(d.get("unit", "")), source="api"))
+    return out
+
+
 def load() -> list[Event]:
-    """MT5 first, then CSV. Never fabricates."""
-    return from_mt5() or from_csv()
+    """API (auto) -> MT5 built-in -> operator CSV -> empty. Never fabricates."""
+    return from_api() or from_mt5() or from_csv()
 
 
 def upcoming(events: list[Event], now: datetime | None = None, hours=24) -> list[Event]:
