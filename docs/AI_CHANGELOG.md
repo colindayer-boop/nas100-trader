@@ -262,3 +262,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-25 | Obsidian Bridge / automated | Multi-sleeve portfolio wired to MT5 (shadow-first, demo-guarded) | git post-commit hook | e7ba00e |
 | 2026-07-25 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | eebbcac |
 | 2026-07-25 | Obsidian Bridge / automated | portfolio_mt5: fix 4 defects found in first live shadow run | git post-commit hook | 468e40c |
+| 2026-07-25 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 5201e5d |
+| 2026-07-25 | Obsidian Bridge / automated | portfolio_mt5: broker symbol auto-discovery for oil/copper (+--discover) | git post-commit hook | 6dd3fa2 |
