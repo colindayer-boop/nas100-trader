@@ -176,13 +176,17 @@ def run(symbol, risk_pct, live):
                 print(f"[{time.strftime('%H:%M:%S')}] SETUP {sd} {symbol} entry {s['entry']:.3f} "
                       f"SL {s['stop']:.3f} TP {s['target']:.3f}")
                 if live:
-                    from prop_risk_guardian import Config, mt5_snapshot, evaluate
-                    cfg = Config.load(os.environ.get("GUARDIAN_CONFIG", "config/guardian.env"))
-                    snap = mt5_snapshot(cfg)
-                    dec = evaluate(snap, cfg, info.balance, info.balance, 0, 0, None,
-                                   proposed_risk_pct=risk_pct)
-                    if not dec["allow_new_entries"]:
-                        print(f"    guardian BLOCKED: {dec['reason_codes']}"); continue
+                    try:
+                        from prop_risk_guardian import Config, mt5_snapshot, evaluate
+                        cfg = Config.load(os.environ.get("GUARDIAN_CONFIG", "config/guardian.env"))
+                        snap = mt5_snapshot(cfg)
+                        dec = evaluate(snap, cfg, info.balance, info.balance, 0, 0, None,
+                                       proposed_risk_pct=risk_pct)
+                        if not dec["allow_new_entries"]:
+                            print(f"    guardian BLOCKED: {dec['reason_codes']}"); continue
+                    except ImportError:
+                        print("    [!] guardian not found on this box -- entry NOT risk-gated. "
+                              "Copy scripts/prop_risk_guardian.py + config/guardian.env for protection.")
                     vol = _lots(symbol, info.equity * risk_pct, abs(s["entry"] - s["stop"]))
                     r = _send(symbol, s["side"], s["entry"], s["stop"], s["target"], vol)
                     print(f"    order_send -> retcode {getattr(r,'retcode',None)} vol {vol}")
