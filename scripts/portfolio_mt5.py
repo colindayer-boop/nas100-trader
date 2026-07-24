@@ -247,7 +247,8 @@ def run(config="funded", live=False, report=False):
           f"config={config} vol_target={cfg['target_vol']:.0%} | mode={'LIVE' if live else 'SHADOW'}")
     print(f"[portfolio] universe {len(syms)} symbols, {len(px)} daily bars through {px.index[-1].date()}")
     print(f"[portfolio] scale={diag['scale']} realized_vol={diag['realized_vol']:.1%} "
-          f"gross={diag['gross_exposure']:.2f} sleeves={diag['sleeve_gross']}")
+          f"gross={diag['gross_exposure']:.2f} using={diag.get('sleeves_used')} "
+          f"sleeve_gross={diag['sleeve_gross']}")
     print(f"\n{'symbol':>8} {'target_w':>9} {'target_lots':>12} {'current':>9} {'delta':>9}")
     intents = []
     for name, weight in w.sort_values(key=abs, ascending=False).items():
@@ -309,7 +310,13 @@ def run(config="funded", live=False, report=False):
                    "deviation": 20, "magic": MAGIC, "comment": f"portfolio:{config}",
                    "type_filling": mt5.ORDER_FILLING_IOC}
             res = mt5.order_send(req)
-            print(f"  sent {it['name']} {it['delta']:+.2f} -> retcode {getattr(res,'retcode',None)}")
+            rc = getattr(res, "retcode", None)
+            RC = {10018: "MARKET_CLOSED (no fill)", 10009: "DONE (filled)",
+                  10004: "REQUOTE", 10006: "REJECTED", 10014: "INVALID_VOLUME",
+                  10016: "INVALID_STOPS", 10019: "NO_MONEY", 10027: "AUTOTRADING_DISABLED_CLIENT",
+                  10030: "UNSUPPORTED_FILLING_MODE"}
+            print(f"  {it['name']:>8} {it['delta']:+.2f} -> {rc} {RC.get(rc,'')}"
+                  f"{' | ' + str(getattr(res,'comment','')) if rc not in (10009,) else ''}")
 
 
 if __name__ == "__main__":
