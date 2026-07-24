@@ -33,9 +33,11 @@ STATE = "registry/portfolio_state.json"
 SYMBOL_MAP = {
     "GOLD":   ["XAUUSD", "GOLD", "XAUUSD.a"],
     "SILVER": ["XAGUSD", "SILVER", "XAGUSD.a"],
-    "OIL":    ["XTIUSD", "USOIL", "WTI", "CL", "SpotCrude", "Crude", "OILUSD", "UKOUSD",
-               "XBRUSD", "SpotBrent", "BRENT", "WTIUSD", "CRUDEOIL"],
-    "COPPER": ["XCUUSD", "COPPER", "HG", "SpotCopper", "COPPERUSD", "CopperUSD", "HGUSD"],
+    # Pepperstone uses a -PERP convention for commodity CFDs
+    "OIL":    ["WTOIL-PERP", "XTIUSD", "USOIL", "WTI", "SpotCrude", "Crude", "OILUSD",
+               "BRENTOIL-PERP", "XBRUSD", "SpotBrent", "BRENT", "WTIUSD", "CRUDEOIL", "CL"],
+    "COPPER": ["COPPER-PERP", "COPPER.PERP", "XCUUSD", "COPPER", "SpotCopper", "COPPERUSD",
+               "HGUSD", "HG", "COP-PERP"],
     "NAS100": ["NAS100", "US100", "NDX", "USTEC"],
     "SP500":  ["US500", "SPX500", "SP500"],
     "EURUSD": ["EURUSD"], "GBPUSD": ["GBPUSD"], "USDJPY": ["USDJPY"],
@@ -110,7 +112,7 @@ def target_weights(px: pd.DataFrame, target_vol=0.08, max_leverage=3.0,
 
 
 # ---------------- MT5 plumbing ----------------
-KEYWORDS = {"OIL": ["oil", "crude", "wti", "brent", "xti", "xbr"],
+KEYWORDS = {"OIL": ["wtoil", "oil", "crude", "wti", "brent", "xti", "xbr"],
             "COPPER": ["copper", "xcu", "hg"]}
 
 
