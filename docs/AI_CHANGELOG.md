@@ -250,3 +250,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-24 | Obsidian Bridge / automated | phase404_live: make guardian import optional (standalone on VPS) | git post-commit hook | 52b40c1 |
 | 2026-07-24 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 7d6b602 |
 | 2026-07-24 | Obsidian Bridge / automated | phase404_live: OTE golden-pocket entry (0.618-0.786 fib), stop at swing, TP o... | git post-commit hook | 7d27c51 |
+| 2026-07-24 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | a27f168 |
+| 2026-07-24 | Obsidian Bridge / automated | phase404_live: multi-instrument scanner — trades the 404 OTE setup on every s... | git post-commit hook | 192918f |
