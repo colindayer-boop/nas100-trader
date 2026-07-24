@@ -1,0 +1,2 @@
+{"ts": 1784917700.282398, "signal": "demo1", "decision": "ALLOW_PAPER", "reasons": ["ALL_GATES_PASSED"]}
+{"ts": 1784925765.9700348, "signal": "gsr-2025-06-05", "decision": "BLOCK", "reasons": ["NOT_PAPER_APPROVED"]}

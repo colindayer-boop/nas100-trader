@@ -1,0 +1,36 @@
+{
+ "strategy_id": "gsr_meanrev",
+ "strategy_name": "Gold/Silver Ratio mean-reversion",
+ "strategy_family": "mean_reversion",
+ "version": "v1",
+ "code_commit": "pending",
+ "status": "NEEDS_REPLICATION",
+ "approved_trial_ids": [
+  "TR-a921975d8eef2571"
+ ],
+ "dataset_fingerprint": "",
+ "feature_version": "",
+ "model_version": "",
+ "permitted_symbols": [
+  "XAGUSD"
+ ],
+ "permitted_timeframes": [],
+ "permitted_sessions": [],
+ "entry_function": "gsr_strategy.latest_signal",
+ "exit_function": "",
+ "stop_function": "10pct_below",
+ "position_sizing_function": "",
+ "maximum_risk_per_trade": 0.001,
+ "maximum_symbol_exposure": 0.0,
+ "maximum_portfolio_exposure": 0.0,
+ "maximum_concurrent_positions": 1,
+ "pyramiding_allowed": false,
+ "maximum_entries_per_symbol": 1,
+ "cost_model": "10bps/side",
+ "expected_trade_frequency": "~2/year",
+ "validation_start": "2008",
+ "validation_end": "2025",
+ "approval_timestamp": "",
+ "approval_actor": "",
+ "expiration_timestamp": ""
+}
