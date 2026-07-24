@@ -193,6 +193,13 @@ class MT5Broker(Broker):
 
     def place_order(self, symbol: str, qty: float, side: str, tag: str,
                     sl: float = None, tp: float = None):
+        # PHASE 601: fail-closed choke. No entry leaves unless the gate armed it. Legacy callers
+        # (live_trader.py) never arm -> blocked here. Guard missing => also block (fail closed).
+        try:
+            from execution_safety.execution_guard import consume_or_block
+        except Exception:
+            raise RuntimeError(f"execution guard unavailable; order BLOCKED ({symbol} {side})")
+        consume_or_block(f"place_order {symbol} {side} {tag}")
         if not self._ensure_connected():
             raise RuntimeError("MT5 connection down; order NOT submitted")
         m = self._mt5; sym = self.map(symbol); self._ensure_symbol(sym)

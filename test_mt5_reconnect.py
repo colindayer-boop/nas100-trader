@@ -18,6 +18,7 @@ from unittest import mock
 
 import mt5_broker
 from mt5_broker import MT5Broker
+from execution_safety.execution_guard import armed
 
 time.sleep = lambda *a, **k: None   # keep bounded-retry tests instant
 
@@ -104,7 +105,8 @@ class ReconnectCases(unittest.TestCase):
         f = FakeMT5(start_dropped=True, fail_reconnects=99)   # never recovers
         b = make_broker(f)
         with self.assertRaises(RuntimeError) as ctx:          # clear exception
-            b.place_order("QQQ", 1.0, "buy", "S1", sl=95.0, tp=110.0)
+            with armed("TEST-DECISION"):
+                b.place_order("QQQ", 1.0, "buy", "S1", sl=95.0, tp=110.0)
         self.assertIn("not submitted", str(ctx.exception).lower())
         self.assertEqual(f.order_send_calls, 0, "NO order submitted when down")
         self.assertEqual(f.reinit, 3, "bounded retries (3), then give up")
@@ -114,7 +116,8 @@ class ReconnectCases(unittest.TestCase):
     def test_5_place_order_during_reconnect_single_submit(self):
         f = FakeMT5(start_dropped=True, fail_reconnects=0)    # drop, recover on 1st try
         b = make_broker(f)
-        oid = b.place_order("QQQ", 1.0, "buy", "S1", sl=95.0)
+        with armed("TEST-DECISION"):
+            oid = b.place_order("QQQ", 1.0, "buy", "S1", sl=95.0)
         self.assertEqual(f.reinit, 1, "reconnected once before submitting")
         self.assertEqual(f.order_send_calls, 1, "exactly one order_send after recovery")
         self.assertEqual(oid, 111)

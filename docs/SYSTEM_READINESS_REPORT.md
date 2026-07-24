@@ -31,8 +31,12 @@ Fail-closed gate — `execution_safety/test_fail_closed.py` **14/14** and `test_
   `authorize()`; its guarantees are unproven and it must be retired or wrapped.
 
 ## (3) Remaining production risks
-1. **Legacy `live_trader.py` can still trade if launched** (no demo guard, no gate). HIGH — this is
-   what placed the BTC positions. Must be disabled/retired before any restart.
+1. **Legacy `live_trader.py` — RETIRED at the broker boundary.** `MT5Broker.place_order` now fails
+   closed via `execution_safety/execution_guard.py`: no entry submits unless the authorized executor
+   armed it, and the legacy path never arms (proven: `test_legacy_retired.py`, 3/3; guard-missing also
+   blocks). Residual: protective *close* paths are intentionally left unguarded (risk-reducing), and
+   the guard lives at the broker chokepoint — deleting/​bypassing it is the remaining way to reopen the
+   hole, so it is change-controlled. The old *source* still exists but can no longer place an entry.
 2. **3 open BTC positions** (magic 770001), unledgered, no TP, ~20% stops. Human-classify + close.
 3. **Auto-relaunch on the VPS** (Task Scheduler/Startup) may restart the legacy bot. Verify + disable.
 4. **Broker-side stop-attach not yet verified on a live fill** — a naked fill is the residual failure

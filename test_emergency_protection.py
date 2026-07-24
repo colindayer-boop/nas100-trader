@@ -5,6 +5,7 @@ import math
 import os
 import sys
 import types
+from execution_safety.execution_guard import armed
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -150,7 +151,8 @@ class EntryProtection(unittest.TestCase):
     def test_new_entry_carries_sl_in_same_request(self):
         m = FakeMT5()
         b = self._broker(m)
-        b.place_order("BTC", 0.5, "buy", "BTCTREND", sl=emergency_floor(m.ask, "long"))
+        with armed("TEST-DECISION"):
+            b.place_order("BTC", 0.5, "buy", "BTCTREND", sl=emergency_floor(m.ask, "long"))
         req = m.sent[0]
         self.assertEqual(req["action"], FakeMT5.TRADE_ACTION_DEAL)
         self.assertIn("sl", req)                           # SL atomic with the entry
@@ -160,8 +162,9 @@ class EntryProtection(unittest.TestCase):
         m = FakeMT5(reject=True)
         b = self._broker(m)
         with self.assertRaises(RuntimeError):              # entry rejected -> raises
-            b.place_order("BTC", 0.5, "buy", "BTCTREND",
-                          sl=emergency_floor(m.ask, "long"))
+            with armed("TEST-DECISION"):
+                b.place_order("BTC", 0.5, "buy", "BTCTREND",
+                              sl=emergency_floor(m.ask, "long"))
         self.assertEqual(m.positions, [])                  # nothing opened
 
 
