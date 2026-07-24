@@ -301,12 +301,27 @@ def run(config="funded", live=False, report=False):
         if dec["decision"] != "ALLOW_PAPER":
             print(f"  BLOCKED {it['name']}: {dec['reason_codes']}")
             continue
+        # LEDGER FIRST: an unledgered fill is an ORPHAN by our own policy
+        try:
+            from execution_safety.position_ledger import PositionLedger
+            PositionLedger().record_intent(dec["order_intent"], c.approved_trial_ids if (c := reg.get("portfolio_multisleeve")) else [], dec["decision_id"])
+        except Exception as e:
+            print(f"  BLOCKED {it['name']}: ledger unavailable ({e}) — refusing to submit"); continue
         with armed(dec["decision_id"]):
+            side_buy = it["delta"] > 0
+            tick = mt5.symbol_info_tick(it["symbol"])
+            price = tick.ask if side_buy else tick.bid
+            # BROKER-SIDE protective stop is MANDATORY (a naked fill is the BTC failure mode)
+            sl = round(price * (0.90 if side_buy else 1.10), 5)
+            info = mt5.symbol_info(it["symbol"])
+            pt = getattr(info, "point", 0.0) or 0.0
+            min_dist = (getattr(info, "trade_stops_level", 0) or 0) * pt
+            if min_dist:
+                sl = min(sl, price - min_dist) if side_buy else max(sl, price + min_dist)
             req = {"action": mt5.TRADE_ACTION_DEAL, "symbol": it["symbol"],
                    "volume": abs(it["delta"]),
-                   "type": mt5.ORDER_TYPE_BUY if it["delta"] > 0 else mt5.ORDER_TYPE_SELL,
-                   "price": mt5.symbol_info_tick(it["symbol"]).ask if it["delta"] > 0
-                            else mt5.symbol_info_tick(it["symbol"]).bid,
+                   "type": mt5.ORDER_TYPE_BUY if side_buy else mt5.ORDER_TYPE_SELL,
+                   "price": price, "sl": float(sl),
                    "deviation": 20, "magic": MAGIC, "comment": f"portfolio:{config}",
                    "type_filling": mt5.ORDER_FILLING_IOC}
             res = mt5.order_send(req)
@@ -317,6 +332,19 @@ def run(config="funded", live=False, report=False):
                   10030: "UNSUPPORTED_FILLING_MODE"}
             print(f"  {it['name']:>8} {it['delta']:+.2f} -> {rc} {RC.get(rc,'')}"
                   f"{' | ' + str(getattr(res,'comment','')) if rc not in (10009,) else ''}")
+            if rc == 10009:      # filled -> verify broker-side stop actually exists
+                try:
+                    from execution_safety.broker_reconciliation import BrokerPosition, reconcile
+                    pos = [p for p in (mt5.positions_get(symbol=it["symbol"]) or []) if p.magic == MAGIC]
+                    if pos:
+                        p0 = pos[-1]
+                        rec = reconcile(dec["order_intent"], BrokerPosition(
+                            p0.symbol, p0.volume, p0.sl, p0.tp, p0.magic, p0.comment))
+                        if rec["state"] == "CRITICAL":
+                            print(f"    !! CRITICAL {rec['critical']} — HALTING new entries")
+                            break
+                except Exception as e:
+                    print(f"    !! reconciliation failed ({e}) — HALTING"); break
 
 
 if __name__ == "__main__":
