@@ -33,8 +33,9 @@ STATE = "registry/portfolio_state.json"
 SYMBOL_MAP = {
     "GOLD":   ["XAUUSD", "GOLD", "XAUUSD.a"],
     "SILVER": ["XAGUSD", "SILVER", "XAGUSD.a"],
-    "OIL":    ["XTIUSD", "USOIL", "WTI", "CL"],
-    "COPPER": ["XCUUSD", "COPPER", "HG"],
+    "OIL":    ["XTIUSD", "USOIL", "WTI", "CL", "SpotCrude", "Crude", "OILUSD", "UKOUSD",
+               "XBRUSD", "SpotBrent", "BRENT", "WTIUSD", "CRUDEOIL"],
+    "COPPER": ["XCUUSD", "COPPER", "HG", "SpotCopper", "COPPERUSD", "CopperUSD", "HGUSD"],
     "NAS100": ["NAS100", "US100", "NDX", "USTEC"],
     "SP500":  ["US500", "SPX500", "SP500"],
     "EURUSD": ["EURUSD"], "GBPUSD": ["GBPUSD"], "USDJPY": ["USDJPY"],
@@ -109,7 +110,22 @@ def target_weights(px: pd.DataFrame, target_vol=0.08, max_leverage=3.0,
 
 
 # ---------------- MT5 plumbing ----------------
-def resolve_symbols():
+KEYWORDS = {"OIL": ["oil", "crude", "wti", "brent", "xti", "xbr"],
+            "COPPER": ["copper", "xcu", "hg"]}
+
+
+def discover(keywords, limit=12):
+    """Scan every symbol the broker offers for keyword matches (naming differs per broker)."""
+    out = {}
+    for s_ in (mt5.symbols_get() or []):
+        nm = s_.name.lower()
+        for key, words in keywords.items():
+            if any(w in nm for w in words):
+                out.setdefault(key, []).append(s_.name)
+    return {k: v[:limit] for k, v in out.items()}
+
+
+def resolve_symbols(verbose=False):
     found = {}
     for name, cands in SYMBOL_MAP.items():
         for c in cands:
@@ -117,6 +133,23 @@ def resolve_symbols():
                 mt5.symbol_select(c, True)
                 found[name] = c
                 break
+    # fallback: keyword-discover anything the explicit map missed
+    missing = [k for k in KEYWORDS if k not in found]
+    if missing:
+        hits = discover({k: KEYWORDS[k] for k in missing})
+        for k, names in hits.items():
+            for n in names:
+                si = mt5.symbol_info(n)
+                if si is not None and mt5.symbol_select(n, True):
+                    r = mt5.copy_rates_from_pos(n, mt5.TIMEFRAME_D1, 0, 300)
+                    if r is not None and len(r) > 250:      # needs real daily history
+                        found[k] = n
+                        if verbose: print(f"[portfolio] discovered {k} -> {n}")
+                        break
+        if verbose:
+            for k in KEYWORDS:
+                if k not in found and k in hits:
+                    print(f"[portfolio] {k} candidates found but unusable: {hits[k]}")
     return found
 
 
@@ -179,7 +212,7 @@ def run(config="funded", live=False, report=False):
         raise SystemExit(f"REFUSING: account {acct.login} is not a DEMO account. Demo only.")
 
     cfg = CONFIGS[config]
-    syms = resolve_symbols()
+    syms = resolve_symbols(verbose=True)
     px = fetch_daily(syms)
     if px.shape[1] < 4 or len(px) < 300:
         raise SystemExit(f"insufficient daily data: {px.shape}. Add symbols to Market Watch.")
@@ -272,5 +305,19 @@ if __name__ == "__main__":
     ap.add_argument("--config", default="funded", choices=list(CONFIGS))
     ap.add_argument("--live", action="store_true")
     ap.add_argument("--report", action="store_true")
+    ap.add_argument("--discover", action="store_true", help="list broker symbols matching oil/copper and exit")
     a = ap.parse_args()
+    if a.discover:
+        if mt5 is None or not mt5.initialize():
+            raise SystemExit("MT5 unavailable")
+        allsyms = mt5.symbols_get() or []
+        print(f"broker offers {len(allsyms)} symbols")
+        for key, words in KEYWORDS.items():
+            hits = [s_.name for s_ in allsyms if any(w in s_.name.lower() for w in words)]
+            print(f"  {key}: {hits[:20] if hits else 'NONE FOUND'}")
+        print("\n  commodities/energy group sample:")
+        for s_ in allsyms:
+            if any(w in (s_.path or '').lower() for w in ["commodit", "energ", "metal"]):
+                print(f"    {s_.name}  ({s_.path})")
+        raise SystemExit(0)
     run(a.config, a.live, a.report)
