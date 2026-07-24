@@ -260,3 +260,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-24 | Obsidian Bridge / automated | PHASE 601 audit + legacy-path retirement + promotion rule | git post-commit hook | 9e15b90 |
 | 2026-07-24 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | b698ba1 |
 | 2026-07-25 | Obsidian Bridge / automated | Multi-sleeve portfolio wired to MT5 (shadow-first, demo-guarded) | git post-commit hook | e7ba00e |
+| 2026-07-25 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | eebbcac |
+| 2026-07-25 | Obsidian Bridge / automated | portfolio_mt5: fix 4 defects found in first live shadow run | git post-commit hook | 468e40c |

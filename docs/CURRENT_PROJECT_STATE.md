@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+468e40c  portfolio_mt5: fix 4 defects found in first live shadow run
+eebbcac  Obsidian bridge auto-sync [bridge-auto]
 e7ba00e  Multi-sleeve portfolio wired to MT5 (shadow-first, demo-guarded)
 b698ba1  Obsidian bridge auto-sync [bridge-auto]
 9e15b90  PHASE 601 audit + legacy-path retirement + promotion rule
 e0540a4  Obsidian bridge auto-sync [bridge-auto]
 314c4e4  PHASE 601 complete: recovery stages 5,7,8,10,11 + runbooks + SYSTEM_READINESS_REPORT
 a0e3c12  Obsidian bridge auto-sync [bridge-auto]
-87ae44a  PHASE 601: research-to-execution rewire (fail-closed core) — Stages 0,1,2,4/6/9,13
-7be5249  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
