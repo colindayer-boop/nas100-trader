@@ -164,51 +164,71 @@ def _trail_open(symbol):
                                 position=p.ticket, sl=float(new_sl), tp=p.tp))
 
 
-def run(symbol, risk_pct, live):
+def _already_open(symbol):
+    return any(p.magic == MAGIC for p in (mt5.positions_get(symbol=symbol) or []))
+
+
+def _step(symbol, risk_pct, live, info, last_seen):
+    """One scan+manage cycle for ONE symbol. Returns the (possibly updated) last_seen idx."""
+    _trail_open(symbol)                                  # manage runners first
+    df = _bars(symbol)
+    if df is None or len(df) < 60:
+        return last_seen
+    closed = df.iloc[:-1]                                # drop forming bar -> causal
+    o, h, l, c = (closed[x].to_numpy() for x in ("open", "high", "low", "close"))
+    s = find_setup(o, h, l, c)
+    if not s or s["idx"] == last_seen:
+        return last_seen
+    sd = "SELL" if s["side"] < 0 else "BUY"
+    print(f"[{time.strftime('%H:%M:%S')}] SETUP {sd} {symbol:8s} entry {s['entry']:.3f} "
+          f"SL {s['stop']:.3f} TP {s['target']:.3f}  ({abs(s['target']-s['entry'])/max(s['risk'],1e-9):.1f}R)")
+    if live and not _already_open(symbol):               # one 404 position per symbol at a time
+        try:
+            from prop_risk_guardian import Config, mt5_snapshot, evaluate
+            cfg = Config.load(os.environ.get("GUARDIAN_CONFIG", "config/guardian.env"))
+            dec = evaluate(mt5_snapshot(cfg), cfg, info.balance, info.balance, 0, 0, None,
+                           proposed_risk_pct=risk_pct)
+            if not dec["allow_new_entries"]:
+                print(f"    guardian BLOCKED {symbol}: {dec['reason_codes']}"); return s["idx"]
+        except ImportError:
+            print("    [!] guardian not found -- entry NOT risk-gated.")
+        vol = _lots(symbol, info.equity * risk_pct, abs(s["entry"] - s["stop"]))
+        r = _send(symbol, s["side"], s["entry"], s["stop"], s["target"], vol)
+        print(f"    order_send {symbol} -> retcode {getattr(r,'retcode',None)} vol {vol}")
+    return s["idx"]
+
+
+def run(symbols, risk_pct, live):
     if mt5 is None or not mt5.initialize():
         raise SystemExit("MetaTrader5 unavailable. Install it and start your terminal (Windows).")
     info = _require_demo()
-    print(f"[phase404] DEMO account {info.login} ({info.server}) equity {info.equity:.2f}  "
-          f"symbol={symbol} risk/trade={risk_pct:.3%}  mode={'LIVE-ORDERS' if live else 'DRY-RUN'}")
-    last_seen = None
+    for s in symbols:
+        if mt5.symbol_info(s) is None:
+            print(f"[warn] {s} not in Market Watch -- add it in MT5 or it will be skipped.")
+        else:
+            mt5.symbol_select(s, True)
+    print(f"[phase404] DEMO {info.login} ({info.server}) equity {info.equity:.2f}  "
+          f"symbols={','.join(symbols)}  risk/trade={risk_pct:.3%}  "
+          f"mode={'LIVE-ORDERS' if live else 'DRY-RUN'}")
+    last_seen = {s: None for s in symbols}
     while True:
         try:
-            _trail_open(symbol)                          # manage runners first
-            df = _bars(symbol)
-            closed = df.iloc[:-1]                         # drop the forming bar -> causal
-            o, h, l, c = (closed[x].to_numpy() for x in ("open", "high", "low", "close"))
-            s = find_setup(o, h, l, c)
-            if s and s["idx"] != last_seen:
-                last_seen = s["idx"]
-                sd = "SELL" if s["side"] < 0 else "BUY"
-                print(f"[{time.strftime('%H:%M:%S')}] SETUP {sd} {symbol} entry {s['entry']:.3f} "
-                      f"SL {s['stop']:.3f} TP {s['target']:.3f}")
-                if live:
-                    try:
-                        from prop_risk_guardian import Config, mt5_snapshot, evaluate
-                        cfg = Config.load(os.environ.get("GUARDIAN_CONFIG", "config/guardian.env"))
-                        snap = mt5_snapshot(cfg)
-                        dec = evaluate(snap, cfg, info.balance, info.balance, 0, 0, None,
-                                       proposed_risk_pct=risk_pct)
-                        if not dec["allow_new_entries"]:
-                            print(f"    guardian BLOCKED: {dec['reason_codes']}"); continue
-                    except ImportError:
-                        print("    [!] guardian not found on this box -- entry NOT risk-gated. "
-                              "Copy scripts/prop_risk_guardian.py + config/guardian.env for protection.")
-                    vol = _lots(symbol, info.equity * risk_pct, abs(s["entry"] - s["stop"]))
-                    r = _send(symbol, s["side"], s["entry"], s["stop"], s["target"], vol)
-                    print(f"    order_send -> retcode {getattr(r,'retcode',None)} vol {vol}")
+            info = mt5.account_info()                     # refresh equity each cycle
+            for sym in symbols:
+                try:
+                    last_seen[sym] = _step(sym, risk_pct, live, info, last_seen[sym])
+                except Exception as e:
+                    print(f"[warn] {sym}: {e}")
             time.sleep(POLL_SEC)
         except KeyboardInterrupt:
             print("stopped."); break
-        except Exception as e:
-            print(f"[warn] {e}"); time.sleep(POLL_SEC)
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--symbol", default="XAUUSD")
-    ap.add_argument("--risk", type=float, default=0.0025)   # 0.25% per trade (guardian default)
+    ap.add_argument("--symbols", default="XAUUSD,EURUSD,GBPUSD,USDJPY,USDCAD,USDCHF,NAS100",
+                    help="comma-separated; scans each and trades the 404 setup wherever it appears")
+    ap.add_argument("--risk", type=float, default=0.0025)   # 0.25% per trade
     ap.add_argument("--live", action="store_true")
     a = ap.parse_args()
-    run(a.symbol, a.risk, a.live)
+    run([s.strip() for s in a.symbols.split(",") if s.strip()], a.risk, a.live)
