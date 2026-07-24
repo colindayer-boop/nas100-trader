@@ -246,3 +246,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-23 | Obsidian Bridge / automated | Guardian replay report: proposed limits cut demo drawdown -545 to ~0 on expor... | git post-commit hook | fbdf210 |
 | 2026-07-23 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 241dc6b |
 | 2026-07-24 | Obsidian Bridge / automated | PHASE-404 rules wired to MT5 (DEMO-ONLY bot) | git post-commit hook | aaeb03b |
+| 2026-07-24 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 4631b3e |
+| 2026-07-24 | Obsidian Bridge / automated | phase404_live: make guardian import optional (standalone on VPS) | git post-commit hook | 52b40c1 |
