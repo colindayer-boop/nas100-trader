@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+5112bd8  PHASE 701: Live Market Intelligence Engine (evidence only, cannot trade)
+8cd192a  Obsidian bridge auto-sync [bridge-auto]
 e6d6319  BLOCKING FIXES from ORDER_LIFECYCLE audit + honest correction of the 48.8% claim
 fe32358  Obsidian bridge auto-sync [bridge-auto]
 ebfafc7  contract: permit discovered broker symbols (WTOIL-PERP, Copper, US500...); decode MT5 retcodes; show sleeves_used
 536e2e8  Obsidian bridge auto-sync [bridge-auto]
 7e01674  Per-stage sleeve selection + PROMOTE portfolio to PAPER_APPROVED
 e2ed32e  Obsidian bridge auto-sync [bridge-auto]
-08d6b60  portfolio_mt5: map Pepperstone -PERP commodity names (WTOIL-PERP, COPPER-PERP)
-28f2056  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
