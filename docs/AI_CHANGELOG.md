@@ -254,3 +254,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-24 | Obsidian Bridge / automated | phase404_live: multi-instrument scanner — trades the 404 OTE setup on every s... | git post-commit hook | 192918f |
 | 2026-07-24 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 7be5249 |
 | 2026-07-24 | Obsidian Bridge / automated | PHASE 601: research-to-execution rewire (fail-closed core) — Stages 0,1,2,4/6... | git post-commit hook | 87ae44a |
+| 2026-07-24 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | a0e3c12 |
+| 2026-07-24 | Obsidian Bridge / automated | PHASE 601 complete: recovery stages 5,7,8,10,11 + runbooks + SYSTEM_READINESS... | git post-commit hook | 314c4e4 |
