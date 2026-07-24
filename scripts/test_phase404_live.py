@@ -14,17 +14,15 @@ def test_chandelier_never_loosens():
     assert b.chandelier_stop(1, 100.0, 101.0, 1.0, 3) == 100.0
 
 def test_find_setup_detects_buyside_sweep_sell():
-    # k=3 canonical case. swing HIGH at idx 3 (value 20, max over [0..6]); price stays below;
-    # idx 10 sweeps above 20 and closes back; idx 11 closes below idx10's low (shift); FVG idx10 low>idx12 high.
+    # k=3. swing HIGH ~20 at idx3; sweep above 20 at idx10 closing back; shift down idx11;
+    # impulse low ~15 at idx12; retrace UP into OTE golden pocket idx13-14 -> SELL setup.
     k=3
-    #      0    1    2    3*   4    5    6    7    8    9   10(sweep) 11(shift) 12   13
-    h=[  12,  15,  17,  20,  17,  16,  15,  16,  15,  16,  21.0,   17.5,  16.0, 15.5]
-    l=[  10,  13,  15,  18,  15,  14,  13,  14,  13,  14,  18.5,   16.0,  15.0, 14.5]
-    c=[  11,  14,  16,  19,  16,  15,  14,  15,  14,  15,  19.0,   16.2,  15.2, 14.8]  # c10=19<20; c11=16.2<l10(18.5)
-    o=[float(x) for x in c]
-    h=[float(x) for x in h]; l=[float(x) for x in l]; c=[float(x) for x in c]
+    h=[12,15,17,20,17,16,15,16,15,16, 21.0, 17.5, 16.0, 19.0, 19.2]
+    l=[10,13,15,18,15,14,13,14,13,14, 18.5, 16.0, 15.0, 18.0, 18.4]
+    c=[11,14,16,19,16,15,14,15,14,15, 19.0, 16.2, 15.2, 18.6, 18.8]
+    o=[float(x) for x in c];h=[float(x) for x in h];l=[float(x) for x in l];c=[float(x) for x in c]
     s=b.find_setup(np.array(o),np.array(h),np.array(l),np.array(c),k=k)
-    assert s is not None, "no setup found"
+    assert s is not None, "no OTE setup found"
     assert s["side"]==-1 and s["stop"]>s["entry"] and s["target"]<s["entry"], s
 
 def test_no_setup_on_noise():

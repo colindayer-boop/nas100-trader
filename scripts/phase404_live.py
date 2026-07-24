@@ -41,22 +41,20 @@ def _swing(arr_high, arr_low, i, k, kind):
     return (arr_high[i] == max(arr_high[lo:hi])) if kind == "high" else (arr_low[i] == min(arr_low[lo:hi]))
 
 
+OTE_LO, OTE_HI = 0.618, 0.786   # Optimal Trade Entry golden pocket (PDF)
+
+
 def find_setup(o, h, l, c, k=SWING_K):
-    """Return the newest COMPLETE 404 setup at the right edge, or None. Arrays are chronological;
-    only closed bars passed in (caller drops the forming bar). Causal by construction."""
+    """Full PHASE-404 with OTE entry. Newest complete setup at the right edge, or None.
+    Sequence: sweep confirmed swing liquidity -> MSS shift -> fib swing(1.0)->shift-low(0.0) ->
+    ENTER when price retraces into the 0.618-0.786 OTE zone -> STOP beyond the swing(1.0) ->
+    TARGET opposite liquidity. Causal: only closed bars are passed in."""
     n = len(c)
-    if n < 2 * k + 5:
+    if n < 2 * k + 6:
         return None
-    lsh = lsl = np.nan
-    # confirmed swing levels up to n-4 (need k bars of confirmation)
-    for i in range(k, n - 3):
-        if _swing(h, l, i, k, "high") and i + k < n:
-            pass
-    # simpler: recompute last confirmed swing high/low before the sweep search
     setup = None
     lsh = lsl = np.nan
     for i in range(k, n - 3):
-        # confirm swing k bars back
         j0 = i - k
         if j0 >= 0 and h[j0] == max(h[max(0, j0 - k):j0 + k + 1]):
             lsh = h[j0]
@@ -64,27 +62,37 @@ def find_setup(o, h, l, c, k=SWING_K):
             lsl = l[j0]
         side = 0
         if not np.isnan(lsh) and h[i] > lsh and c[i] < lsh:
-            side = -1; wick = h[i]; opp = lsl
+            side = -1; swing = h[i]; opp = lsl          # buyside sweep -> SELL, swing=1.0
         elif not np.isnan(lsl) and l[i] < lsl and c[i] > lsl:
-            side = 1; wick = l[i]; opp = lsh
+            side = 1; swing = l[i]; opp = lsh
         if side == 0:
             continue
-        j = i + 1
-        shifted = (c[j] < l[i]) if side < 0 else (c[j] > h[i])   # CISD structure shift
-        if not shifted:
+        # MSS shift within a short window after the sweep
+        shift = None
+        for s_ in range(i + 1, min(i + 12, n)):
+            if (c[s_] < l[i]) if side < 0 else (c[s_] > h[i]):
+                shift = s_; break
+        if shift is None:
             continue
-        # FVG from the 3-bar shift impulse
+        # impulse extreme -> fib 0.0 ; OTE golden pocket zone
         if side < 0:
-            has_fvg = (i + 2 < n) and (l[i] > h[i + 2]); entry = (l[i] + h[i + 2]) / 2 if i + 2 < n else c[j]
+            L = min(l[i:shift + 1]); H = swing
+            ote_bot = L + (H - L) * OTE_LO; ote_top = L + (H - L) * OTE_HI
+            # price must currently be retraced UP into the OTE zone (right edge)
+            hit = any(h[r_] >= ote_bot for r_ in range(shift + 1, n))
+            entry = ote_bot
         else:
-            has_fvg = (i + 2 < n) and (h[i] < l[i + 2]); entry = (h[i] + l[i + 2]) / 2 if i + 2 < n else c[j]
-        if not has_fvg:
+            H = max(h[i:shift + 1]); L = swing
+            ote_top = H - (H - L) * OTE_LO; ote_bot = H - (H - L) * OTE_HI
+            hit = any(l[r_] <= ote_top for r_ in range(shift + 1, n))
+            entry = ote_top
+        if not hit:
             continue
-        risk = abs(entry - wick)
+        risk = abs(entry - swing)
         if risk <= 0:
             continue
-        tp = opp if (opp is not None and not np.isnan(opp)) else entry + side * 2 * risk
-        setup = dict(idx=j, side=side, entry=float(entry), stop=float(wick),
+        tp = opp if (opp is not None and not np.isnan(opp)) else entry + side * 3 * risk
+        setup = dict(idx=n - 1, side=side, entry=float(entry), stop=float(swing),
                      target=float(tp), risk=float(risk))
     return setup
 
