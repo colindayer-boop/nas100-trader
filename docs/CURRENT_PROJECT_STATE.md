@@ -1,4 +1,4 @@
-# CURRENT PROJECT STATE — 2026-07-23
+# CURRENT PROJECT STATE — 2026-07-24
 
 _Onboarding snapshot for any agent/human joining. Sources: LIVE_TRADING_PARITY,
 PRODUCTION_READINESS_REVIEW, NEXT_30_DAY_MONITORING_PLAN, LIVE_TRADE_REVIEW,
@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+aaeb03b  PHASE-404 rules wired to MT5 (DEMO-ONLY bot)
+241dc6b  Obsidian bridge auto-sync [bridge-auto]
 fbdf210  Guardian replay report: proposed limits cut demo drawdown -545 to ~0 on export window (monitor-only, caveated)
 e199c75  Obsidian bridge auto-sync [bridge-auto]
 adf4e77  Add prop_risk_guardian: standalone fail-safe risk supervisor (monitor mode + replay)
 b54ea03  Obsidian bridge auto-sync [bridge-auto]
 3bb0582  Add offline sizing dry-run (watch DETERMINISTIC_RISK before risking anything)
 5a15c78  Obsidian bridge auto-sync [bridge-auto]
-e5b354b  Add DETERMINISTIC_RISK sizing flag (OFF by default; prop-challenge consistency)
-3b66990  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
