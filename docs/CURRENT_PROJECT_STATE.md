@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+87ae44a  PHASE 601: research-to-execution rewire (fail-closed core) — Stages 0,1,2,4/6/9,13
+7be5249  Obsidian bridge auto-sync [bridge-auto]
 192918f  phase404_live: multi-instrument scanner — trades the 404 OTE setup on every symbol
 a27f168  Obsidian bridge auto-sync [bridge-auto]
 7d27c51  phase404_live: OTE golden-pocket entry (0.618-0.786 fib), stop at swing, TP opposite liquidity
 7d6b602  Obsidian bridge auto-sync [bridge-auto]
 52b40c1  phase404_live: make guardian import optional (standalone on VPS)
 4631b3e  Obsidian bridge auto-sync [bridge-auto]
-aaeb03b  PHASE-404 rules wired to MT5 (DEMO-ONLY bot)
-241dc6b  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
