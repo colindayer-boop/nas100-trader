@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+7d27c51  phase404_live: OTE golden-pocket entry (0.618-0.786 fib), stop at swing, TP opposite liquidity
+7d6b602  Obsidian bridge auto-sync [bridge-auto]
 52b40c1  phase404_live: make guardian import optional (standalone on VPS)
 4631b3e  Obsidian bridge auto-sync [bridge-auto]
 aaeb03b  PHASE-404 rules wired to MT5 (DEMO-ONLY bot)
 241dc6b  Obsidian bridge auto-sync [bridge-auto]
 fbdf210  Guardian replay report: proposed limits cut demo drawdown -545 to ~0 on export window (monitor-only, caveated)
 e199c75  Obsidian bridge auto-sync [bridge-auto]
-adf4e77  Add prop_risk_guardian: standalone fail-safe risk supervisor (monitor mode + replay)
-b54ea03  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)

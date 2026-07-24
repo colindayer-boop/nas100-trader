@@ -254,3 +254,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-24 | Obsidian Bridge / automated | PHASE-404 rules wired to MT5 (DEMO-ONLY bot) | git post-commit hook | aaeb03b |
 | 2026-07-24 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 4631b3e |
 | 2026-07-24 | Obsidian Bridge / automated | phase404_live: make guardian import optional (standalone on VPS) | git post-commit hook | 52b40c1 |
+| 2026-07-24 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 7d6b602 |
+| 2026-07-24 | Obsidian Bridge / automated | phase404_live: OTE golden-pocket entry (0.618-0.786 fib), stop at swing, TP o... | git post-commit hook | 7d27c51 |
