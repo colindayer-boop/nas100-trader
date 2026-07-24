@@ -1,4 +1,4 @@
-# CURRENT PROJECT STATE — 2026-07-24
+# CURRENT PROJECT STATE — 2026-07-25
 
 _Onboarding snapshot for any agent/human joining. Sources: LIVE_TRADING_PARITY,
 PRODUCTION_READINESS_REVIEW, NEXT_30_DAY_MONITORING_PLAN, LIVE_TRADE_REVIEW,
@@ -90,14 +90,14 @@ CODE_INVENTORY.md, scheduled for archiving in MIGRATION_PLAN Phase 2 (not yet ru
 ## Recent commits (newest first)
 
 ```
+e7ba00e  Multi-sleeve portfolio wired to MT5 (shadow-first, demo-guarded)
+b698ba1  Obsidian bridge auto-sync [bridge-auto]
 9e15b90  PHASE 601 audit + legacy-path retirement + promotion rule
 e0540a4  Obsidian bridge auto-sync [bridge-auto]
 314c4e4  PHASE 601 complete: recovery stages 5,7,8,10,11 + runbooks + SYSTEM_READINESS_REPORT
 a0e3c12  Obsidian bridge auto-sync [bridge-auto]
 87ae44a  PHASE 601: research-to-execution rewire (fail-closed core) — Stages 0,1,2,4/6/9,13
 7be5249  Obsidian bridge auto-sync [bridge-auto]
-192918f  phase404_live: multi-instrument scanner — trades the 404 OTE setup on every symbol
-a27f168  Obsidian bridge auto-sync [bridge-auto]
 ```
 
 ## What should NEVER be changed (without explicit human sign-off + clock reset)
