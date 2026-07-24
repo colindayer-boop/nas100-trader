@@ -276,3 +276,5 @@ Format: date | role/model | change | evidence/verification | commits._
 | 2026-07-25 | Obsidian Bridge / automated | Per-stage sleeve selection + PROMOTE portfolio to PAPER_APPROVED | git post-commit hook | 7e01674 |
 | 2026-07-25 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | 536e2e8 |
 | 2026-07-25 | Obsidian Bridge / automated | contract: permit discovered broker symbols (WTOIL-PERP, Copper, US500...); de... | git post-commit hook | ebfafc7 |
+| 2026-07-25 | Obsidian Bridge / automated | Obsidian bridge auto-sync [bridge-auto] | git post-commit hook | fe32358 |
+| 2026-07-25 | Obsidian Bridge / automated | BLOCKING FIXES from ORDER_LIFECYCLE audit + honest correction of the 48.8% claim | git post-commit hook | e6d6319 |
