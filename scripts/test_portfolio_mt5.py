@@ -34,6 +34,29 @@ def test_trend_sleeve_active():
     w,d = P.target_weights(PX, target_vol=0.08)
     assert d["sleeve_gross"]["TREND"] > 0.5, d
 
+# ---- regression tests for the 4 fixed defects ----
+import types
+def test_usd_base_pair_notional_fixed():
+    """USDJPY: 1 lot = 100,000 USD, NOT 100,000*157. Was under-sizing ~157x."""
+    info=types.SimpleNamespace(trade_contract_size=100000.0)
+    tick=types.SimpleNamespace(ask=157.0)
+    assert P.notional_per_lot("USDJPY",info,tick)==100000.0
+    assert P.notional_per_lot("USDCAD",info,types.SimpleNamespace(ask=1.37))==100000.0
+
+def test_usd_quote_pair_notional_uses_price():
+    info=types.SimpleNamespace(trade_contract_size=100000.0)
+    assert abs(P.notional_per_lot("EURUSD",info,types.SimpleNamespace(ask=1.14))-114000.0)<1e-6
+    gold=types.SimpleNamespace(trade_contract_size=100.0)
+    assert abs(P.notional_per_lot("XAUUSD",gold,types.SimpleNamespace(ask=4000.0))-400000.0)<1e-6
+
+def test_carry_sleeve_activates_with_swaps():
+    w0,d0=P.target_weights(PX,target_vol=0.08,carry_signs=None)
+    w1,d1=P.target_weights(PX,target_vol=0.08,carry_signs={"EURUSD":1,"USDJPY":-1,"AUDUSD":1})
+    assert d0["sleeve_gross"]["CARRY"]==0.0
+    assert d1["sleeve_gross"]["CARRY"]>0.0, d1
+    assert not w0.equals(w1)
+
+
 if __name__=="__main__":
     fns=[v for k,v in list(globals().items()) if k.startswith("test_")]; p=0
     for fn in fns:
@@ -46,3 +69,4 @@ if __name__=="__main__":
     for k,v in w.sort_values(key=abs, ascending=False).items():
         if abs(v)>=0.005: print(f"  {k:8s} {v:+.3f}")
     print(f"  gross exposure {d['gross_exposure']:.2f}  scale {d['scale']}  realized_vol {d['realized_vol']:.1%}")
+

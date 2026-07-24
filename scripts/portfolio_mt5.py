@@ -54,7 +54,8 @@ def _ivol(r: pd.DataFrame, span=60):
     return (1 / v.clip(lower=1e-4)).replace([np.inf, -np.inf], 0.0)
 
 
-def target_weights(px: pd.DataFrame, target_vol=0.08, max_leverage=3.0) -> tuple[pd.Series, dict]:
+def target_weights(px: pd.DataFrame, target_vol=0.08, max_leverage=3.0,
+                   carry_signs: dict | None = None) -> tuple[pd.Series, dict]:
     """Return today's target weight per symbol (fraction of equity, signed) + sleeve diagnostics.
     Signals are lagged: only completed bars are used."""
     ret = px.pct_change().fillna(0.0)
@@ -83,8 +84,15 @@ def target_weights(px: pd.DataFrame, target_vol=0.08, max_leverage=3.0) -> tuple
     if rw.abs().sum(axis=1).iloc[-1] > 0:
         rw = rw.div(rw.abs().sum(axis=1).replace(0, np.nan), axis=0).fillna(0.0)
 
-    # CARRY: sign of 2y differential (context data optional; skipped if unavailable)
+    # CARRY: sign of the broker's ACTUAL swap (positive carry = get paid to hold that direction).
+    # carry_signs is injected by the caller from MT5 symbol_info; empty -> sleeve inactive.
     cw = pd.DataFrame(0.0, index=px.index, columns=px.columns)
+    for name, sgn in (carry_signs or {}).items():
+        if name in cw.columns and sgn != 0:
+            cw[name] = sgn
+    if cw.abs().sum(axis=1).iloc[-1] > 0:
+        cw = cw.mul(_ivol(ret)).div(
+            cw.mul(_ivol(ret)).abs().sum(axis=1).replace(0, np.nan), axis=0).fillna(0.0)
 
     sleeves = {"TREND": tw, "RATIO": rw, "CARRY": cw}
     combined = sum(sleeves.values()) / max(1, sum(1 for s in sleeves.values() if s.abs().sum().sum() > 0))
@@ -136,12 +144,22 @@ def current_book(broker_syms: dict) -> dict:
     return book
 
 
+def notional_per_lot(sym: str, info, tick) -> float:
+    """USD notional of one lot. For USD-BASE pairs (USDJPY/USDCAD/USDCHF) one lot is already USD;
+    for USD-QUOTE pairs (EURUSD/XAUUSD/indices) multiply by price. Fixes gross under-sizing."""
+    cs = info.trade_contract_size or 0.0
+    base = sym[:3].upper()
+    if base == "USD":                      # USDJPY, USDCAD, USDCHF -> lot is USD-denominated
+        return cs
+    return cs * (tick.ask or 0.0)          # EURUSD, XAUUSD, NAS100, ...
+
+
 def lots_for(sym: str, weight: float, equity: float) -> float:
-    """Convert a target weight (fraction of equity) into lots using contract value."""
+    """Convert a target weight (fraction of equity) into lots using USD notional per lot."""
     info = mt5.symbol_info(sym); tick = mt5.symbol_info_tick(sym)
     if info is None or tick is None or not tick.ask:
         return 0.0
-    contract_value = info.trade_contract_size * tick.ask
+    contract_value = notional_per_lot(sym, info, tick)
     if contract_value <= 0:
         return 0.0
     raw = abs(weight) * equity / contract_value
@@ -166,7 +184,17 @@ def run(config="funded", live=False, report=False):
     if px.shape[1] < 4 or len(px) < 300:
         raise SystemExit(f"insufficient daily data: {px.shape}. Add symbols to Market Watch.")
 
-    w, diag = target_weights(px, **cfg)
+    carry_signs = {}
+    for name, sym in syms.items():
+        si = mt5.symbol_info(sym)
+        if si is None: continue
+        sl, ss = getattr(si, "swap_long", 0.0) or 0.0, getattr(si, "swap_short", 0.0) or 0.0
+        if max(sl, ss) > 0 and sl != ss:
+            carry_signs[name] = 1 if sl > ss else -1      # hold the side that PAYS carry
+    missing = [k for k in SYMBOL_MAP if k not in syms]
+    if missing:
+        print(f"[portfolio] UNRESOLVED symbols (add to Market Watch): {', '.join(missing)}")
+    w, diag = target_weights(px, carry_signs=carry_signs, **cfg)
     equity = acct.equity
     book = current_book(syms)
 
@@ -189,11 +217,15 @@ def run(config="funded", live=False, report=False):
             intents.append(dict(name=name, symbol=sym, delta=delta, target_lots=tgt, weight=float(weight)))
 
     if report:
+        # honest: walk-forward the ACTUAL rolling weights (no look-ahead), last 252 sessions
         ret = px.pct_change().fillna(0.0)
-        hist = (w.reindex(px.columns).fillna(0.0) * ret).sum(axis=1).tail(252)
-        eq = (1 + hist).cumprod()
-        print(f"\n[hypothetical, current book held over last 252d] "
-              f"ret {eq.iloc[-1]-1:+.1%}  vol {hist.std()*np.sqrt(252):.1%}  "
+        hist = []
+        for i in range(max(300, len(px) - 252), len(px)):
+            wi, _ = target_weights(px.iloc[:i], carry_signs=carry_signs, **cfg)
+            hist.append(float((wi.reindex(px.columns).fillna(0.0) * ret.iloc[i]).sum()))
+        h = pd.Series(hist); eq = (1 + h).cumprod()
+        print(f"\n[walk-forward, last {len(h)} sessions, no look-ahead] "
+              f"ret {eq.iloc[-1]-1:+.1%}  vol {h.std()*np.sqrt(252):.1%}  "
               f"maxDD {(eq/eq.cummax()-1).min():.1%}")
 
     os.makedirs(os.path.dirname(STATE), exist_ok=True)
