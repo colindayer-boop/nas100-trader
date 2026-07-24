@@ -44,10 +44,15 @@ SYMBOL_MAP = {
     "AUDUSD": ["AUDUSD"], "USDCAD": ["USDCAD"], "USDCHF": ["USDCHF"], "NZDUSD": ["NZDUSD"],
 }
 RATIOS = [("GOLD", "SILVER"), ("GOLD", "COPPER"), ("COPPER", "OIL"), ("SILVER", "COPPER"), ("GOLD", "OIL")]
-CONFIGS = {  # from registry/portfolio_configs (measured, post-warmup)
-    "funded":    dict(target_vol=0.08, max_leverage=3.0),
-    "challenge": dict(target_vol=0.25, max_leverage=6.0),
-    "safe":      dict(target_vol=0.06, max_leverage=3.0),
+# Measured 2012-2026 (block-bootstrap, FTMO-style rules):
+#   challenge  TREND-only  @25% vol -> 48.8% pass, ~34 days  (diversification causes TIMEOUT)
+#   funded     TREND+CARRY @ 8% vol -> Sharpe 0.83, maxDD -12.9%, 83.7% 12-month survival
+#   RATIO sleeve hurts at portfolio level (worst Sharpe/DD in both tests) -> off by default
+CONFIGS = {
+    "challenge": dict(target_vol=0.25, max_leverage=6.0, sleeves=("TREND",)),
+    "funded":    dict(target_vol=0.08, max_leverage=3.0, sleeves=("TREND", "CARRY")),
+    "safe":      dict(target_vol=0.06, max_leverage=3.0, sleeves=("TREND", "CARRY")),
+    "all":       dict(target_vol=0.08, max_leverage=3.0, sleeves=("TREND", "RATIO", "CARRY")),
 }
 
 
@@ -58,7 +63,8 @@ def _ivol(r: pd.DataFrame, span=60):
 
 
 def target_weights(px: pd.DataFrame, target_vol=0.08, max_leverage=3.0,
-                   carry_signs: dict | None = None) -> tuple[pd.Series, dict]:
+                   carry_signs: dict | None = None,
+                   sleeves: tuple = ("TREND", "CARRY")) -> tuple[pd.Series, dict]:
     """Return today's target weight per symbol (fraction of equity, signed) + sleeve diagnostics.
     Signals are lagged: only completed bars are used."""
     ret = px.pct_change().fillna(0.0)
@@ -97,8 +103,11 @@ def target_weights(px: pd.DataFrame, target_vol=0.08, max_leverage=3.0,
         cw = cw.mul(_ivol(ret)).div(
             cw.mul(_ivol(ret)).abs().sum(axis=1).replace(0, np.nan), axis=0).fillna(0.0)
 
-    sleeves = {"TREND": tw, "RATIO": rw, "CARRY": cw}
-    combined = sum(sleeves.values()) / max(1, sum(1 for s in sleeves.values() if s.abs().sum().sum() > 0))
+    all_sleeves = {"TREND": tw, "RATIO": rw, "CARRY": cw}
+    use = {k: v for k, v in all_sleeves.items() if k in sleeves}
+    n_active = max(1, sum(1 for v in use.values() if v.abs().sum().sum() > 0))
+    combined = sum(use.values()) / n_active
+    sleeves_diag = all_sleeves
 
     # portfolio vol target
     port_ret = (combined.shift(1) * ret).sum(axis=1)
@@ -107,7 +116,8 @@ def target_weights(px: pd.DataFrame, target_vol=0.08, max_leverage=3.0,
     w = combined.iloc[-1] * scale
     diag = {"scale": round(scale, 3), "realized_vol": round(float(realized.iloc[-1]), 4),
             "gross_exposure": round(float(w.abs().sum()), 3),
-            "sleeve_gross": {k: round(float(v.iloc[-1].abs().sum()), 3) for k, v in sleeves.items()}}
+            "sleeves_used": list(use.keys()),
+            "sleeve_gross": {k: round(float(v.iloc[-1].abs().sum()), 3) for k, v in sleeves_diag.items()}}
     return w, diag
 
 

@@ -3,8 +3,8 @@
  "strategy_name": "Multi-sleeve portfolio (trend+ratio+carry)",
  "strategy_family": "portfolio",
  "version": "v1",
- "code_commit": "pending",
- "status": "NEEDS_REPLICATION",
+ "code_commit": "e2ed32e+",
+ "status": "PAPER_APPROVED",
  "approved_trial_ids": [
   "TR-a921975d8eef2571"
  ],
@@ -42,7 +42,7 @@
  "expected_trade_frequency": "daily rebalance, ~100-160 trades/yr",
  "validation_start": "2012",
  "validation_end": "2026",
- "approval_timestamp": "",
- "approval_actor": "",
+ "approval_timestamp": "2026-07-24T22:39:03Z",
+ "approval_actor": "human:colindayer (explicit approval)",
  "expiration_timestamp": ""
 }
